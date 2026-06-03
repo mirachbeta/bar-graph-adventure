@@ -776,6 +776,38 @@ h2 {
   font-weight: 800;
   color: var(--color-text-muted);
   border-right: 1px dashed transparent;
+  height: calc(100% - 3px); /* 세로축 아래 3px 축선 두께 제외 */
+}
+
+.y-scale-labels div {
+  height: 0;
+  line-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.x-scale-labels-horizontal {
+  flex: 1; /* flex row 내에서 남은 공간을 채우도록 설정 */
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--color-text-muted);
+  margin-right: 45px; /* 우측 100 (명) 등 긴 단위 글자 넉넉하게 들어갈 공간 확보 */
+}
+
+.x-scale-labels-horizontal span {
+  width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+.main-fruits-graph-horizontal {
+  margin-right: 45px; /* 그래프 그리드 자체도 우측 마진을 동일하게 주어 눈금과 축선 매칭 보장 */
 }
 
 .main-reading-graph {
@@ -971,6 +1003,15 @@ h2 {
   font-size: 0.85rem;
   font-weight: 800;
   color: var(--color-text-muted);
+  height: calc(100% - 3px); /* 3px bottom border thickness */
+}
+
+.y-scale-labels-drawing div {
+  height: 0;
+  line-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .main-drawing-chart {
@@ -1177,6 +1218,15 @@ h2 {
   font-size: 0.85rem;
   font-weight: 800;
   color: var(--color-text-muted);
+  height: calc(100% - 3px); /* 3px bottom border thickness */
+}
+
+.y-scale-labels-preview div {
+  height: 0;
+  line-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .main-preview-chart {
@@ -1773,4 +1823,20 @@ h2 {
 #graph-12-b.highlight-grid-active .grid-line-vertical {
   border-left: 2px dashed #16a34a !important;
   opacity: 1 !important;
+}
+
+/* 활동 1-2 방향 비교 그래프 전용 레이아웃 */
+.direction-comparison-layout {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+  justify-content: center;
+}
+
+.direction-comparison-layout .mini-chart-box {
+  flex: 1;
+  min-width: 280px;
+  max-width: 420px;
+  padding: 15px 20px 25px 20px;
 }
