@@ -757,7 +757,7 @@ h2 {
   font-weight: 800;
   color: var(--color-text-muted);
   text-align: center;
-  margin-top: 30px;
+  margin-top: 75px;
 }
 
 .graph-with-y {
@@ -986,11 +986,14 @@ h2 {
   padding: 25px 15px 35px 15px;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* 추가: 수평 점선 가이드라인이 박스 영역 밖으로 나가는 것 방지 */
 }
 
 .chart-drawing-box {
   display: flex;
   height: 280px;
+  margin-top: 25px;
+  margin-bottom: 45px;
 }
 
 .y-scale-labels-drawing {
@@ -1030,24 +1033,22 @@ h2 {
 }
 
 .draw-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: relative;
   width: 48px;
   height: 100%;
-  justify-content: space-between;
-  position: relative;
   z-index: 2;
 }
 
 .bar-wrapper {
-  flex: 1;
-  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   background: rgba(241, 245, 249, 0.3);
-  margin: 5px 0;
 }
 
 .draw-bar {
@@ -1065,6 +1066,17 @@ h2 {
   animation: bar-glow 0.8s alternate infinite;
 }
 
+.horiz-draw-bar {
+  transition: width 0.2s ease, background-color 0.3s ease;
+}
+
+/* 정답 도달 시 가로 막대 반짝임 효과 */
+.horiz-draw-bar.correct-width {
+  background: var(--color-success) !important;
+  animation: bar-glow 0.8s alternate infinite;
+}
+
+
 .bar-val-hint {
   position: absolute;
   top: -24px;
@@ -1080,10 +1092,14 @@ h2 {
 }
 
 .control-btns {
-  width: 100%;
+  position: absolute;
+  bottom: -62px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   justify-content: center;
   gap: 4px;
+  z-index: 10;
 }
 
 .btn-adjust {
@@ -1839,4 +1855,97 @@ h2 {
   min-width: 280px;
   max-width: 420px;
   padding: 15px 20px 25px 20px;
+}
+
+/* ==========================================
+   3단계 활동 1: 눈금 시뮬레이터 전용 추가 스타일
+   ========================================== */
+#sub-step-3-1 .draw-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 12px; /* 막대의 가로 가운데 지점부터 시작 */
+  width: 500px; /* 차트의 Y축 눈금선까지 충분히 뻗어 나가도록 설정 */
+  height: 0;
+  border-top: 1.5px dashed var(--guideline-color, #cbd5e1);
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.8;
+  display: none;
+  transition: border-color 0.2s ease;
+}
+
+/* 눈금별 가이드라인 보이기 활성화 */
+#sub-step-3-1 .draw-bar.show-guideline::after {
+  display: block;
+}
+
+/* [1] 눈금에 딱 맞음 (aligned-bar) */
+#sub-step-3-1 .draw-bar.aligned-bar {
+  background-color: var(--color-success) !important;
+  border: 2px solid #16a34a;
+  box-shadow: 0 0 10px rgba(22, 163, 74, 0.4);
+  --guideline-color: #16a34a;
+}
+
+#sub-step-3-1 .draw-bar.aligned-bar::after {
+  top: -2px; /* 2px 보더 두께 보정 */
+}
+
+/* [2] 눈금에 어정쩡하게 걸쳐 있음 (floating-bar) */
+#sub-step-3-1 .draw-bar.floating-bar {
+  background-color: var(--color-warning) !important;
+  border: 2px dashed #ea580c;
+  box-shadow: 0 0 10px rgba(234, 88, 12, 0.4);
+  --guideline-color: #ea580c;
+}
+
+#sub-step-3-1 .draw-bar.floating-bar::after {
+  top: -2px; /* 2px 보더 두께 보정 */
+}
+
+/* 정합성 체크 배지 아이콘 스타일 */
+.align-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+
+/* 설명 가이드 박스 테마 스타일 */
+.scale-helper-1 {
+  background-color: var(--color-danger-light) !important;
+  border-left: 5px solid var(--color-danger) !important;
+  color: var(--color-text-main);
+}
+
+.scale-helper-2 {
+  background-color: var(--color-success-light) !important;
+  border-left: 5px solid var(--color-success) !important;
+  color: var(--color-text-main);
+}
+
+.scale-helper-5 {
+  background-color: var(--color-warning-light) !important;
+  border-left: 5px solid var(--color-warning) !important;
+  color: var(--color-text-main);
+}
+
+/* ==========================================
+   3단계 활동 3: 가로 막대그래프 조작 버튼 정렬 보완
+   ========================================== */
+.y-scale-labels-horizontal .control-btns-horiz {
+  width: 50px;
+  flex-shrink: 0;
+  display: flex;
+  gap: 2px;
+}
+
+.y-scale-labels-horizontal span {
+  display: inline-block;
+  width: 80px;
+  text-align: right;
+  flex-shrink: 0;
 }

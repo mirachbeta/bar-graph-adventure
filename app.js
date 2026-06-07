@@ -3,9 +3,11 @@
    ========================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-  
-  // 수업 차시 제어: 1 = 1차시만, 2 = 2차시까지, 6 = 전체 사용
-  const MAX_ENABLED_STEP = 6;
+  try {
+    window.APP_JS_LOADED = true;
+    
+    // 수업 차시 제어: 1 = 1차시만, 2 = 2차시까지, 3 = 3차시(3단계)까지, 6 = 전체 사용
+    const MAX_ENABLED_STEP = 6;
   
   // ==========================================
   // A. 상태 관리 객체 (State Management)
@@ -14,12 +16,29 @@ document.addEventListener('DOMContentLoaded', () => {
     studentName: '',
     currentStep: 0,       // 현재 단계 (0~6)
     unlockedStep: 1,      // 열린 최고 단계 (1~6)
-    drawingData: {
-      mon: 0,
-      tue: 0,
-      wed: 0,
-      thu: 0,
-      fri: 0
+    activeScale31: 1,     // 3-1단계의 활성 눈금 크기 (1, 2, 5)
+    drawing31Data: {
+      chopsticks: 0,
+      cup: 0,
+      bag: 0,
+      spoon: 0
+    },
+    drawing31DataByScale: {
+      1: { chopsticks: 0, cup: 0, bag: 0, spoon: 0 },
+      2: { chopsticks: 8, cup: 12, bag: 6, spoon: 2 }, // 2와 5는 완품 데이터를 기본 제공하여 즉시 비교할 수 있도록 유도
+      5: { chopsticks: 8, cup: 12, bag: 6, spoon: 2 }
+    },
+    drawing32Data: {
+      chopsticks: 0,
+      cup: 0,
+      bag: 0,
+      spoon: 0
+    },
+    drawing33Data: {
+      chopsticks: 0,
+      cup: 0,
+      bag: 0,
+      spoon: 0
     },
     customGraph: {
       title: '우리 반 친구들이 좋아하는 운동',
@@ -34,13 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
     reviews: [] // 모둠 평가 리스트: { reviewerName: '', comment: '', isCorrect: true }
   };
 
-  // 정답 테이블
-  const TARGET_DRAWING = {
-    mon: 15,
-    tue: 25,
-    wed: 5,
-    thu: 30,
-    fri: 20
+  // 정답 테이블 (일회용품 수량)
+  const TARGET_DRAWING_3 = {
+    chopsticks: 8,
+    cup: 12,
+    bag: 6,
+    spoon: 2
   };
 
   // TTS 현재 합성 객체 및 목소리 목록 캐싱
@@ -59,37 +77,354 @@ document.addEventListener('DOMContentLoaded', () => {
   // B. 로컬 스토리지 로드 및 세션 유지
   // ==========================================
   function loadProgress() {
-    const savedName = localStorage.getItem('barGraph_studentName');
-    const savedUnlocked = localStorage.getItem('barGraph_unlockedStep');
-    const savedCustom = localStorage.getItem('barGraph_customGraph');
-    const savedReviews = localStorage.getItem('barGraph_reviews');
+    try {
+      window.LOAD_PROGRESS_CALLED = true;
+      const savedCustom = localStorage.getItem('barGraph_customGraph');
+      const savedReviews = localStorage.getItem('barGraph_reviews');
 
-    if (savedName) {
-      state.studentName = savedName;
-      document.getElementById('student-name-display').textContent = `${savedName} 탐험가`;
-      document.getElementById('cert-name-label').textContent = savedName;
-      
-      state.unlockedStep = parseInt(savedUnlocked || '1', 10);
-      if (state.unlockedStep > MAX_ENABLED_STEP) {
-        state.unlockedStep = MAX_ENABLED_STEP;
+      if (window.IS_DEV_MODE) {
+        // 개발자 모드일 경우: 기존 로컬스토리지에 저장된 탐험가 세션과 무관하게 항상 깨끗한 '테스터' 모드로 시작
+        state.studentName = '테스터';
+        const nameDisp = document.getElementById('student-name-display');
+        const certName = document.getElementById('cert-name-label');
+        if (nameDisp) nameDisp.textContent = `테스터 탐험가`;
+        if (certName) certName.textContent = '테스터';
+        state.unlockedStep = 6;
+        state.currentStep = 1;
+        showPanel(1);
+        updateNavigationUI();
+      } else {
+        // 일반 사용자 모드일 경우: 로컬스토리지를 정상적으로 불러옴
+        const savedName = localStorage.getItem('barGraph_studentName');
+        const savedUnlocked = localStorage.getItem('barGraph_unlockedStep');
+        
+        if (savedName) {
+          state.studentName = savedName;
+          const nameDisp = document.getElementById('student-name-display');
+          const certName = document.getElementById('cert-name-label');
+          if (nameDisp) nameDisp.textContent = `${savedName} 탐험가`;
+          if (certName) certName.textContent = savedName;
+          
+          state.unlockedStep = parseInt(savedUnlocked || '1', 10);
+          if (state.unlockedStep > MAX_ENABLED_STEP) {
+            state.unlockedStep = MAX_ENABLED_STEP;
+          }
+          state.currentStep = state.unlockedStep;
+          
+          showPanel(state.currentStep);
+          updateNavigationUI();
+        } else {
+          state.currentStep = 0;
+          showPanel(0);
+        }
       }
-      state.currentStep = state.unlockedStep;
-      
-      showPanel(state.currentStep);
-      updateNavigationUI();
-    } else {
-      state.currentStep = 0;
-      showPanel(0);
-    }
 
-    if (savedCustom) {
-      state.customGraph = JSON.parse(savedCustom);
-    }
-    if (savedReviews) {
-      state.reviews = JSON.parse(savedReviews);
-      renderReviewersChips();
+      if (savedCustom) {
+        state.customGraph = JSON.parse(savedCustom);
+      }
+      if (savedReviews) {
+        state.reviews = JSON.parse(savedReviews);
+        renderReviewersChips();
+      }
+
+      // 개발자 모드일 경우 대시보드 로드
+      if (window.IS_DEV_MODE) {
+        createDevPanel();
+      }
+    } catch (e) {
+      console.error("loadProgress 중 오류 발생:", e);
+      if (window.IS_DEV_MODE) {
+        alert("loadProgress 실행 중 오류가 발생했습니다: " + e.message + "\n자세한 내용은 콘솔을 확인하세요.");
+      }
     }
   }
+
+  // ==========================================
+  // Developer Test Console (Dev Console)
+  // ==========================================
+  function createDevPanel() {
+    try {
+      window.DEV_PANEL_CREATED = true;
+      const devBox = document.createElement('div');
+      devBox.id = 'dev-control-panel';
+      devBox.style.position = 'fixed';
+      devBox.style.bottom = '20px';
+      devBox.style.right = '20px';
+      devBox.style.background = 'rgba(15, 23, 42, 0.9)';
+      devBox.style.backdropFilter = 'blur(8px)';
+      devBox.style.color = '#f8fafc';
+      devBox.style.padding = '15px';
+      devBox.style.borderRadius = '12px';
+      devBox.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+      devBox.style.zIndex = '99999';
+      devBox.style.fontFamily = 'sans-serif';
+      devBox.style.fontSize = '0.85rem';
+      devBox.style.maxWidth = '300px';
+
+      devBox.innerHTML = `
+        <div style="font-weight: 800; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #475569; padding-bottom: 5px;">
+          <span>🛠️ 개발자 테스트 도구</span>
+          <button id="btn-toggle-dev" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:1.1rem;">➖</button>
+        </div>
+        <div id="dev-panel-content">
+          <div style="margin-bottom: 10px;">
+            <strong>단계 바로가기:</strong>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 5px;">
+              <button class="btn-dev-jump" data-step="0">0단계</button>
+              <button class="btn-dev-jump" data-step="1">1단계</button>
+              <button class="btn-dev-jump" data-step="2">2단계</button>
+              <button class="btn-dev-jump" data-step="3" data-sub="1">3-1</button>
+              <button class="btn-dev-jump" data-step="3" data-sub="2">3-2</button>
+              <button class="btn-dev-jump" data-step="3" data-sub="3">3-3</button>
+              <button class="btn-dev-jump" data-step="4">4단계</button>
+              <button class="btn-dev-jump" data-step="5">5단계</button>
+              <button class="btn-dev-jump" data-step="6">6단계</button>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 10px;">
+            <button id="btn-dev-unlock-all" style="width:100%; padding: 6px; background:#16a34a; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">🔓 모든 단계 잠금해제</button>
+            <button id="btn-dev-solve-current" style="width:100%; padding: 6px; background:#0284c7; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">🎯 현재 단계 정답 자동완성</button>
+            <button id="btn-dev-clear-local" style="width:100%; padding: 6px; background:#dc2626; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">🗑️ 데이터 초기화 (Reset)</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(devBox);
+
+      // Style dev buttons
+      const styleButtons = () => {
+        devBox.querySelectorAll('button:not(#btn-dev-unlock-all):not(#btn-dev-solve-current):not(#btn-dev-clear-local)').forEach(btn => {
+          btn.style.background = '#334155';
+          btn.style.color = '#f8fafc';
+          btn.style.border = '1px solid #475569';
+          btn.style.borderRadius = '4px';
+          btn.style.padding = '4px 2px';
+          btn.style.cursor = 'pointer';
+          btn.style.fontSize = '0.75rem';
+          btn.style.fontWeight = 'bold';
+        });
+      };
+      styleButtons();
+
+      // Toggle minimize
+      let minimized = false;
+      const btnToggle = devBox.querySelector('#btn-toggle-dev');
+      const panelContent = devBox.querySelector('#dev-panel-content');
+      if (btnToggle && panelContent) {
+        btnToggle.addEventListener('click', () => {
+          minimized = !minimized;
+          panelContent.style.display = minimized ? 'none' : 'block';
+          btnToggle.textContent = minimized ? '➕' : '➖';
+        });
+      }
+
+      // Jump steps
+      devBox.querySelectorAll('.btn-dev-jump').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const step = parseInt(btn.getAttribute('data-step'), 10);
+          const sub = btn.getAttribute('data-sub');
+          
+          // Ensure student name is set to navigate
+          if (!state.studentName) {
+            state.studentName = '테스터';
+            const nameDisp = document.getElementById('student-name-display');
+            const certName = document.getElementById('cert-name-label');
+            if (nameDisp) nameDisp.textContent = `테스터 탐험가`;
+            if (certName) certName.textContent = '테스터';
+          }
+
+          // Unlock up to this step
+          if (state.unlockedStep < step) {
+            state.unlockedStep = step;
+          }
+          
+          showPanel(step);
+          updateNavigationUI();
+
+          // Handle sub steps in step 3
+          if (step === 3 && sub) {
+            const sub31 = document.getElementById('sub-step-3-1');
+            const sub32 = document.getElementById('sub-step-3-2');
+            const sub33 = document.getElementById('sub-step-3-3');
+            if (sub31) sub31.style.display = 'none';
+            if (sub32) sub32.style.display = 'none';
+            if (sub33) sub33.style.display = 'none';
+            
+            const targetSub = document.getElementById(`sub-step-3-${sub}`);
+            if (targetSub) {
+              targetSub.style.display = 'block';
+              targetSub.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            if (sub === '1') update31DrawingUI();
+            if (sub === '2') update32DrawingUI();
+            if (sub === '3') update33DrawingUI();
+          }
+        });
+      });
+
+      // Unlock All
+      const btnUnlockAll = devBox.querySelector('#btn-dev-unlock-all');
+      if (btnUnlockAll) {
+        btnUnlockAll.addEventListener('click', () => {
+          state.studentName = state.studentName || '테스터';
+          const nameDisp = document.getElementById('student-name-display');
+          if (nameDisp) nameDisp.textContent = `${state.studentName} 탐험가`;
+          state.unlockedStep = 6;
+          updateNavigationUI();
+          alert('모든 단계가 해제되었습니다! 네비게이션 바를 통해 자유롭게 이동하세요. 🔓');
+        });
+      }
+
+      // Solve Current
+      const btnSolveCurrent = devBox.querySelector('#btn-dev-solve-current');
+      if (btnSolveCurrent) {
+        btnSolveCurrent.addEventListener('click', () => {
+          if (state.currentStep === 1) {
+            const sub11 = document.getElementById('sub-step-1-1');
+            const sub12 = document.getElementById('sub-step-1-2');
+            const sub13 = document.getElementById('sub-step-1-3');
+            const sub14 = document.getElementById('sub-step-1-4');
+
+            if (sub11 && sub11.style.display !== 'none') {
+              document.querySelectorAll('input[name="q11_1"][value="a"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q11_2"][value="b"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q11_3"][value="b"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q11_4"][value="1"]').forEach(r => r.checked = true);
+              const check11 = document.getElementById('btn-check-sub11');
+              if (check11) check11.click();
+            } else if (sub12 && sub12.style.display !== 'none') {
+              document.querySelectorAll('input[name="q12_1"][value="b"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q12_2"][value="a"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q12_3"][value="5"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q12_4_same"][value="a"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q12_4_diff"][value="b"]').forEach(r => r.checked = true);
+              const check12 = document.getElementById('btn-check-sub12');
+              if (check12) check12.click();
+            } else if (sub13 && sub13.style.display !== 'none') {
+              document.querySelectorAll('input[name="q13_1"][value="table"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q13_2"][value="graph"]').forEach(r => r.checked = true);
+              const check13 = document.getElementById('btn-check-sub13');
+              if (check13) check13.click();
+            } else if (sub14 && sub14.style.display !== 'none') {
+              document.querySelectorAll('input[name="q14_1"][value="1"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q14_2"][value="8"]').forEach(r => r.checked = true);
+              const check14 = document.getElementById('btn-check-sub14');
+              if (check14) check14.click();
+            }
+          } else if (state.currentStep === 2) {
+            const sub21 = document.getElementById('sub-step-2-1');
+            const sub22 = document.getElementById('sub-step-2-2');
+            const sub23 = document.getElementById('sub-step-2-3');
+
+            if (sub21 && sub21.style.display !== 'none') {
+              document.querySelectorAll('input[name="q21_1_x"][value="a"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q21_1_y"][value="b"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q21_2"][value="14"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q21_3"][value="bunri"]').forEach(c => c.checked = true);
+              document.querySelectorAll('input[name="q21_3"][value="yangchi"]').forEach(c => c.checked = true);
+              document.querySelectorAll('input[name="q21_3"][value="gubsik"]').forEach(c => c.checked = false);
+              const check21 = document.getElementById('btn-check-sub21');
+              if (check21) check21.click();
+            } else if (sub22 && sub22.style.display !== 'none') {
+              document.querySelectorAll('input[name="q22_1"][value="10"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q22_2"][value="70"]').forEach(r => r.checked = true);
+              document.querySelectorAll('input[name="q22_3"][value="30"]').forEach(r => r.checked = true);
+              const check22 = document.getElementById('btn-check-sub22');
+              if (check22) check22.click();
+            } else if (sub23 && sub23.style.display !== 'none') {
+              const isCompareInput = document.querySelector('input[name="q3_temp_type"]:checked');
+              const isCompare = isCompareInput ? isCompareInput.value === 'compare' : true;
+              if (isCompare) {
+                const item1 = document.getElementById('q3-compare-item1');
+                const item2 = document.getElementById('q3-compare-item2');
+                const compType = document.getElementById('q3-compare-type');
+                const ansNum = document.getElementById('q3-ans-number');
+                if (item1) item1.selectedIndex = 0;
+                if (item2) item2.selectedIndex = 1;
+                if (compType) compType.value = 'more';
+                
+                const items = q3ActiveGraph === 'env' ? ENV_ITEMS : VEG_ITEMS;
+                const diff = items[0].val - items[1].val;
+                if (ansNum) ansNum.value = diff;
+              } else {
+                const extType = document.getElementById('q3-extreme-type');
+                const ansTxt = document.getElementById('q3-ans-text');
+                if (extType) extType.value = 'max';
+                const items = q3ActiveGraph === 'env' ? ENV_ITEMS : VEG_ITEMS;
+                const sorted = [...items].sort((a,b) => b.val - a.val);
+                if (ansTxt) ansTxt.value = sorted[0].name;
+              }
+              const checkQ3 = document.getElementById('btn-check-q3');
+              if (checkQ3) checkQ3.click();
+            }
+          } else if (state.currentStep === 3) {
+            const sub31 = document.getElementById('sub-step-3-1');
+            const sub32 = document.getElementById('sub-step-3-2');
+            const sub33 = document.getElementById('sub-step-3-3');
+
+            if (sub31 && sub31.style.display !== 'none') {
+              state.drawing31Data.chopsticks = 8;
+              state.drawing31Data.cup = 8;
+              state.drawing31Data.bag = 6;
+              state.drawing31Data.spoon = 2;
+              state.drawing31DataByScale[1].chopsticks = 8;
+              state.drawing31DataByScale[1].cup = 8;
+              state.drawing31DataByScale[1].bag = 6;
+              state.drawing31DataByScale[1].spoon = 2;
+              update31DrawingUI();
+              const warn31 = document.getElementById('warning-31');
+              const quiz31 = document.getElementById('quiz-31');
+              if (warn31) warn31.style.display = 'block';
+              if (quiz31) quiz31.style.display = 'block';
+              document.querySelectorAll('input[name="q31"][value="2"]').forEach(r => r.checked = true);
+              const checkQ31 = document.getElementById('btn-check-q31');
+              if (checkQ31) checkQ31.click();
+            } else if (sub32 && sub32.style.display !== 'none') {
+              state.drawing32Data.chopsticks = 8;
+              state.drawing32Data.cup = 12;
+              state.drawing32Data.bag = 6;
+              state.drawing32Data.spoon = 2;
+              update32DrawingUI();
+              const checkDraw32 = document.getElementById('btn-check-drawing-32');
+              if (checkDraw32) checkDraw32.click();
+            } else if (sub33 && sub33.style.display !== 'none') {
+              state.drawing33Data.chopsticks = 8;
+              state.drawing33Data.cup = 12;
+              state.drawing33Data.bag = 6;
+              state.drawing33Data.spoon = 2;
+              update33DrawingUI();
+              const checkDraw33 = document.getElementById('btn-check-drawing-33');
+              if (checkDraw33) checkDraw33.click();
+            }
+          } else if (state.currentStep === 5) {
+            document.querySelectorAll('input[name="q5"][value="b"]').forEach(r => r.checked = true);
+            const checkStep5 = document.getElementById('btn-check-step5');
+            if (checkStep5) checkStep5.click();
+          } else {
+            alert('이 단계는 자동완성할 수 있는 퀴즈가 없습니다. 😊');
+          }
+        });
+      }
+
+      // Clear Local
+      const btnClearLocal = devBox.querySelector('#btn-dev-clear-local');
+      if (btnClearLocal) {
+        btnClearLocal.addEventListener('click', () => {
+          if (confirm('모든 데이터와 세션을 초기화할까요?')) {
+            localStorage.clear();
+            window.location.reload();
+          }
+        });
+      }
+    } catch (e) {
+      console.error("createDevPanel 중 오류 발생:", e);
+      if (window.IS_DEV_MODE) {
+        alert("createDevPanel 실행 중 오류가 발생했습니다: " + e.message);
+      }
+    }
+  }
+
 
   // ==========================================
   // C. TTS(Text-to-Speech) 음성 읽어주기 로직
@@ -159,6 +494,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // D. 페이지 전환 제어
   // ==========================================
   function showPanel(stepNum) {
+    if (stepNum >= 4 && !window.IS_DEV_MODE) {
+      alert('3단계까지만 학습을 진행해 주세요! 😊');
+      return;
+    }
+
     if (window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
       document.querySelectorAll('.btn-tts').forEach(b => b.classList.remove('speaking'));
@@ -221,19 +561,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function checkButtons() {
     const btn2 = document.getElementById('btn-finish-step1');
-    if (btn2) btn2.disabled = state.unlockedStep < 2;
+    if (btn2) {
+      if (MAX_ENABLED_STEP < 2) btn2.style.display = 'none';
+      else {
+        btn2.style.display = '';
+        btn2.disabled = state.unlockedStep < 2;
+      }
+    }
 
     const btn3 = document.getElementById('btn-next-to-3');
-    if (btn3) btn3.disabled = state.unlockedStep < 3;
+    if (btn3) {
+      if (MAX_ENABLED_STEP < 3) btn3.style.display = 'none';
+      else {
+        btn3.style.display = '';
+        btn3.disabled = state.unlockedStep < 3;
+      }
+    }
 
     const btn4 = document.getElementById('btn-next-to-4');
-    if (btn4) btn4.disabled = state.unlockedStep < 4;
+    if (btn4) {
+      if (MAX_ENABLED_STEP < 4) btn4.style.display = 'none';
+      else {
+        btn4.style.display = '';
+        btn4.disabled = state.unlockedStep < 4;
+      }
+    }
 
     const btn5 = document.getElementById('btn-next-to-5');
-    if (btn5) btn5.disabled = state.unlockedStep < 5;
+    if (btn5) {
+      if (MAX_ENABLED_STEP < 5) btn5.style.display = 'none';
+      else {
+        btn5.style.display = '';
+        btn5.disabled = state.unlockedStep < 5;
+      }
+    }
 
     const btn6 = document.getElementById('btn-next-to-6');
-    if (btn6) btn6.disabled = state.unlockedStep < 6;
+    if (btn6) {
+      if (MAX_ENABLED_STEP < 6) btn6.style.display = 'none';
+      else {
+        btn6.style.display = '';
+        btn6.disabled = state.unlockedStep < 6;
+      }
+    }
   }
 
   function unlockNext(currentFinished) {
@@ -1178,21 +1548,116 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // H. 3단계: 그래프 그리기 조작 및 실시간 채점 피드백
+  // H. 3단계: 그래프 그리기 조작 및 실시간 채점 피드백 (개편)
   // ==========================================
-  function updateDrawingUI() {
-    Object.keys(state.drawingData).forEach(day => {
-      const val = state.drawingData[day];
-      const target = TARGET_DRAWING[day];
-      const bar = document.getElementById(`bar-${day}`);
-      const cell = document.querySelector(`.target-cell[data-target="${day}"]`);
+  function update31DrawingUI() {
+    update31GraphVisualScale(state.activeScale31);
+  }
+
+  function updateScaleInstructionHelper(unit) {
+    const helperBox = document.getElementById('scale-31-helper-box');
+    if (!helperBox) return;
+    
+    helperBox.style.display = 'block';
+    
+    if (unit === 1) {
+      helperBox.className = 'info-box mt-4 scale-helper-1';
+      helperBox.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.5rem;">💡</span>
+          <div>
+            <strong>눈금 한 칸 = 1개</strong>일 때:<br>
+            나무젓가락(8개)은 그릴 수 있지만, <strong>일회용 컵(12개)</strong>은 눈금 수가 부족해서(최대 8개) 더 이상 나타낼 수 없어요! ❌
+          </div>
+        </div>
+      `;
+    } else if (unit === 2) {
+      helperBox.className = 'info-box mt-4 scale-helper-2';
+      helperBox.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.5rem;">🎯</span>
+          <div>
+            <strong>눈금 한 칸 = 2개</strong>일 때:<br>
+            나무젓가락(8개), 일회용 컵(12개), 비닐봉지(6개), 숟가락(2개) 모두 2의 배수이기 때문에 막대 끝이 <strong>눈금선에 정확히 일치(🎯)</strong>합니다! 값을 나타내거나 알아보기 아주 편리합니다.
+          </div>
+        </div>
+      `;
+    } else if (unit === 5) {
+      helperBox.className = 'info-box mt-4 scale-helper-5';
+      helperBox.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:1.5rem;">⚠️</span>
+          <div>
+            <strong>눈금 한 칸 = 5개</strong>일 때:<br>
+            모든 수량(8, 12, 6, 2)이 5의 배수가 아니기 때문에 <strong>막대 끝이 눈금선 사이에 어정쩡하게 걸쳐 있습니다(⚠️).</strong> 또한 막대 높이가 너무 짧아져 값의 비교가 어렵고, 눈금을 정확히 읽기 매우 불편합니다!
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function update31GraphVisualScale(unit) {
+    state.activeScale31 = unit;
+    const maxVal = unit * 8;
+    const items = ['chopsticks', 'cup', 'bag', 'spoon'];
+    const values = state.drawing31DataByScale[unit];
+    
+    items.forEach(item => {
+      const val = values[item];
+      const bar = document.getElementById(`bar-31-${item}`);
+      const cell = document.querySelector(`.target-cell-31[data-target="${item}"]`);
+      
+      if (bar) {
+        const pct = (val / maxVal) * 100;
+        bar.style.height = `${pct}%`;
+        const hint = bar.querySelector('.bar-val-hint');
+        
+        // Remove all scale/highlight classes
+        bar.classList.remove('aligned-bar', 'floating-bar', 'show-guideline', 'correct-height');
+        if (cell) cell.classList.remove('success-cell');
+        
+        if (hint) {
+          if (unit === 1) {
+            hint.textContent = `${val}개`;
+            // 원래 3-1 그리기 규칙 적용
+            const target = TARGET_DRAWING_3[item];
+            if (item !== 'cup' && val === target) {
+              bar.classList.add('correct-height');
+              if (cell) cell.classList.add('success-cell');
+            }
+          } else {
+            // 눈금 2 또는 5 시연 상태
+            bar.classList.add('show-guideline');
+            const isAligned = (val % unit === 0);
+            
+            if (isAligned) {
+              bar.classList.add('aligned-bar');
+              hint.innerHTML = `${val}개 <span class="align-badge align-ok">🎯</span>`;
+            } else {
+              bar.classList.add('floating-bar');
+              hint.innerHTML = `${val}개 <span class="align-badge align-fail">⚠️</span>`;
+            }
+          }
+        }
+      }
+    });
+
+    updateScaleInstructionHelper(unit);
+  }
+
+  function update32DrawingUI() {
+    Object.keys(state.drawing32Data).forEach(item => {
+      const val = state.drawing32Data[item];
+      const target = TARGET_DRAWING_3[item];
+      const bar = document.getElementById(`bar-32-${item}`);
+      const cell = document.querySelector(`.target-cell-32[data-target="${item}"]`);
 
       if (bar) {
-        const pct = (val / 30) * 100;
+        const pct = (val / 16) * 100;
         bar.style.height = `${pct}%`;
         const hint = bar.querySelector('.bar-val-hint');
         if (hint) {
-          hint.textContent = `${val}분`;
+          hint.textContent = `${val}개`;
         }
 
         if (val === target) {
@@ -1206,40 +1671,258 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  document.querySelectorAll('.btn-adjust').forEach(btn => {
+  function update33DrawingUI() {
+    Object.keys(state.drawing33Data).forEach(item => {
+      const val = state.drawing33Data[item];
+      const target = TARGET_DRAWING_3[item];
+      const bar = document.getElementById(`bar-33-${item}`);
+      const cell = document.querySelector(`.target-cell-33[data-target="${item}"]`);
+
+      if (bar) {
+        const pct = (val / 16) * 100;
+        bar.style.width = `${pct}%`;
+        const hint = bar.querySelector('.bar-val-hint');
+        if (hint) {
+          hint.textContent = `${val}개`;
+        }
+
+        if (val === target) {
+          bar.classList.add('correct-width');
+          if (cell) cell.classList.add('success-cell');
+        } else {
+          bar.classList.remove('correct-width');
+          if (cell) cell.classList.remove('success-cell');
+        }
+      }
+    });
+  }
+
+  // 3-1 조작 버튼 클릭 핸들러
+  document.querySelectorAll('.btn-adjust-31').forEach(btn => {
     btn.addEventListener('click', () => {
-      const day = btn.getAttribute('data-day');
+      const item = btn.getAttribute('data-item');
       const isUp = btn.classList.contains('btn-up');
-      let val = state.drawingData[day];
+      const unit = state.activeScale31;
+      let val = state.drawing31DataByScale[unit][item];
+      const maxLimit = unit * 8;
 
       if (isUp) {
-        if (val < 30) val += 5; // 한 칸 크기 5분
+        if (unit === 1) {
+          if (item === 'cup') {
+            if (val >= 8) {
+              document.getElementById('warning-31').style.display = 'block';
+              document.getElementById('quiz-31').style.display = 'block';
+              update31GraphVisualScale(1); // 가이드 박스 표시를 위해 갱신
+              document.getElementById('warning-31').scrollIntoView({ behavior: 'smooth' });
+              return;
+            }
+          }
+          if (val < maxLimit) val++;
+          if (item === 'cup' && val === 8) {
+            document.getElementById('warning-31').style.display = 'block';
+            document.getElementById('quiz-31').style.display = 'block';
+            update31GraphVisualScale(1); // 가이드 박스 표시를 위해 갱신
+            document.getElementById('warning-31').scrollIntoView({ behavior: 'smooth' });
+          }
+        } else {
+          if (val < maxLimit) val++;
+        }
       } else {
-        if (val > 0) val -= 5;
+        if (val > 0) val--;
       }
 
-      state.drawingData[day] = val;
-      updateDrawingUI();
+      state.drawing31DataByScale[unit][item] = val;
+      if (unit === 1) {
+        state.drawing31Data[item] = val;
+      }
+      update31DrawingUI();
     });
   });
 
-  const btnCheckDrawing = document.getElementById('btn-check-drawing');
-  if (btnCheckDrawing) {
-    btnCheckDrawing.addEventListener('click', () => {
-      const fb = document.getElementById('drawing-feedback');
-      const isCorrect = Object.keys(TARGET_DRAWING).every(day => {
-        return state.drawingData[day] === TARGET_DRAWING[day];
+  // 3-2 조작 버튼 클릭 핸들러
+  document.querySelectorAll('.btn-adjust-32').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.getAttribute('data-item');
+      const isUp = btn.classList.contains('btn-up');
+      let val = state.drawing32Data[item];
+
+      if (isUp) {
+        if (val < 16) val += 2;
+      } else {
+        if (val > 0) val -= 2;
+      }
+
+      state.drawing32Data[item] = val;
+      update32DrawingUI();
+    });
+  });
+
+  // 3-3 조작 버튼 클릭 핸들러
+  document.querySelectorAll('.btn-adjust-33').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.getAttribute('data-item');
+      const isUp = btn.classList.contains('btn-up');
+      let val = state.drawing33Data[item];
+
+      if (isUp) {
+        if (val < 16) val += 2;
+      } else {
+        if (val > 0) val -= 2;
+      }
+
+      state.drawing33Data[item] = val;
+      update33DrawingUI();
+    });
+  });
+
+  // 3-1 퀴즈 라디오 선택 변경 시 그래프 미리보기 업데이트
+  document.querySelectorAll('input[name="q31"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const val = radio.value;
+      const scaleLabels = document.querySelector('#sub-step-3-1 .y-scale-labels-drawing');
+      if (val === '2') {
+        if (scaleLabels) {
+          scaleLabels.innerHTML = '<div>16</div><div>14</div><div>12</div><div>10</div><div>8</div><div>6</div><div>4</div><div>2</div><div>0</div>';
+        }
+        update31GraphVisualScale(2);
+      } else if (val === '5') {
+        if (scaleLabels) {
+          scaleLabels.innerHTML = '<div>40</div><div>35</div><div>30</div><div>25</div><div>20</div><div>15</div><div>10</div><div>5</div><div>0</div>';
+        }
+        update31GraphVisualScale(5);
+      } else {
+        if (scaleLabels) {
+          scaleLabels.innerHTML = '<div>8</div><div>7</div><div>6</div><div>5</div><div>4</div><div>3</div><div>2</div><div>1</div><div>0</div>';
+        }
+        update31GraphVisualScale(1);
+      }
+    });
+  });
+
+  // 3-1 퀴즈 정답 확인
+  const btnCheckQ31 = document.getElementById('btn-check-q31');
+  if (btnCheckQ31) {
+    btnCheckQ31.addEventListener('click', () => {
+      const q31Radio = document.querySelector('input[name="q31"]:checked');
+      const fb = document.getElementById('q31-feedback');
+      const nextBtn = document.getElementById('btn-go-to-32');
+
+      if (!q31Radio) {
+        fb.textContent = '⚠️ 답을 선택해 주세요!';
+        fb.className = 'quiz-feedback error';
+        fb.style.display = 'block';
+        return;
+      }
+
+      if (q31Radio.value === '2') {
+        fb.innerHTML = '정답입니다! 🎉 일회용 컵이 12개이므로 눈금 한 칸을 2개로 정하면 16개까지 나타낼 수 있어서 최댓값인 12개도 문제없이 그릴 수 있습니다. 활동 2로 가기 버튼을 눌러 해결해 보세요!';
+        fb.className = 'quiz-feedback success';
+        fb.style.display = 'block';
+        if (nextBtn) nextBtn.disabled = false;
+        playConfetti();
+      } else {
+        fb.innerHTML = '아쉽게도 오답입니다. 😢 다시 생각해 볼까요?<br>눈금 한 칸이 1개일 때는 8개까지만 나타낼 수 있습니다. 12개까지 모두 나타내려면 눈금 한 칸의 크기를 늘려야 합니다. 눈금 한 칸을 5개로 하면(왼쪽 그래프 참고) 나무젓가락(8개), 비닐봉지(6개), 숟가락(2개)처럼 작은 값들이 눈금선 사이에 어정쩡하게 걸쳐 있어 그리거나 정확히 읽기 매우 어렵습니다.';
+        fb.className = 'quiz-feedback error';
+        fb.style.display = 'block';
+      }
+    });
+  }
+
+  // 3-2 그래프 그리기 검사
+  const btnCheckDrawing32 = document.getElementById('btn-check-drawing-32');
+  if (btnCheckDrawing32) {
+    btnCheckDrawing32.addEventListener('click', () => {
+      const fb32 = document.getElementById('drawing-feedback-32');
+      const nextBtn32 = document.getElementById('btn-go-to-33');
+      const isCorrect = Object.keys(TARGET_DRAWING_3).every(item => {
+        return state.drawing32Data[item] === TARGET_DRAWING_3[item];
       });
 
       if (isCorrect) {
-        fb.textContent = '참 잘했습니다! 💮 완벽하게 주간 독서 시간 그래프를 완성했어요. 요일별 목표 시간에 완벽히 부합합니다.';
-        fb.className = 'quiz-feedback success';
+        fb32.textContent = '참 잘했습니다! 2단위 눈금의 막대그래프를 정확한 높이로 완성했습니다. 컵(12개)도 잘 보이지요? 활동 3으로 가기 버튼을 눌러보세요!';
+        fb32.className = 'quiz-feedback success';
+        fb32.style.display = 'block';
+        if (nextBtn32) nextBtn32.disabled = false;
+        playConfetti();
+      } else {
+        fb32.innerHTML = '❌ 수치가 맞지 않는 항목이 있습니다. 다시 눈금을 세어 맞춰보세요!<br>힌트: 나무젓가락 8개(4칸), 일회용 컵 12개(6칸), 비닐봉지 6개(3칸), 일회용 숟가락 2개(1칸)입니다.';
+        fb32.className = 'quiz-feedback error';
+        fb32.style.display = 'block';
+      }
+    });
+  }
+
+  // 3-3 그래프 그리기 검사
+  const btnCheckDrawing33 = document.getElementById('btn-check-drawing-33');
+  if (btnCheckDrawing33) {
+    btnCheckDrawing33.addEventListener('click', () => {
+      const fb33 = document.getElementById('drawing-feedback-33');
+      const nextBtn33 = document.getElementById('btn-next-to-4');
+      const isCorrect = Object.keys(TARGET_DRAWING_3).every(item => {
+        return state.drawing33Data[item] === TARGET_DRAWING_3[item];
+      });
+
+      if (isCorrect) {
+        if (MAX_ENABLED_STEP < 4) {
+          fb33.textContent = '🎉 참 잘했습니다! 가로와 세로의 위치를 바꾸어 가로 막대그래프를 멋지게 완성했습니다. 3단계까지의 모든 학습을 성공적으로 마쳤습니다!';
+        } else {
+          fb33.textContent = '참 잘했습니다! 💮 가로와 세로의 위치를 바꾸어 가로 막대그래프로 멋지게 완성했습니다. 이제 4단계로 가기 버튼을 눌러 다음 모험을 계속해 봅시다!';
+        }
+        fb33.className = 'quiz-feedback success';
+        fb33.style.display = 'block';
+        if (nextBtn33) nextBtn33.disabled = false;
         unlockNext(3);
         playConfetti();
       } else {
-        fb.textContent = '❌ 아직 수치가 맞지 않는 요일이 있어요. 월요일은 15분(3칸), 화요일은 25분(5칸), 수요일은 5분(1칸), 목요일은 30분(6칸), 금요일은 20분(4칸)에 도달해야 합니다!';
-        fb.className = 'quiz-feedback error';
+        fb33.innerHTML = '❌ 수치가 맞지 않는 항목이 있습니다. 가로 막대의 길이를 다시 조절해 보세요!<br>힌트: 나무젓가락 8개(4칸), 일회용 컵 12개(6칸), 비닐봉지 6개(3칸), 일회용 숟가락 2개(1칸)입니다.';
+        fb33.className = 'quiz-feedback error';
+        fb33.style.display = 'block';
       }
+    });
+  }
+
+  // 3단계 서브 네비게이션
+  const btnGoTo32 = document.getElementById('btn-go-to-32');
+  if (btnGoTo32) {
+    btnGoTo32.addEventListener('click', () => {
+      document.getElementById('sub-step-3-1').style.display = 'none';
+      const sub32 = document.getElementById('sub-step-3-2');
+      sub32.style.display = 'block';
+      sub32.scrollIntoView({ behavior: 'smooth' });
+      update32DrawingUI();
+    });
+  }
+
+  const btnBackTo31 = document.getElementById('btn-back-to-31');
+  if (btnBackTo31) {
+    btnBackTo31.addEventListener('click', () => {
+      document.getElementById('sub-step-3-2').style.display = 'none';
+      const sub31 = document.getElementById('sub-step-3-1');
+      sub31.style.display = 'block';
+      sub31.scrollIntoView({ behavior: 'smooth' });
+      update31DrawingUI();
+    });
+  }
+
+  const btnGoTo33 = document.getElementById('btn-go-to-33');
+  if (btnGoTo33) {
+    btnGoTo33.addEventListener('click', () => {
+      document.getElementById('sub-step-3-2').style.display = 'none';
+      const sub33 = document.getElementById('sub-step-3-3');
+      sub33.style.display = 'block';
+      sub33.scrollIntoView({ behavior: 'smooth' });
+      update33DrawingUI();
+    });
+  }
+
+  const btnBackTo32 = document.getElementById('btn-back-to-32');
+  if (btnBackTo32) {
+    btnBackTo32.addEventListener('click', () => {
+      document.getElementById('sub-step-3-3').style.display = 'none';
+      const sub32 = document.getElementById('sub-step-3-2');
+      sub32.style.display = 'block';
+      sub32.scrollIntoView({ behavior: 'smooth' });
+      update32DrawingUI();
     });
   }
 
@@ -1656,7 +2339,18 @@ document.addEventListener('DOMContentLoaded', () => {
         state.studentName = '';
         state.unlockedStep = 1;
         state.currentStep = 0;
-        state.drawingData = { mon: 0, tue: 0, wed: 0, thu: 0, fri: 0 };
+        state.activeScale31 = 1;
+        state.drawing31Data = { chopsticks: 0, cup: 0, bag: 0, spoon: 0 };
+        state.drawing31DataByScale = {
+          1: { chopsticks: 0, cup: 0, bag: 0, spoon: 0 },
+          2: { chopsticks: 8, cup: 12, bag: 6, spoon: 2 },
+          5: { chopsticks: 8, cup: 12, bag: 6, spoon: 2 }
+        };
+        state.drawing32Data = { chopsticks: 0, cup: 0, bag: 0, spoon: 0 };
+        
+        const helperBox = document.getElementById('scale-31-helper-box');
+        if (helperBox) helperBox.style.display = 'none';
+        state.drawing33Data = { chopsticks: 0, cup: 0, bag: 0, spoon: 0 };
         state.customGraph = {
           title: '우리 반 친구들이 좋아하는 운동',
           unit: '명',
@@ -1692,6 +2386,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sub13) sub13.style.display = 'none';
         if (sub14) sub14.style.display = 'none';
 
+        const sub31 = document.getElementById('sub-step-3-1');
+        const sub32 = document.getElementById('sub-step-3-2');
+        const sub33 = document.getElementById('sub-step-3-3');
+        if (sub31) sub31.style.display = 'block';
+        if (sub32) sub32.style.display = 'none';
+        if (sub33) sub33.style.display = 'none';
+
+        const warning31 = document.getElementById('warning-31');
+        const quiz31 = document.getElementById('quiz-31');
+        if (warning31) warning31.style.display = 'none';
+        if (quiz31) quiz31.style.display = 'none';
+
         const btn12 = document.getElementById('btn-go-to-12');
         const btn13 = document.getElementById('btn-go-to-13');
         const btn14 = document.getElementById('btn-go-to-14');
@@ -1700,6 +2406,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btn13) btn13.disabled = true;
         if (btn14) btn14.disabled = true;
         if (btnFinish) btnFinish.disabled = true;
+
+        const btnGoTo32 = document.getElementById('btn-go-to-32');
+        const btnGoTo33 = document.getElementById('btn-go-to-33');
+        const btnNextTo4 = document.getElementById('btn-next-to-4');
+        if (btnGoTo32) btnGoTo32.disabled = true;
+        if (btnGoTo33) btnGoTo33.disabled = true;
+        if (btnNextTo4) btnNextTo4.disabled = true;
 
         const readingWrapper = document.getElementById('reading-challenge-wrapper');
         if (readingWrapper) readingWrapper.classList.add('locked-chart');
@@ -1717,7 +2430,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const commentText = document.getElementById('relay-comment-text');
         if (commentText) commentText.value = '';
 
-        updateDrawingUI();
+        update31DrawingUI();
+        update32DrawingUI();
+        update33DrawingUI();
         showPanel(0);
         updateNavigationUI();
       }
@@ -1791,9 +2506,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loop();
       }
     }
-    
-    // playConfetti 글로벌 바인딩
-    window.playConfetti = playConfetti;
   } else {
     window.playConfetti = function() {};
   }
@@ -1806,6 +2518,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   loadProgress();
   bindInputs();
-  updateDrawingUI();
+  update31DrawingUI();
+  update32DrawingUI();
+  update33DrawingUI();
 
+  } catch (e) {
+    console.error("DOM 로드 후 초기화 실패:", e);
+    const errBox = document.createElement('div');
+    errBox.style.position = 'fixed';
+    errBox.style.top = '10px';
+    errBox.style.left = '10px';
+    errBox.style.right = '10px';
+    errBox.style.background = '#fef2f2';
+    errBox.style.color = '#991b1b';
+    errBox.style.border = '3px solid #ef4444';
+    errBox.style.padding = '20px';
+    errBox.style.borderRadius = '8px';
+    errBox.style.zIndex = '1000002';
+    errBox.style.fontFamily = 'monospace';
+    errBox.style.fontSize = '12px';
+    errBox.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+    errBox.style.pointerEvents = 'auto';
+    errBox.innerHTML = '<strong>❌ 초기화 오류 감지:</strong><br>' + 
+                        e.message + '<br><br>' + 
+                        '<strong>Stack Trace:</strong><br>' + 
+                        e.stack.replace(/\n/g, '<br>') + '<br>' +
+                        '<button onclick="this.parentElement.remove()" style="margin-top: 15px; padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">닫기</button>';
+    document.body.appendChild(errBox);
+  }
 });

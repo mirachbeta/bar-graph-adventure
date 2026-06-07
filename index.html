@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=1.0.1">
+  <link rel="stylesheet" href="style.css?v=1.1.1">
 </head>
 <body>
 
@@ -1067,152 +1067,450 @@
 
       <!-- 3단계: 막대그래프 그리기 -->
       <section id="step-3-panel" class="step-panel">
-        <div class="card">
-          <div class="badge">3단계: 막대그래프 그리기</div>
+        <!-- Sub-step 3-1: 1단위 그래프 그리기 및 문제 직면 -->
+        <div class="card sub-step-card active-sub-card" id="sub-step-3-1">
+          <div class="badge">3단계: 막대그래프 그리기 (1/3)</div>
           
           <div class="title-with-tts">
-            <h2>내 손으로 막대그래프를 그려봐요! 🎨</h2>
-            <button class="btn-tts" data-tts="아래 표를 보고 각 요일에 맞는 독서 시간만큼 막대를 그려봐! 세로 눈금 한 칸이 오 분 임을 기억하고 칠하고 요일의 목표치에 정확히 일치하면 막대가 초록색으로 바뀔 거야."></button>
+            <h2>활동 1: 눈금 한 칸을 1개로 정하고 나타내기 🎨</h2>
+            <button class="btn-tts" data-tts="활동 일! 표를 보고 눈금 한 칸을 한 개로 정하여 막대그래프를 그려봅시다. 표의 일회용품 수량만큼 막대 높이를 올려보세요. 일회용 컵을 다 그릴 수 있는지 확인해 보세요."></button>
           </div>
-          <p class="description-text">아래 표를 보고, 막대의 높이를 조절하여 알맞은 막대그래프를 완성해 보세요. 요일의 목표 시간에 도달하면 막대 색상이 변합니다!</p>
+          <p class="description-text">아래 일회용품 사용량 표를 보고, 세로 눈금 한 칸을 <strong>1개</strong>로 생각하여 막대의 높이를 조절해 그래프를 그려보세요.</p>
 
           <div class="drawing-container">
             <!-- Data Table -->
             <div class="target-table-box">
-              <h3>📋 주간 책 읽기 시간 (목표)</h3>
+              <h3>📋 일주일 동안 사용한 일회용품 수</h3>
               <table class="edu-table">
                 <thead>
                   <tr>
-                    <th>요일</th>
-                    <th>월요일 📅</th>
-                    <th>화요일 📅</th>
-                    <th>수요일 📅</th>
-                    <th>목요일 📅</th>
-                    <th>금요일 📅</th>
+                    <th>종류</th>
+                    <th>나무젓가락 🥢</th>
+                    <th>일회용 컵 🥤</th>
+                    <th>비닐봉지 🛍️</th>
+                    <th>일회용 숟가락 🥄</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td><strong>시간 (분)</strong></td>
-                    <td class="target-cell" data-target="mon">15분</td>
-                    <td class="target-cell" data-target="tue">25분</td>
-                    <td class="target-cell" data-target="wed">5분</td>
-                    <td class="target-cell" data-target="thu">30분</td>
-                    <td class="target-cell" data-target="fri">20분</td>
+                    <td><strong>수량 (개)</strong></td>
+                    <td class="target-cell-31" data-target="chopsticks">8개</td>
+                    <td class="target-cell-31" data-target="cup">12개</td>
+                    <td class="target-cell-31" data-target="bag">6개</td>
+                    <td class="target-cell-31" data-target="spoon">2개</td>
                   </tr>
                 </tbody>
               </table>
               <div class="tip-box">
-                💡 <strong>힌트:</strong> 세로 눈금 한 칸은 <strong>5분</strong>입니다. 각 요일의 시간에 맞게 막대 위에 있는 조작 버튼을 눌러 높이를 맞추세요!
+                💡 <strong>조작법:</strong> 막대 위에 있는 <strong>+</strong>와 <strong>-</strong> 버튼을 눌러 수량에 맞게 높이를 맞추세요! 세로 눈금 한 칸은 <strong>1개</strong>입니다.
               </div>
             </div>
 
-            <!-- Dynamic Drawing Chart -->
+            <!-- Dynamic Drawing Chart (1 unit) -->
             <div class="interactive-chart-area">
-              <div class="y-axis-label">독서 시간 (분)</div>
+              <div class="y-axis-label">사용 수량 (개)</div>
               <div class="chart-drawing-box">
                 <!-- Y-scale -->
                 <div class="y-scale-labels-drawing">
-                  <div>30</div>
-                  <div>25</div>
-                  <div>20</div>
-                  <div>15</div>
-                  <div>10</div>
+                  <div>8</div>
+                  <div>7</div>
+                  <div>6</div>
                   <div>5</div>
+                  <div>4</div>
+                  <div>3</div>
+                  <div>2</div>
+                  <div>1</div>
                   <div>0</div>
                 </div>
                 <!-- Drawing Grid -->
                 <div class="main-drawing-chart">
                   <!-- Grid Background Lines -->
                   <div class="grid-line" style="bottom: 100%;"></div>
-                  <div class="grid-line" style="bottom: 83.3%;"></div>
-                  <div class="grid-line" style="bottom: 66.6%;"></div>
+                  <div class="grid-line" style="bottom: 87.5%;"></div>
+                  <div class="grid-line" style="bottom: 75%;"></div>
+                  <div class="grid-line" style="bottom: 62.5%;"></div>
                   <div class="grid-line" style="bottom: 50%;"></div>
-                  <div class="grid-line" style="bottom: 33.3%;"></div>
-                  <div class="grid-line" style="bottom: 16.6%;"></div>
+                  <div class="grid-line" style="bottom: 37.5%;"></div>
+                  <div class="grid-line" style="bottom: 25%;"></div>
+                  <div class="grid-line" style="bottom: 12.5%;"></div>
                   <div class="grid-line" style="bottom: 0%;"></div>
 
                   <!-- Editable Bars -->
                   <div class="drawing-bars-container">
-                    <!-- Monday -->
-                    <div class="draw-col" data-day="mon">
+                    <!-- 나무젓가락 -->
+                    <div class="draw-col" data-item="chopsticks">
                       <div class="control-btns">
-                        <button class="btn-adjust btn-up" data-day="mon" aria-label="월요일 늘리기">+</button>
-                        <button class="btn-adjust btn-down" data-day="mon" aria-label="월요일 줄이기">-</button>
+                        <button class="btn-adjust btn-up btn-adjust-31" data-item="chopsticks">+</button>
+                        <button class="btn-adjust btn-down btn-adjust-31" data-item="chopsticks">-</button>
                       </div>
                       <div class="bar-wrapper">
-                        <div class="draw-bar" id="bar-mon" style="height: 0%;">
-                          <span class="bar-val-hint">0분</span>
+                        <div class="draw-bar" id="bar-31-chopsticks" style="height: 0%;">
+                          <span class="bar-val-hint">0개</span>
                         </div>
                       </div>
-                      <div class="bar-name">월</div>
+                      <div class="bar-name" style="font-size:0.75rem;">나무젓가락</div>
                     </div>
-                    <!-- Tuesday -->
-                    <div class="draw-col" data-day="tue">
+                    <!-- 일회용 컵 -->
+                    <div class="draw-col" data-item="cup">
                       <div class="control-btns">
-                        <button class="btn-adjust btn-up" data-day="tue" aria-label="화요일 늘리기">+</button>
-                        <button class="btn-adjust btn-down" data-day="tue" aria-label="화요일 줄이기">-</button>
+                        <button class="btn-adjust btn-up btn-adjust-31" data-item="cup">+</button>
+                        <button class="btn-adjust btn-down btn-adjust-31" data-item="cup">-</button>
                       </div>
                       <div class="bar-wrapper">
-                        <div class="draw-bar" id="bar-tue" style="height: 0%;">
-                          <span class="bar-val-hint">0분</span>
+                        <div class="draw-bar" id="bar-31-cup" style="height: 0%;">
+                          <span class="bar-val-hint">0개</span>
                         </div>
                       </div>
-                      <div class="bar-name">화</div>
+                      <div class="bar-name" style="font-size:0.75rem;">일회용 컵</div>
                     </div>
-                    <!-- Wednesday -->
-                    <div class="draw-col" data-day="wed">
+                    <!-- 비닐봉지 -->
+                    <div class="draw-col" data-item="bag">
                       <div class="control-btns">
-                        <button class="btn-adjust btn-up" data-day="wed" aria-label="수요일 늘리기">+</button>
-                        <button class="btn-adjust btn-down" data-day="wed" aria-label="수요일 줄이기">-</button>
+                        <button class="btn-adjust btn-up btn-adjust-31" data-item="bag">+</button>
+                        <button class="btn-adjust btn-down btn-adjust-31" data-item="bag">-</button>
                       </div>
                       <div class="bar-wrapper">
-                        <div class="draw-bar" id="bar-wed" style="height: 0%;">
-                          <span class="bar-val-hint">0분</span>
+                        <div class="draw-bar" id="bar-31-bag" style="height: 0%;">
+                          <span class="bar-val-hint">0개</span>
                         </div>
                       </div>
-                      <div class="bar-name">수</div>
+                      <div class="bar-name" style="font-size:0.75rem;">비닐봉지</div>
                     </div>
-                    <!-- Thursday -->
-                    <div class="draw-col" data-day="thu">
+                    <!-- 일회용 숟가락 -->
+                    <div class="draw-col" data-item="spoon">
                       <div class="control-btns">
-                        <button class="btn-adjust btn-up" data-day="thu" aria-label="목요일 늘리기">+</button>
-                        <button class="btn-adjust btn-down" data-day="thu" aria-label="목요일 줄이기">-</button>
+                        <button class="btn-adjust btn-up btn-adjust-31" data-item="spoon">+</button>
+                        <button class="btn-adjust btn-down btn-adjust-31" data-item="spoon">-</button>
                       </div>
                       <div class="bar-wrapper">
-                        <div class="draw-bar" id="bar-thu" style="height: 0%;">
-                          <span class="bar-val-hint">0분</span>
+                        <div class="draw-bar" id="bar-31-spoon" style="height: 0%;">
+                          <span class="bar-val-hint">0개</span>
                         </div>
                       </div>
-                      <div class="bar-name">목</div>
-                    </div>
-                    <!-- Friday -->
-                    <div class="draw-col" data-day="fri">
-                      <div class="control-btns">
-                        <button class="btn-adjust btn-up" data-day="fri" aria-label="금요일 늘리기">+</button>
-                        <button class="btn-adjust btn-down" data-day="fri" aria-label="금요일 줄이기">-</button>
-                      </div>
-                      <div class="bar-wrapper">
-                        <div class="draw-bar" id="bar-fri" style="height: 0%;">
-                          <span class="bar-val-hint">0분</span>
-                        </div>
-                      </div>
-                      <div class="bar-name">금</div>
+                      <div class="bar-name" style="font-size:0.75rem;">일회용 숟가락</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="x-axis-label">요일</div>
+              <div class="x-axis-label">일회용품 종류</div>
+            </div>
+          </div>
+
+          <!-- Problem Detection Alert & Quiz (Initially Hidden) -->
+          <div class="concept-box mt-4" id="warning-31" style="display:none; border-left: 5px solid var(--color-danger); background: #fef2f2;">
+            <h4 style="color: var(--color-danger); font-weight:900;">⚠️ 어라? 눈금이 부족해요!</h4>
+            <p class="description-text" style="margin-top: 5px;">
+              일회용 컵 사용량은 <strong>12개</strong>인데, 현재 그래프는 세로 눈금 한 칸이 1개라서 최대 <strong>8개</strong>까지만 그릴 수 있습니다. 이서네 모둠의 일회용품 수량을 그래프에 모두 나타내려면 어떻게 해야 할지 아래 퀴즈를 해결해 보세요.
+            </p>
+          </div>
+
+          <div class="quiz-area mt-4" id="quiz-31" style="display:none;">
+            <h3>🕵️‍♂️ 눈금 크기 해결 퀴즈</h3>
+            <p><strong>Q. 이 자료를 한정된 눈금 칸 안에 모두 나타내려면 세로 눈금 한 칸의 크기를 얼마로 바꾸는 것이 가장 좋을까요?</strong></p>
+            <div class="radio-options vertical">
+              <label><input type="radio" name="q31" value="1" checked> 눈금 한 칸 = 1개</label>
+              <label><input type="radio" name="q31" value="2"> 눈금 한 칸 = 2개</label>
+              <label><input type="radio" name="q31" value="5"> 눈금 한 칸 = 5개</label>
+            </div>
+            
+            <!-- Dynamic Scale Simulator Helper Box -->
+            <div id="scale-31-helper-box" class="info-box mt-4" style="display:none;"></div>
+            <button id="btn-check-q31" class="btn btn-primary mt-4 w-full">정답 제출하고 해결하기 ✔️</button>
+            <div id="q31-feedback" class="quiz-feedback"></div>
+          </div>
+
+          <div class="action-footer">
+            <button id="btn-go-to-32" class="btn btn-success" disabled>활동 2로 가기 👉</button>
+          </div>
+        </div>
+
+
+        <!-- Sub-step 3-2: 2단위 그래프 완성하기 (문제 해결) -->
+        <div class="card sub-step-card" id="sub-step-3-2" style="display:none;">
+          <div class="badge">3단계: 막대그래프 그리기 (2/3)</div>
+          
+          <div class="title-with-tts">
+            <h2>활동 2: 눈금 한 칸을 2개로 바꾸어 나타내기 🎨</h2>
+            <button class="btn-tts" data-tts="활동 이! 세로 눈금 한 칸의 크기를 두 개로 바꾸어 그래프를 그려봅시다. 바뀐 눈금에 맞추어 나무젓가락 여덟 개, 일회용 컵 열두 개, 비닐봉지 여섯 개, 일회용 숟가락 두 개 높이에 맞추어 그래프를 완성해 보세요."></button>
+          </div>
+          <p class="description-text">세로 눈금 한 칸의 크기를 <strong>2개</strong>로 변경하였습니다. 바뀐 눈금에 맞추어 막대그래프를 정확히 완성해 보세요!</p>
+
+          <div class="drawing-container">
+            <!-- Data Table -->
+            <div class="target-table-box">
+              <h3>📋 일주일 동안 사용한 일회용품 수</h3>
+              <table class="edu-table">
+                <thead>
+                  <tr>
+                    <th>종류</th>
+                    <th>나무젓가락 🥢</th>
+                    <th>일회용 컵 🥤</th>
+                    <th>비닐봉지 🛍️</th>
+                    <th>일회용 숟가락 🥄</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>수량 (개)</strong></td>
+                    <td class="target-cell-32" data-target="chopsticks">8개</td>
+                    <td class="target-cell-32" data-target="cup">12개</td>
+                    <td class="target-cell-32" data-target="bag">6개</td>
+                    <td class="target-cell-32" data-target="spoon">2개</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="tip-box" style="background: var(--color-success-light); border-left-color: var(--color-success); color: var(--color-success);">
+                💡 <strong>성공 팁:</strong> 눈금 한 칸이 2개이므로, 8개는 <strong>4칸</strong>, 12개는 <strong>6칸</strong>, 6개는 <strong>3칸</strong>, 2개는 <strong>1칸</strong> 높이에 해당합니다!
+              </div>
+            </div>
+
+            <!-- Dynamic Drawing Chart (2 unit) -->
+            <div class="interactive-chart-area">
+              <div class="y-axis-label">사용 수량 (개)</div>
+              <div class="chart-drawing-box">
+                <!-- Y-scale -->
+                <div class="y-scale-labels-drawing">
+                  <div>16</div>
+                  <div>14</div>
+                  <div>12</div>
+                  <div>10</div>
+                  <div>8</div>
+                  <div>6</div>
+                  <div>4</div>
+                  <div>2</div>
+                  <div>0</div>
+                </div>
+                <!-- Drawing Grid -->
+                <div class="main-drawing-chart">
+                  <!-- Grid Background Lines -->
+                  <div class="grid-line" style="bottom: 100%;"></div>
+                  <div class="grid-line" style="bottom: 87.5%;"></div>
+                  <div class="grid-line" style="bottom: 75%;"></div>
+                  <div class="grid-line" style="bottom: 62.5%;"></div>
+                  <div class="grid-line" style="bottom: 50%;"></div>
+                  <div class="grid-line" style="bottom: 37.5%;"></div>
+                  <div class="grid-line" style="bottom: 25%;"></div>
+                  <div class="grid-line" style="bottom: 12.5%;"></div>
+                  <div class="grid-line" style="bottom: 0%;"></div>
+
+                  <!-- Editable Bars -->
+                  <div class="drawing-bars-container">
+                    <!-- 나무젓가락 -->
+                    <div class="draw-col" data-item="chopsticks">
+                      <div class="control-btns">
+                        <button class="btn-adjust btn-up btn-adjust-32" data-item="chopsticks">+</button>
+                        <button class="btn-adjust btn-down btn-adjust-32" data-item="chopsticks">-</button>
+                      </div>
+                      <div class="bar-wrapper">
+                        <div class="draw-bar" id="bar-32-chopsticks" style="height: 0%;">
+                          <span class="bar-val-hint">0개</span>
+                        </div>
+                      </div>
+                      <div class="bar-name" style="font-size:0.75rem;">나무젓가락</div>
+                    </div>
+                    <!-- 일회용 컵 -->
+                    <div class="draw-col" data-item="cup">
+                      <div class="control-btns">
+                        <button class="btn-adjust btn-up btn-adjust-32" data-item="cup">+</button>
+                        <button class="btn-adjust btn-down btn-adjust-32" data-item="cup">-</button>
+                      </div>
+                      <div class="bar-wrapper">
+                        <div class="draw-bar" id="bar-32-cup" style="height: 0%;">
+                          <span class="bar-val-hint">0개</span>
+                        </div>
+                      </div>
+                      <div class="bar-name" style="font-size:0.75rem;">일회용 컵</div>
+                    </div>
+                    <!-- 비닐봉지 -->
+                    <div class="draw-col" data-item="bag">
+                      <div class="control-btns">
+                        <button class="btn-adjust btn-up btn-adjust-32" data-item="bag">+</button>
+                        <button class="btn-adjust btn-down btn-adjust-32" data-item="bag">-</button>
+                      </div>
+                      <div class="bar-wrapper">
+                        <div class="draw-bar" id="bar-32-bag" style="height: 0%;">
+                          <span class="bar-val-hint">0개</span>
+                        </div>
+                      </div>
+                      <div class="bar-name" style="font-size:0.75rem;">비닐봉지</div>
+                    </div>
+                    <!-- 일회용 숟가락 -->
+                    <div class="draw-col" data-item="spoon">
+                      <div class="control-btns">
+                        <button class="btn-adjust btn-up btn-adjust-32" data-item="spoon">+</button>
+                        <button class="btn-adjust btn-down btn-adjust-32" data-item="spoon">-</button>
+                      </div>
+                      <div class="bar-wrapper">
+                        <div class="draw-bar" id="bar-32-spoon" style="height: 0%;">
+                          <span class="bar-val-hint">0개</span>
+                        </div>
+                      </div>
+                      <div class="bar-name" style="font-size:0.75rem;">일회용 숟가락</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="x-axis-label">일회용품 종류</div>
             </div>
           </div>
 
           <div class="drawing-actions">
-            <button id="btn-check-drawing" class="btn btn-primary btn-large">그래프 검사하기! 🔍</button>
-            <div id="drawing-feedback" class="quiz-feedback"></div>
+            <button id="btn-check-drawing-32" class="btn btn-primary btn-large">그래프 검사하기! 🔍</button>
+            <div id="drawing-feedback-32" class="quiz-feedback"></div>
           </div>
 
           <div class="action-footer">
-            <button id="btn-next-to-4" class="btn btn-success" disabled>4단계로 가기 👉</button>
+            <button id="btn-back-to-31" class="btn btn-outline">👈 활동 1로 돌아가기</button>
+            <button id="btn-go-to-33" class="btn btn-success" disabled>활동 3으로 가기 👉</button>
+          </div>
+        </div>
+
+
+        <!-- Sub-step 3-3: 가로 막대그래프로 나타내기 -->
+        <div class="card sub-step-card" id="sub-step-3-3" style="display:none;">
+          <div class="badge">3단계: 막대그래프 그리기 (3/3)</div>
+          
+          <div class="title-with-tts">
+            <h2>활동 3: 가로와 세로를 바꾸어 막대를 가로로 나타내기 🎨</h2>
+            <button class="btn-tts" data-tts="활동 삼! 가로와 세로의 위치를 바꾸어 가로 막대그래프를 완성해봅시다. 이번에는 가로가 수량, 세로가 일회용품 종류가 됩니다. 마우스 버튼을 조절하여 나무젓가락 여덟 개, 일회용 컵 열두 개, 비닐봉지 여섯 개, 일회용 숟가락 두 개 길이를 정확히 나타내어 완료해 보세요."></button>
+          </div>
+          <p class="description-text">가로와 세로가 나타내는 내용을 서로 바꾸어 막대를 <strong>가로형</strong>으로 그려보세요. 눈금 한 칸은 <strong>2개</strong>입니다.</p>
+
+          <div class="drawing-container">
+            <!-- Data Table -->
+            <div class="target-table-box">
+              <h3>📋 일주일 동안 사용한 일회용품 수</h3>
+              <table class="edu-table">
+                <thead>
+                  <tr>
+                    <th>종류</th>
+                    <th>나무젓가락 🥢</th>
+                    <th>일회용 컵 🥤</th>
+                    <th>비닐봉지 🛍️</th>
+                    <th>일회용 숟가락 🥄</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>수량 (개)</strong></td>
+                    <td class="target-cell-33" data-target="chopsticks">8개</td>
+                    <td class="target-cell-33" data-target="cup">12개</td>
+                    <td class="target-cell-33" data-target="bag">6개</td>
+                    <td class="target-cell-33" data-target="spoon">2개</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="tip-box">
+                💡 <strong>안내:</strong> 가로 눈금이 <strong>수량 (개)</strong>을 나타내고, 세로 방향에 <strong>일회용품 종류</strong>가 나열됩니다. 가로 막대의 길이를 조절해 보세요!
+              </div>
+            </div>
+
+            <!-- Dynamic Drawing Chart (Horizontal 2 unit) -->
+            <div class="interactive-chart-area">
+              <div class="y-axis-label-horizontal" style="font-weight: 800; font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 5px;">일회용품 종류</div>
+              
+              <div class="graph-with-x-horizontal" style="height: 200px; display: flex; flex-direction: row;">
+                <!-- Y-scale categories (left labels) -->
+                <div class="y-scale-labels-horizontal" style="display: flex; flex-direction: column; justify-content: space-around; font-size: 0.75rem; font-weight: bold; width: 150px; text-align: right; padding-right: 8px; color: var(--color-text-main); flex-shrink: 0;">
+                  <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; height: 20px;">
+                    <div class="control-btns-horiz" style="display: flex; gap: 2px;">
+                      <button class="btn-adjust btn-down btn-adjust-33" data-item="spoon">-</button>
+                      <button class="btn-adjust btn-up btn-adjust-33" data-item="spoon">+</button>
+                    </div>
+                    <span>일회용 숟가락</span>
+                  </div>
+                  <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; height: 20px;">
+                    <div class="control-btns-horiz" style="display: flex; gap: 2px;">
+                      <button class="btn-adjust btn-down btn-adjust-33" data-item="bag">-</button>
+                      <button class="btn-adjust btn-up btn-adjust-33" data-item="bag">+</button>
+                    </div>
+                    <span>비닐봉지</span>
+                  </div>
+                  <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; height: 20px;">
+                    <div class="control-btns-horiz" style="display: flex; gap: 2px;">
+                      <button class="btn-adjust btn-down btn-adjust-33" data-item="cup">-</button>
+                      <button class="btn-adjust btn-up btn-adjust-33" data-item="cup">+</button>
+                    </div>
+                    <span>일회용 컵</span>
+                  </div>
+                  <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; height: 20px;">
+                    <div class="control-btns-horiz" style="display: flex; gap: 2px;">
+                      <button class="btn-adjust btn-down btn-adjust-33" data-item="chopsticks">-</button>
+                      <button class="btn-adjust btn-up btn-adjust-33" data-item="chopsticks">+</button>
+                    </div>
+                    <span>나무젓가락</span>
+                  </div>
+                </div>
+                
+                <!-- Grid with horizontal bars -->
+                <div class="main-fruits-graph-horizontal" style="flex: 1; border-left: 3px solid #475569; border-bottom: 3px solid #475569; position: relative;">
+                  <!-- Grid Background Lines (8 divisions) -->
+                  <div class="grid-line-vertical" style="left: 0%; height: 100%; border-left: 1px dashed #cbd5e1; position: absolute; top: 0; z-index: 1;"></div>
+                  <div class="grid-line-vertical" style="left: 12.5%; height: 100%; border-left: 1px dashed #e2e8f0; position: absolute; top: 0; z-index: 1;"></div>
+                  <div class="grid-line-vertical" style="left: 25%; height: 100%; border-left: 1px dashed #e2e8f0; position: absolute; top: 0; z-index: 1;"></div>
+                  <div class="grid-line-vertical" style="left: 37.5%; height: 100%; border-left: 1px dashed #e2e8f0; position: absolute; top: 0; z-index: 1;"></div>
+                  <div class="grid-line-vertical" style="left: 50%; height: 100%; border-left: 1px dashed #cbd5e1; position: absolute; top: 0; z-index: 1;"></div>
+                  <div class="grid-line-vertical" style="left: 62.5%; height: 100%; border-left: 1px dashed #e2e8f0; position: absolute; top: 0; z-index: 1;"></div>
+                  <div class="grid-line-vertical" style="left: 75%; height: 100%; border-left: 1px dashed #e2e8f0; position: absolute; top: 0; z-index: 1;"></div>
+                  <div class="grid-line-vertical" style="left: 87.5%; height: 100%; border-left: 1px dashed #e2e8f0; position: absolute; top: 0; z-index: 1;"></div>
+                  <div class="grid-line-vertical" style="left: 100%; height: 100%; border-left: 1px dashed #cbd5e1; position: absolute; top: 0; z-index: 1;"></div>
+
+                  <div class="horizontal-bars-container" style="display: flex; flex-direction: column; justify-content: space-around; height: 100%; padding: 5px 0; position: relative; z-index: 2;">
+                    <!-- Row 4 (일회용 숟가락) -->
+                    <div class="horiz-bar-row-adjust" style="display: flex; align-items: center; width: 100%;">
+                      <div class="horiz-draw-bar bar-grape" id="bar-33-spoon" style="width: 0%; height: 20px; border-radius: 0 4px 4px 0; background: #c084fc; position: relative; min-width: 2px;">
+                        <span class="bar-val-hint">0개</span>
+                      </div>
+                    </div>
+                    <!-- Row 3 (비닐봉지) -->
+                    <div class="horiz-bar-row-adjust" style="display: flex; align-items: center; width: 100%;">
+                      <div class="horiz-draw-bar bar-strawberry" id="bar-33-bag" style="width: 0%; height: 20px; border-radius: 0 4px 4px 0; background: #f472b6; position: relative; min-width: 2px;">
+                        <span class="bar-val-hint">0개</span>
+                      </div>
+                    </div>
+                    <!-- Row 2 (일회용 컵) -->
+                    <div class="horiz-bar-row-adjust" style="display: flex; align-items: center; width: 100%;">
+                      <div class="horiz-draw-bar bar-banana" id="bar-33-cup" style="width: 0%; height: 20px; border-radius: 0 4px 4px 0; background: #facc15; position: relative; min-width: 2px;">
+                        <span class="bar-val-hint">0개</span>
+                      </div>
+                    </div>
+                    <!-- Row 1 (나무젓가락) -->
+                    <div class="horiz-bar-row-adjust" style="display: flex; align-items: center; width: 100%;">
+                      <div class="horiz-draw-bar bar-apple" id="bar-33-chopsticks" style="width: 0%; height: 20px; border-radius: 0 4px 4px 0; background: #f87171; position: relative; min-width: 2px;">
+                        <span class="bar-val-hint">0개</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- X scale at bottom for horizontal -->
+              <div style="display: flex; flex-direction: row; margin-top: 5px;">
+                <div style="width: 153px; flex-shrink: 0;"></div>
+                <div class="x-scale-labels-horizontal" style="font-size:0.8rem;">
+                  <span>0</span>
+                  <span>2</span>
+                  <span>4</span>
+                  <span>6</span>
+                  <span>8</span>
+                  <span>10</span>
+                  <span>12</span>
+                  <span>14</span>
+                  <span>16</span>
+                </div>
+              </div>
+              <div style="text-align: right; font-size: 0.8rem; font-weight: 800; color: var(--color-text-muted); margin-top: 6px; padding-right: 15px;">사용 수량 (개)</div>
+            </div>
+          </div>
+
+          <div class="drawing-actions">
+            <button id="btn-check-drawing-33" class="btn btn-primary btn-large">가로 그래프 검사하기! 🔍</button>
+            <div id="drawing-feedback-33" class="quiz-feedback"></div>
+          </div>
+
+          <div class="action-footer">
+            <button id="btn-back-to-32" class="btn btn-outline">👈 활동 2로 돌아가기</button>
+            <button id="btn-next-to-4" class="btn btn-success" disabled>4단계로 가기 👉 (4단계 잠금해제)</button>
           </div>
         </div>
       </section>
@@ -1575,6 +1873,6 @@
     </main>
   </div>
 
-  <script src="app.js?v=1.0.1"></script>
+  <script src="app.js?v=1.1.1"></script>
 </body>
 </html>
