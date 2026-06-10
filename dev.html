@@ -14,8 +14,82 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=1.1.6">
+  <script>
+    // 전역 에러 핸들러
+    window.onerror = function(message, source, lineno, colno, error) {
+      const errBox = document.createElement('div');
+      errBox.id = 'js-global-error-overlay';
+      errBox.style.position = 'fixed';
+      errBox.style.top = '10px';
+      errBox.style.left = '10px';
+      errBox.style.right = '10px';
+      errBox.style.background = '#fee2e2';
+      errBox.style.color = '#991b1b';
+      errBox.style.border = '2px solid #ef4444';
+      errBox.style.padding = '15px';
+      errBox.style.borderRadius = '8px';
+      errBox.style.zIndex = '1000000';
+      errBox.style.fontFamily = 'monospace';
+      errBox.style.fontSize = '12px';
+      errBox.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+      errBox.innerHTML = '<strong>❌ 전역 자바스크립트 오류 감지:</strong><br>' + 
+                          message + '<br>' + 
+                          '파일: ' + (source ? source.split('/').pop() : '알수없음') + '<br>' + 
+                          '위치: 줄 ' + lineno + ', 열 ' + colno + '<br>' +
+                          '<button onclick="this.parentElement.remove()" style="margin-top: 10px; padding: 4px 8px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">닫기</button>';
+      
+      if (document.body) {
+        document.body.appendChild(errBox);
+      } else {
+        window.addEventListener('DOMContentLoaded', () => document.body.appendChild(errBox));
+      }
+      
+      // 진단 패널에도 에러 표시
+      const errDiag = document.getElementById('diag-errors');
+      if (errDiag) {
+        errDiag.innerHTML = '최근 에러: ' + message + ' (' + (source ? source.split('/').pop() : '알수없음') + ':' + lineno + ')';
+      }
+      return false;
+    };
+
+    // 진단 패널 상태 업데이트
+    document.addEventListener('DOMContentLoaded', () => {
+      const domL = document.getElementById('diag-dom-loaded');
+      const rState = document.getElementById('diag-ready-state');
+      if (domL) domL.textContent = 'DOMContentLoaded: 완료 ✅';
+      if (rState) rState.textContent = 'ReadyState: ' + document.readyState;
+    });
+
+    window.addEventListener('load', () => {
+      const devM = document.getElementById('diag-dev-mode');
+      const appL = document.getElementById('diag-app-loaded');
+      const progC = document.getElementById('diag-progress-called');
+      const panelC = document.getElementById('diag-panel-created');
+      const rState = document.getElementById('diag-ready-state');
+
+      if (devM) devM.textContent = 'IS_DEV_MODE: ' + window.IS_DEV_MODE;
+      if (appL) appL.textContent = 'app.js 로드: ' + (window.APP_JS_LOADED ? '완료 ✅' : '실패 ❌');
+      if (progC) progC.textContent = 'loadProgress 호출: ' + (window.LOAD_PROGRESS_CALLED ? '완료 ✅' : '실패 ❌');
+      if (panelC) panelC.textContent = 'DevPanel 생성: ' + (window.DEV_PANEL_CREATED ? '완료 ✅' : '실패 ❌');
+      if (rState) rState.textContent = 'ReadyState: ' + document.readyState;
+    });
+  </script>
 </head>
 <body>
+  <!-- 개발자 진단용 플로팅 패널 -->
+  <div id="dev-diagnostic-panel" style="position:fixed; top:10px; left:10px; background:rgba(15, 23, 42, 0.95); color:#22c55e; padding:12px; border-radius:8px; z-index:999999; font-family:monospace; font-size:11px; border: 1px solid #22c55e; line-height: 1.5; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 240px; pointer-events: auto;">
+    <div style="font-weight: bold; border-bottom: 1px solid #22c55e; margin-bottom: 8px; padding-bottom: 4px; display: flex; justify-content: space-between;">
+      <span>🛠️ 개발자 모드 진단기</span>
+      <button onclick="this.parentElement.parentElement.remove()" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:bold; font-size:12px; padding:0 2px;">닫기</button>
+    </div>
+    <div id="diag-dev-mode">IS_DEV_MODE: 대기..</div>
+    <div id="diag-ready-state">ReadyState: 대기..</div>
+    <div id="diag-dom-loaded">DOMContentLoaded: 대기..</div>
+    <div id="diag-app-loaded">app.js 로드: 대기..</div>
+    <div id="diag-progress-called">loadProgress 호출: 대기..</div>
+    <div id="diag-panel-created">DevPanel 생성: 대기..</div>
+    <div id="diag-errors" style="color:#ef4444; margin-top: 6px; border-top: 1px dashed #475569; padding-top: 4px; word-break: break-all;">최근 에러: 없음</div>
+  </div>
 
   <!-- Confetti canvas for celebrations -->
   <canvas id="confetti-canvas"></canvas>
@@ -2074,6 +2148,7 @@
     </main>
   </div>
 
+  <script>window.IS_DEV_MODE = true;</script>
   <script src="app.js?v=1.1.6"></script>
 </body>
 </html>

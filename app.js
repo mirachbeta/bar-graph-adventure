@@ -1,5 +1,6 @@
 /* ==========================================
    우당탕탕 막대그래프 대모험 - 핵심 로직 JS (최종본)
+   [초등학교 교육용 자료 개발 프로젝트]
    ========================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -8,6 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 수업 차시 제어: 1 = 1차시만, 2 = 2차시까지, 3 = 3차시(3단계)까지, 6 = 전체 사용
     const MAX_ENABLED_STEP = 6;
+  
+    function stripEmoji(str) {
+      if (!str) return '';
+      return str.replace(/[^가-힣a-zA-Z0-9\(\)\s]/g, '').trim();
+    }
   
   // ==========================================
   // A. 상태 관리 객체 (State Management)
@@ -53,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     reviews: [] // 모둠 평가 리스트: { reviewerName: '', comment: '', isCorrect: true }
   };
 
-  // 정답 테이블 (일회용품 수량)
+  // 정답 테이블 (일회용품 개수)
   const TARGET_DRAWING_3 = {
     chopsticks: 8,
     cup: 12,
@@ -124,7 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (savedReviews) {
         state.reviews = JSON.parse(savedReviews);
-        renderReviewersChips();
+        if (typeof renderReviewersChips === 'function') {
+          renderReviewersChips();
+        }
       }
 
       // 개발자 모드일 경우 대시보드 로드
@@ -494,10 +502,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // D. 페이지 전환 제어
   // ==========================================
   function showPanel(stepNum) {
-    if (stepNum >= 4 && !window.IS_DEV_MODE) {
-      alert('3단계까지만 학습을 진행해 주세요! 😊');
-      return;
-    }
 
     if (window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
@@ -775,7 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let wrongMsg = '틀린 문제가 있습니다. 다시 한번 읽어보세요. 😢';
         if (!isQ1Correct) wrongMsg += '<br>- Q1 힌트: 가로(바닥선)에 무엇이 쓰여 있나요?';
         if (!isQ2Correct) wrongMsg += '<br>- Q2 힌트: 세로(높이선)에 무엇이 쓰여 있나요?';
-        if (!isQ3Correct) wrongMsg += '<br>- Q3 힌트: 막대의 길이는 조사한 수량의 크기를 나타냅니다.';
+        if (!isQ3Correct) wrongMsg += '<br>- Q3 힌트: 막대의 길이는 조사한 수의 크기를 나타냅니다.';
         if (!isQ4Correct) wrongMsg += '<br>- Q4 힌트: 세로 눈금 0의 다음 숫자가 1이므로 한 칸은 1권입니다.';
         fb.innerHTML = wrongMsg;
         fb.className = 'quiz-feedback error';
@@ -812,7 +816,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 활동 1-2: 가로 막대그래프 축 전환 퀴즈 검사
+  // 활동 1-2: 가로 막대그래프 가로세로 전환 퀴즈 검사
   const btnCheckSub12 = document.getElementById('btn-check-sub12');
   if (btnCheckSub12) {
     btnCheckSub12.addEventListener('click', () => {
@@ -838,7 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const isQ4DiffCorrect = q4Diff.value === 'b'; // 다른 점
 
       if (isQ1Correct && isQ2Correct && isQ3Correct && isQ4SameCorrect && isQ4DiffCorrect) {
-        fb.innerHTML = '정답입니다! 🎉 가로 막대그래프에서는 가로는 대출한 책의 수(권), 세로는 학급(반)을 나타냅니다. 가로 눈금 한 칸은 5권이며, 두 그래프는 나타내는 수량은 같으나 가로와 세로의 위치와 막대의 방향이 바뀝니다. 활동 3으로 가기 버튼을 눌러주세요!';
+        fb.innerHTML = '정답입니다! 🎉 가로 막대그래프에서는 가로는 대출한 책의 수(권), 세로는 학급(반)을 나타냅니다. 가로 눈금 한 칸은 5권이며, 두 그래프는 나타내는 수는 같으나 가로와 세로의 위치와 막대의 방향이 바뀝니다. 활동 3으로 가기 버튼을 눌러주세요!';
         fb.className = 'quiz-feedback success';
         fb.style.display = 'block';
         if (nextBtn) nextBtn.disabled = false;
@@ -905,7 +909,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const isQ2Correct = q2.value === 'graph';
 
       if (isQ1Correct && isQ2Correct) {
-        fb.innerHTML = '정답입니다! 🎉 표는 정확한 합계와 수치를 알기 쉽고, 막대그래프는 수량의 크기를 한눈에 비교하기 편리하다는 각각의 매력이 있습니다. 마무리 연습 문제로 가보세요!';
+        fb.innerHTML = '정답입니다! 🎉 표는 정확한 합계와 수치를 알기 쉽고, 막대그래프는 크기를 한눈에 비교하기 편리하다는 각각의 매력이 있습니다. 마무리 연습 문제로 가보세요!';
         fb.className = 'quiz-feedback success';
         fb.style.display = 'block';
         if (nextBtn) nextBtn.disabled = false;
@@ -1589,7 +1593,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span style="font-size:1.5rem;">⚠️</span>
           <div>
             <strong>눈금 한 칸 = 5개</strong>일 때:<br>
-            모든 수량(8, 12, 6, 2)이 5의 배수가 아니기 때문에 <strong>막대 끝이 눈금선 사이에 어정쩡하게 걸쳐 있습니다(⚠️).</strong> 또한 막대 높이가 너무 짧아져 값의 비교가 어렵고, 눈금을 정확히 읽기 매우 불편합니다!
+            모든 개수(8, 12, 6, 2)가 5의 배수가 아니기 때문에 <strong>막대 끝이 눈금선 사이에 어정쩡하게 걸쳐 있습니다(⚠️).</strong> 또한 막대 높이가 너무 짧아져 값의 비교가 어렵고, 눈금을 정확히 읽기 매우 불편합니다!
           </div>
         </div>
       `;
@@ -1935,301 +1939,777 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // I. 4단계: 실시간 그래프 작성 및 모둠 릴레이
+  // I. 4단계: 실시간 그래프 작성 및 모험
   // ==========================================
-  const inputsWrap = document.getElementById('custom-inputs-list');
+  const POCHEON_SPOTS = {
+    sanjeong: { name: '산정호수 🏞️', votes: 12, img: 'images/sanjeong_lake.png' },
+    artvalley: { name: '포천아트밸리 🎨', votes: 10, img: 'images/art_valley.png' },
+    herbisland: { name: '허브아일랜드 🌿', votes: 8, img: 'images/herb_island.png' },
+    arboretum: { name: '국립수목원 🌳', votes: 6, img: 'images/national_arboretum.png' },
+    bidulginang: { name: '비둘기낭 폭포 🏞️', votes: 5, img: 'images/bidulginang.png' },
+    myeongseong: { name: '명성산 억새밭 🌾', votes: 4, img: 'images/myeongseong_silvergrass.png' },
+    hangawon: { name: '한과박물관(한가원) 🥮', votes: 3, img: 'images/hangawon.png' },
+    amazing: { name: '어메이징파크 🎡', votes: 2, img: 'images/amazing_park.png' }
+  };
 
-  const btnAddRow = document.getElementById('btn-add-row');
-  if (btnAddRow) {
-    btnAddRow.addEventListener('click', () => {
-      const rows = inputsWrap.querySelectorAll('.input-row');
-      if (rows.length >= 5) {
-        alert('항목은 최대 5개까지만 그릴 수 있어요!');
+  const spotCheckboxes = document.querySelectorAll('input[name="spot-select"]');
+  function updateSelectionCount() {
+    const selected = Array.from(spotCheckboxes).filter(c => c.checked);
+    const countMsg = document.getElementById('selection-count-msg');
+    if (countMsg) {
+      countMsg.textContent = `현재 ${selected.length}개 선택됨 (4~7개 선택 가능)`;
+    }
+  }
+
+  spotCheckboxes.forEach(cb => {
+    const label = cb.closest('.spot-select-card');
+    if (label && cb.checked) {
+      label.classList.add('selected');
+    }
+    
+    cb.addEventListener('change', () => {
+      const selected = Array.from(spotCheckboxes).filter(c => c.checked);
+      if (selected.length > 7) {
+        cb.checked = false;
+        alert('조사할 항목은 최대 7개까지 선택할 수 있습니다!');
         return;
       }
-      const newRow = document.createElement('div');
-      newRow.className = 'input-row';
-      newRow.innerHTML = `
-        <input type="text" class="category-name" value="" placeholder="항목 이름">
-        <input type="number" class="category-val" value="0" min="0" max="50">
-        <span class="unit-suffix">${state.customGraph.unit}</span>
+      
+      if (label) {
+        if (cb.checked) {
+          label.classList.add('selected');
+        } else {
+          label.classList.remove('selected');
+        }
+      }
+      updateSelectionCount();
+    });
+  });
+
+  const btnCompleteSelection = document.getElementById('btn-complete-selection');
+  if (btnCompleteSelection) {
+    btnCompleteSelection.addEventListener('click', () => {
+      const selected = Array.from(spotCheckboxes).filter(c => c.checked);
+      if (selected.length < 4 || selected.length > 7) {
+        alert('우리 모둠이 조사할 항목을 최소 4개에서 최대 7개까지 선택해 주세요!');
+        return;
+      }
+
+      state.selectedSpots = selected.map(c => c.value);
+
+      const countingWorkspace = document.getElementById('counting-workspace-41');
+      if (countingWorkspace) {
+        countingWorkspace.style.display = 'block';
+        countingWorkspace.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      const tbody = document.getElementById('counting-table-body');
+      if (tbody) {
+        tbody.innerHTML = '';
+        state.selectedSpots.forEach(key => {
+          const spot = POCHEON_SPOTS[key];
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td><strong>${spot.name}</strong></td>
+            <td>
+              <input type="number" class="table-vote-input ebs-input" data-key="${key}" min="0" max="50" placeholder="개수 입력">
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        const sumRow = document.createElement('tr');
+        sumRow.style.background = 'rgba(251, 191, 36, 0.1)';
+        sumRow.innerHTML = `
+          <td><strong>합계</strong></td>
+          <td>
+            <input type="number" id="table-sum-input" class="ebs-input" style="font-weight: 800; border-color: #fbbf24;" min="0" placeholder="합계 입력">
+          </td>
+        `;
+        tbody.appendChild(sumRow);
+      }
+
+      renderLocalChalkboard();
+    });
+  }
+
+  function renderLocalChalkboard() {
+    const wrapper = document.getElementById('local-stickers-wrapper');
+    if (!wrapper) return;
+    wrapper.innerHTML = '';
+
+    state.selectedSpots.forEach(key => {
+      const spot = POCHEON_SPOTS[key];
+      const card = document.createElement('div');
+      card.className = 'local-chalk-card';
+      card.style.cssText = 'background: rgba(30, 41, 59, 0.5); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;';
+
+      let stickersHtml = '';
+      for (let i = 0; i < spot.votes; i++) {
+        stickersHtml += `<span class="chalk-sticker" style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981; margin:2px; box-shadow: 0 0 4px #10b981;"></span>`;
+      }
+
+      card.innerHTML = `
+        <img src="${spot.img}" alt="${spot.name}" style="width: 80px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);">
+        <div style="font-weight: 800; font-size: 0.85rem; color: #f8fafc;">${spot.name}</div>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; max-width: 100px; min-height: 25px; align-items: center;">${stickersHtml}</div>
+        <div style="font-size: 0.8rem; font-weight: 800; color: #10b981;">${spot.votes}표</div>
       `;
-      inputsWrap.appendChild(newRow);
-      bindInputs();
+      wrapper.appendChild(card);
     });
   }
 
-  function bindInputs() {
-    const titleIn = document.getElementById('step4-title');
-    const unitIn = document.getElementById('step4-y-unit');
-    if (!titleIn || !unitIn) return;
-
-    titleIn.addEventListener('input', () => {
-      state.customGraph.title = titleIn.value || '무제';
-      document.getElementById('preview-graph-title').textContent = state.customGraph.title;
-    });
-
-    unitIn.addEventListener('input', () => {
-      state.customGraph.unit = unitIn.value || '개';
-      document.querySelectorAll('.unit-suffix').forEach(s => s.textContent = state.customGraph.unit);
-      renderPreviewGraph();
-    });
-
-    inputsWrap.querySelectorAll('input').forEach(i => {
-      i.removeEventListener('input', onInputsChanged);
-      i.addEventListener('input', onInputsChanged);
+  const btnToggleLocalBoard = document.getElementById('btn-toggle-local-board');
+  if (btnToggleLocalBoard) {
+    btnToggleLocalBoard.addEventListener('click', () => {
+      const box = document.getElementById('local-board-box');
+      if (box) {
+        if (box.style.display === 'none') {
+          box.style.display = 'block';
+          btnToggleLocalBoard.textContent = '🖥️ 가상 투표판 접기';
+        } else {
+          box.style.display = 'none';
+          btnToggleLocalBoard.textContent = '🖥️ 화면이 안 보여요! 가상 투표판 열기';
+        }
+      }
     });
   }
 
-  function onInputsChanged() {
-    const items = [];
-    inputsWrap.querySelectorAll('.input-row').forEach(row => {
-      const name = row.querySelector('.category-name').value.trim() || '미지정';
-      const val = parseInt(row.querySelector('.category-val').value, 10) || 0;
-      items.push({ name, val });
+  const btnCheckTable41 = document.getElementById('btn-check-table-41');
+  if (btnCheckTable41) {
+    btnCheckTable41.addEventListener('click', () => {
+      const inputs = document.querySelectorAll('.table-vote-input');
+      const sumInput = document.getElementById('table-sum-input');
+      const feedback = document.getElementById('feedback-table-41');
+      if (!sumInput) return;
+
+      let hasEmpty = false;
+      let calculatedSum = 0;
+      let values = [];
+      let inputMap = {};
+
+      inputs.forEach(inp => {
+        const valStr = inp.value.trim();
+        if (valStr === '') {
+          hasEmpty = true;
+        }
+        const val = parseInt(valStr, 10) || 0;
+        calculatedSum += val;
+        values.push(val);
+        inputMap[inp.getAttribute('data-key')] = val;
+      });
+
+      const typedSumStr = sumInput.value.trim();
+      if (hasEmpty || typedSumStr === '') {
+        feedback.textContent = '⚠️ 모든 표의 항목 칸과 합계 칸을 채워 주세요!';
+        feedback.className = 'quiz-feedback error';
+        feedback.style.display = 'block';
+        return;
+      }
+
+      const typedSum = parseInt(typedSumStr, 10);
+
+      if (calculatedSum !== typedSum) {
+        feedback.innerHTML = '❌ 합계가 맞지 않습니다! 입력한 각 명소의 표 수를 다시 한 번 더해 보세요.';
+        feedback.className = 'quiz-feedback error';
+        feedback.style.display = 'block';
+        return;
+      }
+
+      if (values.some(v => v < 0)) {
+        feedback.textContent = '❌ 표 수는 0보다 작을 수 없습니다!';
+        feedback.className = 'quiz-feedback error';
+        feedback.style.display = 'block';
+        return;
+      }
+
+      state.customGraph.items = state.selectedSpots.map(key => {
+        return {
+          key: key,
+          name: POCHEON_SPOTS[key].name,
+          val: inputMap[key]
+        };
+      });
+      state.customGraph.unit = '표';
+      state.customGraph.title = '우리 반 친구들이 가장 가보고 싶은 포천의 명소';
+
+      feedback.innerHTML = '정답입니다! 🎉 표를 완성했습니다. 이제 4-2단계 막대그래프 그리기 도구로 그래프를 그려봅시다!';
+      feedback.className = 'quiz-feedback success';
+      feedback.style.display = 'block';
+      playConfetti();
+
+      const step42Card = document.getElementById('sub-step-4-2');
+      if (step42Card) {
+        step42Card.style.display = 'block';
+        loadEbsTableData();
+        step42Card.scrollIntoView({ behavior: 'smooth' });
+      }
     });
-    state.customGraph.items = items;
-    renderPreviewGraph();
   }
 
-  function renderPreviewGraph() {
-    const barWrap = document.getElementById('preview-bars-wrapper');
-    const yScale = document.getElementById('preview-y-scale');
-    const yLabel = document.getElementById('preview-y-label');
-    if (!barWrap || !yScale || !yLabel) return;
+  let ebsDirection = 'vertical';
+  state.drawnSimulatorValues = {};
 
-    barWrap.innerHTML = '';
-    yScale.innerHTML = '';
-    yLabel.textContent = `단위 (${state.customGraph.unit})`;
+  function loadEbsTableData() {
+    const tbody = document.getElementById('ebs-table-body');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    state.customGraph.items.forEach(item => {
+      const row = document.createElement('tr');
+      row.setAttribute('data-key', item.key);
+      row.innerHTML = `
+        <td><span class="ebs-row-name" style="font-weight: 800; color: #1e293b;">${item.name}</span></td>
+        <td><span class="ebs-row-target-val" style="font-weight: bold; color: #0284c7;">${item.val}표</span></td>
+      `;
+      tbody.appendChild(row);
 
-    const items = state.customGraph.items;
-    if (items.length === 0) return;
+      // Initialize drawn value to 0
+      state.drawnSimulatorValues[item.key] = 0;
+    });
+    
+    ebsDirection = 'vertical';
+    renderEbsGraph();
 
-    const maxVal = Math.max(...items.map(x => x.val), 4);
-    const roundMax = Math.ceil(maxVal / 4) * 4;
-    const step = roundMax / 4;
+    const unitLabel = document.getElementById('ebs-chart-unit-label');
+    if (unitLabel) unitLabel.textContent = '단위: 표';
 
-    for (let i = roundMax; i >= 0; i -= step) {
-      const l = document.createElement('div');
-      l.textContent = i;
-      yScale.appendChild(l);
+    // Show the check and save button immediately
+    const saveBtn = document.getElementById('btn-save-ebs-graph');
+    if (saveBtn) {
+      saveBtn.style.display = 'block';
+      saveBtn.textContent = '그래프 검사하고 저장하기! 💾';
     }
 
-    items.forEach(item => {
-      const col = document.createElement('div');
-      col.className = 'preview-bar-col';
-      const pct = (item.val / roundMax) * 100;
-      col.innerHTML = `
-        <div class="preview-bar" style="height: ${pct}%;">
-          <div class="preview-val-label">${item.val}${state.customGraph.unit}</div>
-        </div>
-        <div class="bar-name">${item.name}</div>
-      `;
-      barWrap.appendChild(col);
-    });
+    // Enable toolbar controls
+    const ebsScaleSelect = document.getElementById('ebs-scale-select');
+    const ebsUnitInput = document.getElementById('ebs-unit-input');
+    const btnEbsDirection = document.getElementById('btn-ebs-direction');
+    if (ebsScaleSelect) ebsScaleSelect.disabled = false;
+    if (ebsUnitInput) ebsUnitInput.disabled = false;
+    if (btnEbsDirection) btnEbsDirection.disabled = false;
   }
 
-  // 그래프 제출 및 저장 -> 모둠 릴레이 활성화
-  const btnSaveCustomGraph = document.getElementById('btn-save-custom-graph');
-  if (btnSaveCustomGraph) {
-    btnSaveCustomGraph.addEventListener('click', () => {
-      const empty = state.customGraph.items.some(i => !i.name || i.name === '미지정');
-      if (empty) {
-        alert('항목 이름과 값을 모두 채워주세요!');
-        return;
-      }
-
-      localStorage.setItem('barGraph_customGraph', JSON.stringify(state.customGraph));
+  // Bind click event listener on the chart area for adjust buttons
+  const chartInner = document.getElementById('ebs-chart-inner');
+  if (chartInner) {
+    chartInner.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-ebs-adjust');
+      if (!btn) return;
+      const key = btn.getAttribute('data-key');
+      const isUp = btn.classList.contains('ebs-up');
       
-      const fb = document.getElementById('step4-feedback');
-      fb.textContent = '내 그래프가 저장되었습니다! 모둠 릴레이 활동으로 내려가세요. 💾';
-      fb.className = 'quiz-feedback success';
+      const item = state.customGraph.items.find(x => x.key === key);
+      if (!item) return;
 
-      const relayBox = document.getElementById('modum-relay-section');
-      relayBox.style.display = 'block';
-      relayBox.scrollIntoView({ behavior: 'smooth' });
-      playConfetti();
-    });
-  }
+      const scaleSelect = document.getElementById('ebs-scale-select');
+      const scale = parseInt(scaleSelect ? scaleSelect.value : '2', 10);
+      const minDivisions = 5;
+      const limit = Math.max(Math.ceil(Math.max(...state.customGraph.items.map(x => x.val), 1) / scale), minDivisions) * scale;
 
-  // --- 모둠 릴레이 내부 로직 ---
-  let activeReviewer = '';
-
-  const btnStartReview = document.getElementById('btn-start-review');
-  if (btnStartReview) {
-    btnStartReview.addEventListener('click', () => {
-      const nameInput = document.getElementById('relay-reviewer-name').value.trim();
-      if (!nameInput) {
-        alert('평가할 친구의 이름을 적어주세요!');
-        return;
+      let val = state.drawnSimulatorValues[key] || 0;
+      if (isUp) {
+        if (val < limit) val++;
+      } else {
+        if (val > 0) val--;
       }
-
-      activeReviewer = nameInput;
-      document.getElementById('active-reviewer-name').textContent = nameInput;
-
-      document.getElementById('relay-setup-card').style.display = 'none';
-      document.getElementById('relay-review-workspace').style.display = 'block';
-
-      generateAIDynamicQuizzes();
+      state.drawnSimulatorValues[key] = val;
+      renderEbsGraph();
     });
   }
 
-  function generateAIDynamicQuizzes() {
-    const container = document.getElementById('dynamic-relay-quizzes');
+  const ebsTitleInput = document.getElementById('ebs-title');
+  if (ebsTitleInput) {
+    ebsTitleInput.addEventListener('input', () => {
+      const titleLabel = document.getElementById('ebs-chart-title-label');
+      if (titleLabel) titleLabel.textContent = ebsTitleInput.value.trim() || '무제';
+    });
+  }
+
+  const ebsScaleSelect = document.getElementById('ebs-scale-select');
+  if (ebsScaleSelect) {
+    ebsScaleSelect.addEventListener('change', () => {
+      renderEbsGraph();
+    });
+  }
+
+  const ebsUnitInput = document.getElementById('ebs-unit-input');
+  if (ebsUnitInput) {
+    ebsUnitInput.addEventListener('input', () => {
+      const unitLabel = document.getElementById('ebs-chart-unit-label');
+      if (unitLabel) unitLabel.textContent = `단위: ${ebsUnitInput.value.trim() || '표'}`;
+    });
+  }
+
+  const btnEbsDirection = document.getElementById('btn-ebs-direction');
+  if (btnEbsDirection) {
+    btnEbsDirection.addEventListener('click', () => {
+      ebsDirection = (ebsDirection === 'vertical') ? 'horizontal' : 'vertical';
+      renderEbsGraph();
+    });
+  }
+
+  function renderEbsGraph() {
+    const container = document.getElementById('ebs-chart-inner');
     if (!container) return;
     container.innerHTML = '';
 
-    const items = state.customGraph.items;
-    if (items.length < 2) return;
-
-    // 1번 문항: 가장 수량이 많은 항목 찾기
-    const sorted = [...items].sort((a,b) => b.val - a.val);
-    const maxItem = sorted[0];
-
-    const q1Div = document.createElement('div');
-    q1Div.className = 'step-quiz-item';
-    q1Div.innerHTML = `
-      <p><strong>Q1. 그래프에서 가장 높은 수량을 나타내는 항목은 무엇인가요?</strong></p>
-      <div class="radio-options">
-        ${items.map((it, idx) => `
-          <label><input type="radio" name="relay_q1" value="${it.name}"> ${it.name}</label>
-        `).join('')}
-      </div>
-    `;
-    container.appendChild(q1Div);
-
-    // 2번 문항: 특정 무작위 항목의 값 맞추기
-    const randomIdx = Math.floor(Math.random() * items.length);
-    const targetItem = items[randomIdx];
-    const wrongAns1 = targetItem.val + 2;
-    const wrongAns2 = Math.max(targetItem.val - 3, 1);
-
-    const optionsSet = new Set([targetItem.val, wrongAns1, wrongAns2]);
-    const optionsArr = Array.from(optionsSet).sort((a,b) => a-b);
-
-    const q2Div = document.createElement('div');
-    q2Div.className = 'step-quiz-item';
-    q2Div.innerHTML = `
-      <p><strong>Q2. [ ${targetItem.name} ] 항목의 정확한 수량은 몇 ${state.customGraph.unit}인가요?</strong></p>
-      <div class="radio-options">
-        ${optionsArr.map(val => `
-          <label><input type="radio" name="relay_q2" value="${val}"> ${val}${state.customGraph.unit}</label>
-        `).join('')}
-      </div>
-    `;
-    container.appendChild(q2Div);
-
-    // 칭찬 칩 리셋 및 핸들러 리바인딩
-    document.querySelectorAll('.btn-chip').forEach(chip => {
-      chip.classList.remove('selected');
-      chip.onclick = () => {
-        document.querySelectorAll('.btn-chip').forEach(c => c.classList.remove('selected'));
-        chip.classList.add('selected');
-        document.getElementById('relay-comment-text').value = chip.textContent;
+    const items = state.customGraph.items.map(item => {
+      const val = state.drawnSimulatorValues[item.key] !== undefined ? state.drawnSimulatorValues[item.key] : 0;
+      return {
+        key: item.key,
+        name: item.name,
+        val: val
       };
     });
+
+    if (items.length === 0) return;
+
+    const scale = parseInt(ebsScaleSelect ? ebsScaleSelect.value : '2', 10);
+    const unit = ebsUnitInput ? ebsUnitInput.value.trim() || '표' : '표';
+
+    // Use target values for Y-axis scaling to keep grid limits consistent
+    const maxVal = Math.max(...state.customGraph.items.map(x => x.val), 1);
+    const minDivisions = 5;
+    const divisions = Math.max(Math.ceil(maxVal / scale), minDivisions);
+    const limit = divisions * scale;
+
+    const axisY = document.createElement('div');
+    axisY.className = 'ebs-axis-y';
+    container.appendChild(axisY);
+
+    const axisX = document.createElement('div');
+    axisX.className = 'ebs-axis-x';
+    container.appendChild(axisX);
+
+    if (ebsDirection === 'vertical') {
+      container.classList.remove('ebs-mode-horizontal');
+      for (let i = 0; i <= divisions; i++) {
+        const pct = (i / divisions) * 100;
+        const line = document.createElement('div');
+        line.className = 'ebs-grid-line';
+        line.style.bottom = `${pct}%`;
+        container.appendChild(line);
+      }
+
+      const yLabelBox = document.createElement('div');
+      yLabelBox.className = 'ebs-y-label-box';
+      for (let i = divisions; i >= 0; i--) {
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = i * scale;
+        yLabelBox.appendChild(labelDiv);
+      }
+      container.appendChild(yLabelBox);
+
+      const xLabelBox = document.createElement('div');
+      xLabelBox.className = 'ebs-x-label-box';
+      items.forEach(item => {
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = stripEmoji(item.name);
+        labelDiv.style.flex = '1';
+        labelDiv.style.textAlign = 'center';
+        xLabelBox.appendChild(labelDiv);
+      });
+      container.appendChild(xLabelBox);
+
+      const barsWrapper = document.createElement('div');
+      barsWrapper.className = 'ebs-bars-wrapper';
+      items.forEach(item => {
+        const col = document.createElement('div');
+        col.className = 'ebs-bar-col';
+        col.style.flex = '1';
+
+        const pct = (item.val / limit) * 100;
+        col.innerHTML = `
+          <div class="ebs-bar" style="height: ${pct}%; width: 24px; background-color: #3b82f6; border-radius: 4px 4px 0 0; position: relative; transition: height 0.2s ease;">
+            <div class="ebs-bar-val-label">${item.val}</div>
+          </div>
+          <div class="ebs-bar-adjust" style="position: absolute; top: -35px; display: flex; gap: 2px; z-index: 10;">
+            <button class="btn-ebs-adjust ebs-up" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; user-select: none;">+</button>
+            <button class="btn-ebs-adjust ebs-down" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; user-select: none;">-</button>
+          </div>
+        `;
+        barsWrapper.appendChild(col);
+      });
+      container.appendChild(barsWrapper);
+
+    } else {
+      container.classList.add('ebs-mode-horizontal');
+      for (let i = 0; i <= divisions; i++) {
+        const pct = (i / divisions) * 100;
+        const line = document.createElement('div');
+        line.className = 'ebs-grid-line-vertical';
+        line.style.left = `${pct}%`;
+        container.appendChild(line);
+      }
+
+      const xLabelBoxHorizontal = document.createElement('div');
+      xLabelBoxHorizontal.className = 'ebs-x-label-box-horizontal';
+      for (let i = 0; i <= divisions; i++) {
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = i * scale;
+        labelDiv.style.position = 'absolute';
+        labelDiv.style.left = `${(i / divisions) * 100}%`;
+        labelDiv.style.transform = 'translateX(-50%)';
+        xLabelBoxHorizontal.appendChild(labelDiv);
+      }
+      container.appendChild(xLabelBoxHorizontal);
+
+      const yLabelBoxHorizontal = document.createElement('div');
+      yLabelBoxHorizontal.className = 'ebs-y-label-box-horizontal';
+      items.forEach(item => {
+        const labelDiv = document.createElement('div');
+        const cleanName = stripEmoji(item.name);
+        labelDiv.textContent = cleanName;
+        labelDiv.title = cleanName;
+        labelDiv.style.height = `${100 / items.length}%`;
+        labelDiv.style.display = 'flex';
+        labelDiv.style.alignItems = 'center';
+        labelDiv.style.justifyContent = 'flex-end';
+        yLabelBoxHorizontal.appendChild(labelDiv);
+      });
+      container.appendChild(yLabelBoxHorizontal);
+
+      const barsWrapperHorizontal = document.createElement('div');
+      barsWrapperHorizontal.className = 'ebs-bars-wrapper-horizontal';
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'ebs-bar-row-horizontal';
+        row.style.height = `${100 / items.length}%`;
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.width = '100%';
+
+        const pct = (item.val / limit) * 100;
+        row.innerHTML = `
+          <div class="ebs-bar-horizontal" style="width: ${pct}%; height: 14px; background-color: #3b82f6; border-radius: 0 4px 4px 0; position: relative; transition: width 0.2s ease;">
+            <div class="ebs-bar-val-label-horizontal">${item.val}</div>
+          </div>
+          <div class="ebs-bar-adjust-horizontal" style="position: absolute; right: -60px; display: flex; gap: 4px; z-index: 10;">
+            <button class="btn-ebs-adjust ebs-up" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; user-select: none;">+</button>
+            <button class="btn-ebs-adjust ebs-down" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; user-select: none;">-</button>
+          </div>
+        `;
+        barsWrapperHorizontal.appendChild(row);
+      });
+      container.appendChild(barsWrapperHorizontal);
+    }
   }
 
-  // 동료 평가 제출
-  const btnSubmitReview = document.getElementById('btn-submit-review');
-  if (btnSubmitReview) {
-    btnSubmitReview.addEventListener('click', () => {
-      const chkCorrect = document.getElementById('chk-graph-correct').checked;
-      const ansQ1 = document.querySelector('input[name="relay_q1"]:checked');
-      const ansQ2 = document.querySelector('input[name="relay_q2"]:checked');
-      const comment = document.getElementById('relay-comment-text').value.trim();
-
-      if (!chkCorrect) {
-        alert('1번 문항의 친구 그래프 검토(정확성 확인 체크박스)를 완료해 주세요!');
-        return;
-      }
-      if (!ansQ1 || !ansQ2) {
-        alert('친구 그래프 퀴즈를 모두 해결해 주세요!');
-        return;
-      }
-      if (!comment) {
-        alert('친구에게 보낼 응원의 코멘트를 입력해 주세요!');
-        return;
-      }
-
-      // AI 퀴즈 정답 검증
-      const items = state.customGraph.items;
-      const sorted = [...items].sort((a,b) => b.val - a.val);
-      const correctAns1 = sorted[0].name;
-
-      const q2Label = document.querySelector('input[name="relay_q2"]').closest('.step-quiz-item').querySelector('p strong').textContent;
-      const match = q2Label.match(/\[ (.*) \]/);
-      const targetName = match ? match[1] : '';
-      const targetItem = items.find(x => x.name === targetName);
-      const correctAns2 = targetItem ? targetItem.val.toString() : '';
-
-      const score = (ansQ1.value === correctAns1 ? 1 : 0) + (ansQ2.value === correctAns2 ? 1 : 0);
-
-      state.reviews.push({
-        reviewerName: activeReviewer,
-        comment: comment,
-        isCorrect: score === 2
+  const btnSaveEbsGraph = document.getElementById('btn-save-ebs-graph');
+  if (btnSaveEbsGraph) {
+    btnSaveEbsGraph.addEventListener('click', () => {
+      const isCorrect = state.customGraph.items.every(item => {
+        const targetVal = item.val;
+        const drawnVal = state.drawnSimulatorValues[item.key] || 0;
+        return targetVal === drawnVal;
       });
 
-      localStorage.setItem('barGraph_reviews', JSON.stringify(state.reviews));
+      const fb = document.getElementById('feedback-ebs-42');
 
-      // 리셋 후 화면 전환
-      document.getElementById('relay-reviewer-name').value = '';
-      document.getElementById('relay-comment-text').value = '';
-      document.getElementById('chk-graph-correct').checked = false;
+      if (!isCorrect) {
+        if (fb) {
+          fb.innerHTML = '❌ 막대그래프의 높이가 조사 결과 표의 값과 다릅니다! 표를 보고 알맞은 높이가 되도록 [+], [-] 버튼으로 직접 그려 보세요.';
+          fb.className = 'quiz-feedback error';
+          fb.style.display = 'block';
+        }
+        return;
+      }
 
-      document.getElementById('relay-review-workspace').style.display = 'none';
-      document.getElementById('relay-setup-card').style.display = 'block';
+      state.customGraph.title = (ebsTitleInput ? ebsTitleInput.value.trim() : '') || '우리 반 친구들이 가장 가보고 싶은 포천의 명소';
+      state.customGraph.unit = (ebsUnitInput ? ebsUnitInput.value.trim() : '') || '표';
+      state.customGraph.direction = ebsDirection;
+      state.customGraph.scale = parseInt(ebsScaleSelect ? ebsScaleSelect.value : '2', 10);
 
-      renderReviewersChips();
+      localStorage.setItem('barGraph_customGraph', JSON.stringify(state.customGraph));
+
+      if (fb) {
+        fb.innerHTML = '정답입니다! 🎉 표의 수치와 막대의 높이가 정확히 일치합니다. 그래프를 성공적으로 완성하여 저장했습니다!';
+        fb.className = 'quiz-feedback success';
+        fb.style.display = 'block';
+      }
+
+      const btnGoTo43 = document.getElementById('btn-go-to-43');
+      if (btnGoTo43) btnGoTo43.disabled = false;
+
       playConfetti();
     });
   }
 
-  function renderReviewersChips() {
-    const list = document.getElementById('completed-reviewers-list');
-    if (!list) return;
-    if (state.reviews.length === 0) {
-      list.innerHTML = `<span class="no-reviewer-msg">아직 평가한 친구가 없습니다. 첫 번째 릴레이를 시작해보세요!</span>`;
-      return;
+  const btnGoTo43 = document.getElementById('btn-go-to-43');
+  if (btnGoTo43) {
+    btnGoTo43.addEventListener('click', () => {
+      const card42 = document.getElementById('sub-step-4-2');
+      const card43 = document.getElementById('sub-step-4-3');
+      if (card42) card42.style.display = 'none';
+      if (card43) {
+        card43.style.display = 'block';
+        populateQ43Options();
+        renderQ43PreviewGraph();
+        card43.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  const btnQ43ToggleDirection = document.getElementById('btn-q43-toggle-direction');
+  if (btnQ43ToggleDirection) {
+    btnQ43ToggleDirection.addEventListener('click', () => {
+      state.customGraph.direction = state.customGraph.direction === 'horizontal' ? 'vertical' : 'horizontal';
+      renderQ43PreviewGraph();
+    });
+  }
+
+  const btnBackTo41 = document.getElementById('btn-back-to-41');
+  if (btnBackTo41) {
+    btnBackTo41.addEventListener('click', () => {
+      const card42 = document.getElementById('sub-step-4-2');
+      const card41 = document.getElementById('sub-step-4-1');
+      if (card42) card42.style.display = 'none';
+      if (card41) {
+        card41.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  const btnBackTo42 = document.getElementById('btn-back-to-42');
+  if (btnBackTo42) {
+    btnBackTo42.addEventListener('click', () => {
+      const card43 = document.getElementById('sub-step-4-3');
+      const card42 = document.getElementById('sub-step-4-2');
+      if (card43) card43.style.display = 'none';
+      if (card42) {
+        card42.style.display = 'block';
+        card42.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  function populateQ43Options() {
+    const container = document.getElementById('q43-q1-options');
+    if (!container) return;
+    container.innerHTML = '';
+
+    state.customGraph.items.forEach(item => {
+      const label = document.createElement('label');
+      label.innerHTML = `
+        <input type="radio" name="q43_1" value="${item.name}">
+        ${item.name}
+      `;
+      container.appendChild(label);
+    });
+  }
+
+  function renderQ43PreviewGraph() {
+    const titleLabel = document.getElementById('q43-graph-title');
+    const items = state.customGraph.items || [];
+    if (items.length === 0) return;
+
+    if (titleLabel) {
+      titleLabel.textContent = state.customGraph.title || '내가 완성한 포천 명소 그래프';
     }
 
-    list.innerHTML = state.reviews.map(r => `
-      <span class="reviewer-chip-active">🎖️ ${r.reviewerName} 평가위원 (${r.isCorrect ? '퀴즈 만점 💯' : '퀴즈 완료'})</span>
-    `).join('');
+    const scale = state.customGraph.scale || 2;
+    const maxVal = Math.max(...items.map(x => x.val), 1);
+    const minDivisions = 5;
+    const divisions = Math.max(Math.ceil(maxVal / scale), minDivisions);
+    const limit = divisions * scale;
+    const isHorizontal = state.customGraph.direction === 'horizontal';
 
-    if (state.reviews.length >= 2) {
-      const certSection = document.getElementById('certificate-section');
-      if (certSection) {
-        certSection.style.display = 'block';
+    const container = document.querySelector('.q43-chart-container');
+    if (container) {
+      container.innerHTML = '';
+      
+      const axisY = document.createElement('div');
+      axisY.className = 'ebs-axis-y';
+      container.appendChild(axisY);
+
+      const axisX = document.createElement('div');
+      axisX.className = 'ebs-axis-x';
+      container.appendChild(axisX);
+
+      if (isHorizontal) {
+        container.className = 'q43-chart-container ebs-chart-container ebs-mode-horizontal';
+        container.style.cssText = '';
+        container.style.position = 'relative';
+        container.style.height = '200px';
+        container.style.width = '260px';
+        container.style.display = 'flex';
+        container.style.marginTop = '30px';
+        container.style.marginBottom = '75px';
+        container.style.marginLeft = 'auto';
+        container.style.marginRight = 'auto';
+        container.style.transform = 'translateX(30px)';
+
+        for (let i = 0; i <= divisions; i++) {
+          const pct = (i / divisions) * 100;
+          const line = document.createElement('div');
+          line.className = 'ebs-grid-line-vertical';
+          line.style.left = `${pct}%`;
+          container.appendChild(line);
+        }
+
+        const xLabelBoxHorizontal = document.createElement('div');
+        xLabelBoxHorizontal.className = 'ebs-x-label-box-horizontal';
+        for (let i = 0; i <= divisions; i++) {
+          const labelDiv = document.createElement('div');
+          labelDiv.textContent = i * scale;
+          labelDiv.style.position = 'absolute';
+          labelDiv.style.left = `${(i / divisions) * 100}%`;
+          labelDiv.style.transform = 'translateX(-50%)';
+          xLabelBoxHorizontal.appendChild(labelDiv);
+        }
+        container.appendChild(xLabelBoxHorizontal);
+
+        const yLabelBoxHorizontal = document.createElement('div');
+        yLabelBoxHorizontal.className = 'ebs-y-label-box-horizontal';
+        items.forEach(item => {
+          const labelDiv = document.createElement('div');
+          const cleanName = stripEmoji(item.name);
+          labelDiv.textContent = cleanName;
+          labelDiv.title = cleanName;
+          labelDiv.style.height = `${100 / items.length}%`;
+          labelDiv.style.display = 'flex';
+          labelDiv.style.alignItems = 'center';
+          labelDiv.style.justifyContent = 'flex-end';
+          labelDiv.style.whiteSpace = 'nowrap';
+          yLabelBoxHorizontal.appendChild(labelDiv);
+        });
+        container.appendChild(yLabelBoxHorizontal);
+
+        const wrapper = document.createElement('div');
+        wrapper.id = 'q43-bars-wrapper';
+        wrapper.className = 'ebs-bars-wrapper-horizontal';
+        items.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'ebs-bar-row-horizontal';
+          row.style.height = `${100 / items.length}%`;
+          row.style.display = 'flex';
+          row.style.alignItems = 'center';
+          row.style.width = '100%';
+
+          const pct = (item.val / limit) * 100;
+          row.innerHTML = `
+            <div class="ebs-bar-horizontal" style="width: ${pct}%; height: 14px; background-color: #3b82f6; border-radius: 0 4px 4px 0; position: relative; transition: width 0.2s ease;">
+              <div class="ebs-bar-val-label-horizontal">${item.val}</div>
+            </div>
+          `;
+          wrapper.appendChild(row);
+        });
+        container.appendChild(wrapper);
+
+      } else {
+        container.className = 'q43-chart-container ebs-chart-container';
+        container.style.cssText = '';
+        container.style.position = 'relative';
+        container.style.height = '200px';
+        container.style.width = '320px';
+        container.style.display = 'flex';
+        container.style.marginTop = '30px';
+        container.style.marginBottom = '75px';
+        container.style.marginLeft = 'auto';
+        container.style.marginRight = 'auto';
+        container.style.transform = 'translateX(7.5px)';
+
+        for (let i = 0; i <= divisions; i++) {
+          const pct = (i / divisions) * 100;
+          const line = document.createElement('div');
+          line.className = 'ebs-grid-line';
+          line.style.bottom = `${pct}%`;
+          container.appendChild(line);
+        }
+
+        const yLabelBox = document.createElement('div');
+        yLabelBox.className = 'ebs-y-label-box';
+        for (let i = divisions; i >= 0; i--) {
+          const labelDiv = document.createElement('div');
+          labelDiv.textContent = i * scale;
+          yLabelBox.appendChild(labelDiv);
+        }
+        container.appendChild(yLabelBox);
+
+        const xLabelBox = document.createElement('div');
+        xLabelBox.className = 'ebs-x-label-box';
+        items.forEach(item => {
+          const labelDiv = document.createElement('div');
+          const cleanName = stripEmoji(item.name);
+          labelDiv.textContent = cleanName;
+          labelDiv.style.flex = '1';
+          labelDiv.style.textAlign = 'center';
+          labelDiv.style.whiteSpace = 'nowrap';
+          labelDiv.style.fontSize = '0.7rem';
+          xLabelBox.appendChild(labelDiv);
+        });
+        container.appendChild(xLabelBox);
+
+        const wrapper = document.createElement('div');
+        wrapper.id = 'q43-bars-wrapper';
+        wrapper.className = 'ebs-bars-wrapper';
+        items.forEach(item => {
+          const col = document.createElement('div');
+          col.className = 'ebs-bar-col';
+          col.style.flex = '1';
+
+          const pct = (item.val / limit) * 100;
+          col.innerHTML = `
+            <div class="ebs-bar" style="height: ${pct}%; width: 24px; background-color: #3b82f6; border-radius: 4px 4px 0 0; position: relative; transition: height 0.2s ease;">
+              <div class="ebs-bar-val-label">${item.val}</div>
+            </div>
+          `;
+          wrapper.appendChild(col);
+        });
+        container.appendChild(wrapper);
       }
     }
   }
 
-  // 모둠 릴레이 세션 강제/완전 종료
-  const btnEndRelayAll = document.getElementById('btn-end-relay-all');
-  if (btnEndRelayAll) {
-    btnEndRelayAll.addEventListener('click', () => {
-      if (state.reviews.length < 2) {
-        alert('최소 2명 이상의 모둠원 친구들이 평가를 진행해야 단원을 마무리할 수 있습니다! (3인 모둠인 경우 2명 이상 필수)');
+  const btnCheckSub43 = document.getElementById('btn-check-sub43');
+  if (btnCheckSub43) {
+    btnCheckSub43.addEventListener('click', () => {
+      const ansQ1 = document.querySelector('input[name="q43_1"]:checked');
+      const ansQ2 = document.querySelector('input[name="q43_2"]:checked');
+      const ansQ3 = document.querySelector('input[name="q43_3"]:checked');
+      const fb = document.getElementById('feedback-sub43');
+
+      if (!ansQ1 || !ansQ2 || !ansQ3) {
+        fb.textContent = '⚠️ 모든 질문의 답을 선택해 주세요!';
+        fb.className = 'quiz-feedback error';
+        fb.style.display = 'block';
         return;
       }
-      alert('모둠 릴레이가 최종 종료되었습니다! 축하합니다! 아래에서 마스터 수료증을 확인해 보세요. 🏆');
-      
-      const certSection = document.getElementById('certificate-section');
-      if (certSection) {
-        certSection.style.display = 'block';
-        renderCertificate();
-        certSection.scrollIntoView({ behavior: 'smooth' });
+
+      const maxVal = Math.max(...state.customGraph.items.map(x => x.val));
+      const maxItems = state.customGraph.items.filter(x => x.val === maxVal).map(x => x.name);
+      const isQ1Correct = maxItems.includes(ansQ1.value);
+
+      const isQ2Correct = ansQ2.value === 'a';
+      const isQ3Correct = ansQ3.value === 'b';
+
+      if (isQ1Correct && isQ2Correct && isQ3Correct) {
+        fb.innerHTML = '모두 정답입니다! 🎉 막대그래프를 해석하는 능력도 대단하네요! 이제 5단계로 이동하여 눈금의 크기 비교 학습을 해봅시다.';
+        fb.className = 'quiz-feedback success';
+        fb.style.display = 'block';
+        
+        unlockNext(4);
+        const btnNextTo5 = document.getElementById('btn-next-to-5');
+        if (btnNextTo5) btnNextTo5.disabled = false;
+        
+        playConfetti();
+      } else {
+        let errText = '❌ 일부 오답이 있습니다. 다시 생각해 볼까요?<br>';
+        if (!isQ1Correct) errText += '- <strong>Q1</strong>: 그래프의 막대 높이(또는 길이)가 가장 큰 항목을 다시 찾아보세요.<br>';
+        if (!isQ2Correct) errText += '- <strong>Q2</strong>: 그래프 방향을 바꾸면 가로와 세로가 나타내는 내용이 서로 어떻게 되나요?<br>';
+        if (!isQ3Correct) errText += '- <strong>Q3</strong>: 세로에서 가로로 방향을 바꾸어도 변하지 않는 데이터 고유의 수치와 막대의 실제 길이를 확인해 보세요.';
+        
+        fb.innerHTML = errText;
+        fb.className = 'quiz-feedback error';
+        fb.style.display = 'block';
       }
-      playConfetti();
     });
   }
 
   const btnNextTo5 = document.getElementById('btn-next-to-5');
   if (btnNextTo5) {
     btnNextTo5.addEventListener('click', () => {
-      unlockNext(4);
       showPanel(5);
       updateNavigationUI();
     });
@@ -2247,17 +2727,24 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!q5) {
         fb.textContent = '⚠️ 보기 중 하나를 선택해 주세요!';
         fb.className = 'quiz-feedback error';
+        fb.style.display = 'block';
         return;
       }
 
       if (q5.value === 'b') {
         fb.innerHTML = '정답입니다! 🎉 눈금 한 칸의 크기가 커지면(1개 ➡️ 5개), 데이터를 표현하기 위한 세로 격자 수가 줄어들기 때문에 막대의 총길이가 상대적으로 **짧아지고 완만**해 보입니다. 겉모습이 달라도 실제 수치는 같으니 반드시 눈금을 먼저 보아야 합니다!';
         fb.className = 'quiz-feedback success';
+        fb.style.display = 'block';
+        
         unlockNext(5);
+        const btnNextTo6 = document.getElementById('btn-next-to-6');
+        if (btnNextTo6) btnNextTo6.disabled = false;
+        
         playConfetti();
       } else {
         fb.innerHTML = '아쉽게도 오답입니다. 눈금 한 칸이 1개일 때는 15개가 15칸 높이지만, 눈금 한 칸이 5개일 때는 3칸 높이로 표현됩니다. 눈금 크기가 커지면 막대는 더 어떻게 되나요?';
         fb.className = 'quiz-feedback error';
+        fb.style.display = 'block';
       }
     });
   }
@@ -2271,57 +2758,172 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // K. 6단계: 수료증 및 모둠 칭찬 목록 출력
+  // K. 6단계: 수료증 및 배움 정리
   // ==========================================
-  function renderCertificate() {
-    const certSection = document.getElementById('certificate-section');
-    if (certSection) {
-      if (state.reviews.length >= 2) {
+  const takeawaysList = [1, 2, 3];
+  takeawaysList.forEach(num => {
+    const item = document.getElementById(`takeaway-item-${num}`);
+    if (item) {
+      item.addEventListener('click', () => {
+        item.classList.toggle('checked');
+        checkTakeawayCompletion();
+      });
+    }
+  });
+
+  function checkTakeawayCompletion() {
+    const allChecked = [1, 2, 3].every(num => {
+      const item = document.getElementById(`takeaway-item-${num}`);
+      return item && item.classList.contains('checked');
+    });
+    const btn = document.getElementById('btn-complete-takeaway');
+    if (btn) {
+      btn.disabled = !allChecked;
+    }
+  }
+
+  const btnCompleteTakeaway = document.getElementById('btn-complete-takeaway');
+  if (btnCompleteTakeaway) {
+    btnCompleteTakeaway.addEventListener('click', () => {
+      const certSection = document.getElementById('certificate-section');
+      if (certSection) {
         certSection.style.display = 'block';
-      } else {
-        certSection.style.display = 'none';
+        renderCertificate();
+        certSection.scrollIntoView({ behavior: 'smooth' });
       }
+      playConfetti();
+    });
+  }
+
+  function renderPreviewGraph() {
+    const wrapper = document.getElementById('showcase-bars-wrapper');
+    const titleLabel = document.getElementById('showcase-graph-title');
+    if (!wrapper) return;
+    wrapper.innerHTML = '';
+
+    const items = state.customGraph.items || [];
+    if (items.length === 0) return;
+
+    if (titleLabel) {
+      titleLabel.textContent = state.customGraph.title || '우리 반 친구들이 가장 가보고 싶은 포천의 명소';
     }
 
+    const maxVal = Math.max(...items.map(x => x.val), 1);
+    const isHorizontal = state.customGraph.direction === 'horizontal';
+
+    const container = document.querySelector('.showcase-chart-container');
+    if (container) {
+      if (isHorizontal) {
+        container.style.flexDirection = 'column';
+        container.style.alignItems = 'flex-start';
+        container.style.height = 'auto';
+        container.style.paddingLeft = '140px';
+        container.style.paddingBottom = '0';
+        container.style.borderBottom = 'none';
+        container.style.borderLeft = '2px solid #cbd5e1';
+        wrapper.style.display = 'block';
+        wrapper.style.width = '100%';
+        
+        items.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'showcase-bar-col-horizontal';
+          row.style.margin = '12px 0';
+          row.style.display = 'flex';
+          row.style.alignItems = 'center';
+          row.style.width = '100%';
+          row.style.position = 'relative';
+          
+          const pct = (item.val / maxVal) * 100;
+          const cleanName = stripEmoji(item.name);
+          row.innerHTML = `
+            <div class="showcase-bar-name-horizontal" title="${cleanName}" style="position: absolute; left: -135px; width: 130px; text-align: right; font-weight: 800; font-size: 0.75rem; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${cleanName}</div>
+            <div class="showcase-bar-horizontal" style="width: ${pct * 0.7}%; height: 16px; background: linear-gradient(90deg, #3b82f6, #1d4ed8); border-radius: 0 4px 4px 0; position: relative;">
+              <div class="showcase-val-label-horizontal" style="position: absolute; right: -24px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; font-weight: 800; color: #f8fafc;">${item.val}</div>
+            </div>
+          `;
+          wrapper.appendChild(row);
+        });
+      } else {
+        container.style.flexDirection = 'row';
+        container.style.alignItems = 'flex-end';
+        container.style.height = '200px';
+        container.style.paddingLeft = '0';
+        container.style.paddingBottom = '20px';
+        container.style.borderBottom = '2px solid #cbd5e1';
+        container.style.borderLeft = 'none';
+        wrapper.style.display = 'flex';
+        wrapper.style.width = '100%';
+        wrapper.style.justifyContent = 'space-around';
+
+        items.forEach(item => {
+          const col = document.createElement('div');
+          col.className = 'showcase-bar-col';
+          col.style.display = 'flex';
+          col.style.flexDirection = 'column';
+          col.style.alignItems = 'center';
+          col.style.justifyContent = 'flex-end';
+          col.style.height = '100%';
+          col.style.position = 'relative';
+
+          const pct = (item.val / maxVal) * 100;
+          const cleanName = stripEmoji(item.name);
+          col.innerHTML = `
+            <div class="showcase-bar" style="height: ${pct * 0.8}%; width: 28px; background: linear-gradient(180deg, #3b82f6, #1d4ed8); border-radius: 4px 4px 0 0; position: relative;">
+              <div class="showcase-val-label" style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 0.8rem; font-weight: 800; color: #f8fafc; white-space: nowrap;">${item.val}</div>
+            </div>
+            <div class="showcase-bar-name" style="position: absolute; bottom: -22px; font-size: 0.75rem; font-weight: 800; color: #cbd5e1; white-space: nowrap;">${cleanName}</div>
+          `;
+          wrapper.appendChild(col);
+        });
+      }
+    }
+  }
+
+  function renderCertificate() {
     document.getElementById('cert-name-label').textContent = state.studentName;
     document.getElementById('cert-portfolio-title').textContent = state.customGraph.title;
 
     const today = new Date();
     document.getElementById('cert-date-display').textContent = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
 
-    // 1. 미니 맵 그리기
     const chartWrap = document.getElementById('cert-mini-chart-wrapper');
     if (chartWrap) {
       chartWrap.innerHTML = '';
-      const items = state.customGraph.items;
+      const items = state.customGraph.items || [];
       const maxVal = Math.max(...items.map(x => x.val), 1);
 
       items.forEach(item => {
         const col = document.createElement('div');
         col.className = 'cert-mini-bar-col';
+        col.style.display = 'flex';
+        col.style.flexDirection = 'column';
+        col.style.alignItems = 'center';
+        col.style.justifyContent = 'flex-end';
+        col.style.width = '40px';
+        col.style.height = '100%';
+
         const pct = (item.val / maxVal) * 100;
+        const cleanName = stripEmoji(item.name);
         col.innerHTML = `
-          <span class="cert-mini-val">${item.val}</span>
-          <div class="cert-mini-bar" style="height: ${pct * 0.7}px; min-height: 4px;"></div>
-          <span class="cert-mini-label">${item.name}</span>
+          <span class="cert-mini-val" style="font-size:0.7rem; font-weight:800; margin-bottom:2px;">${item.val}</span>
+          <div class="cert-mini-bar" style="height: ${pct * 0.7}px; width: 16px; background: #3b82f6; border-radius: 2px 2px 0 0; min-height: 4px;"></div>
+          <span class="cert-mini-label" style="font-size:0.7rem; font-weight:800; margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center;">${cleanName}</span>
         `;
         chartWrap.appendChild(col);
       });
     }
+  }
 
-    // 2. 모둠원 코멘트 게시판 렌더링
-    const commList = document.getElementById('cert-comments-list');
-    if (commList) {
-      if (state.reviews.length === 0) {
-        commList.innerHTML = `<div class="comment-row">아직 등록된 모둠원 칭찬 코멘트가 없습니다.</div>`;
-      } else {
-        commList.innerHTML = state.reviews.map(r => `
-          <div class="comment-row">
-            <strong>💬 [${r.reviewerName} 평가위원]</strong> "${r.comment}"
-          </div>
-        `).join('');
-      }
+  function renderReviewersChips() {
+    const list = document.getElementById('completed-reviewers-list');
+    if (!list) return;
+    if (state.reviews.length === 0) {
+      list.innerHTML = `<span class="no-reviewer-msg">아직 등록된 친구 코멘트가 없습니다.</span>`;
+      return;
     }
+    list.innerHTML = state.reviews.map(r => `
+      <span class="reviewer-chip-active">📝 ${r.reviewerName} (${r.isCorrect ? '평가 성공' : '평가 완료'})</span>
+    `).join('');
   }
 
   const btnPrintCert = document.getElementById('btn-print-cert');
@@ -2352,39 +2954,85 @@ document.addEventListener('DOMContentLoaded', () => {
         if (helperBox) helperBox.style.display = 'none';
         state.drawing33Data = { chopsticks: 0, cup: 0, bag: 0, spoon: 0 };
         state.customGraph = {
-          title: '우리 반 친구들이 좋아하는 운동',
-          unit: '명',
+          title: '우리 반 친구들이 가장 가보고 싶은 포천의 명소',
+          unit: '표',
           items: [
-            { name: '축구 ⚽', val: 8 },
-            { name: '피구 🏐', val: 6 },
-            { name: '줄넘기 🏃', val: 4 },
-            { name: '야구 ⚾', val: 5 }
+            { name: '산정호수 🏞️', val: 12 },
+            { name: '포천아트밸리 🎨', val: 10 },
+            { name: '허브아일랜드 🌿', val: 8 },
+            { name: '국립수목원 🌳', val: 6 }
           ]
         };
-        state.reviews = [];
 
         document.getElementById('student-name-input').value = '';
-        const step4Title = document.getElementById('step4-title');
-        if (step4Title) step4Title.value = state.customGraph.title;
-        const step4YUnit = document.getElementById('step4-y-unit');
-        if (step4YUnit) step4YUnit.value = state.customGraph.unit;
-
         document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
-        document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+        
+        spotCheckboxes.forEach(cb => {
+          const val = cb.value;
+          if (['sanjeong', 'artvalley', 'herbisland', 'arboretum'].includes(val)) {
+            cb.checked = true;
+          } else {
+            cb.checked = false;
+          }
+          const label = cb.closest('.spot-select-card');
+          if (label) {
+            if (cb.checked) label.classList.add('selected');
+            else label.classList.remove('selected');
+          }
+        });
+        updateSelectionCount();
+
+        takeawaysList.forEach(num => {
+          const item = document.getElementById(`takeaway-item-${num}`);
+          if (item) item.classList.remove('checked');
+        });
+        const btnTakeaway = document.getElementById('btn-complete-takeaway');
+        if (btnTakeaway) btnTakeaway.disabled = true;
+
         document.querySelectorAll('.quiz-feedback').forEach(fb => {
           fb.style.display = 'none';
           fb.textContent = '';
         });
 
-        // UI 초기 상태화
-        const sub11 = document.getElementById('sub-step-1-1');
-        const sub12 = document.getElementById('sub-step-1-2');
-        const sub13 = document.getElementById('sub-step-1-3');
-        const sub14 = document.getElementById('sub-step-1-4');
-        if (sub11) sub11.style.display = 'block';
-        if (sub12) sub12.style.display = 'none';
-        if (sub13) sub13.style.display = 'none';
-        if (sub14) sub14.style.display = 'none';
+        const countingWorkspace = document.getElementById('counting-workspace-41');
+        if (countingWorkspace) countingWorkspace.style.display = 'none';
+        
+        const box = document.getElementById('local-board-box');
+        if (box) {
+          box.style.display = 'none';
+          btnToggleLocalBoard.textContent = '🖥️ 화면이 안 보여요! 가상 투표판 열기';
+        }
+
+        const step42Card = document.getElementById('sub-step-4-2');
+        if (step42Card) step42Card.style.display = 'none';
+
+        const step43Card = document.getElementById('sub-step-4-3');
+        if (step43Card) step43Card.style.display = 'none';
+
+        const startScreen = document.getElementById('ebs-start-screen');
+        const workspace = document.getElementById('ebs-workspace');
+        if (startScreen) startScreen.style.display = 'block';
+        if (workspace) workspace.style.display = 'none';
+        isEbsLocked = false;
+        ebsDirection = 'vertical';
+        
+        if (ebsScaleSelect) {
+          ebsScaleSelect.value = "2";
+          ebsScaleSelect.disabled = true;
+        }
+        if (ebsUnitInput) {
+          ebsUnitInput.value = "표";
+          ebsUnitInput.disabled = true;
+        }
+        if (btnEbsDirection) btnEbsDirection.disabled = true;
+        if (btnEbsAddRow) btnEbsAddRow.disabled = false;
+        if (ebsTitleInput) {
+          ebsTitleInput.value = "우리 반 친구들이 가장 가보고 싶은 포천의 명소";
+          ebsTitleInput.disabled = false;
+        }
+
+        const saveBtn = document.getElementById('btn-save-ebs-graph');
+        if (saveBtn) saveBtn.style.display = 'none';
 
         const sub31 = document.getElementById('sub-step-3-1');
         const sub32 = document.getElementById('sub-step-3-2');
@@ -2425,10 +3073,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (certSection) certSection.style.display = 'none';
         const relaySection = document.getElementById('modum-relay-section');
         if (relaySection) relaySection.style.display = 'none';
-        const reviewerNameInput = document.getElementById('relay-reviewer-name');
-        if (reviewerNameInput) reviewerNameInput.value = '';
-        const commentText = document.getElementById('relay-comment-text');
-        if (commentText) commentText.value = '';
 
         update31DrawingUI();
         update32DrawingUI();
@@ -2510,8 +3154,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.playConfetti = function() {};
   }
   
-  // playConfetti 로컬 대체
   const playConfetti = window.playConfetti;
+
+  function bindInputs() {}
 
   // ==========================================
   // M. 초기 로딩 구동

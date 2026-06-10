@@ -1,0 +1,698 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>우리 반 포천 명소 선호도 조사 (교사용 투표판) 📊</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-main: 'Noto Sans KR', sans-serif;
+      --font-title: 'Outfit', 'Noto Sans KR', sans-serif;
+      --font-chalk: 'Nanum Pen Script', cursive;
+      --color-wood: #8B5A2B;
+      --color-wood-dark: #5C3A21;
+      --color-chalkboard: #1E3F20;
+      --color-chalkboard-grid: rgba(255, 255, 255, 0.08);
+      --color-green-sticker: #4ade80;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    header {
+      width: 100%;
+      max-width: 1600px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 10px;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 16px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .header-title h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #60a5fa, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .badge-teacher {
+      background: #f59e0b;
+      color: #0f172a;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      font-family: var(--font-main);
+      font-weight: 700;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      font-size: 1rem;
+    }
+
+    .btn-toggle {
+      background-color: #3b82f6;
+      color: white;
+    }
+
+    .btn-toggle:hover {
+      background-color: #2563eb;
+      transform: translateY(-2px);
+    }
+
+    .btn-reset {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .btn-reset:hover {
+      background-color: #dc2626;
+      transform: translateY(-2px);
+    }
+
+    /* Chalkboard Outer Frame */
+    .chalkboard-container {
+      width: 100%;
+      max-width: 1600px;
+      background: var(--color-wood-dark);
+      border: 20px solid var(--color-wood);
+      border-radius: 8px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 4px 10px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Chalkboard Surface */
+    .chalkboard {
+      width: 100%;
+      height: 720px;
+      background-color: var(--color-chalkboard);
+      background-image: 
+        linear-gradient(var(--color-chalkboard-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--color-chalkboard-grid) 1px, transparent 1px);
+      background-size: 50px 50px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* Wood dust ledge at bottom */
+    .chalk-ledge {
+      height: 18px;
+      background: #4a3b2c;
+      border-top: 3px solid #2d241b;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .chalk-ledge::before {
+      content: '';
+      position: absolute;
+      left: 10%;
+      top: 3px;
+      width: 60px;
+      height: 8px;
+      background: white;
+      border-radius: 2px;
+      opacity: 0.8;
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .chalk-ledge::after {
+      content: '';
+      position: absolute;
+      right: 15%;
+      top: 4px;
+      width: 45px;
+      height: 7px;
+      background: #a3e635;
+      border-radius: 2px;
+      opacity: 0.7;
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+
+    /* Columns for 8 attractions */
+    .spot-column {
+      flex: 1;
+      height: 100%;
+      border-right: 2px dashed rgba(255, 255, 255, 0.15);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .spot-column:last-child {
+      border-right: none;
+    }
+
+    /* Column Header (Card UI) */
+    .spot-card {
+      margin: 15px 8px;
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 8px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      z-index: 10;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    .spot-card img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .spot-type {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      border-radius: 4px;
+      color: white;
+    }
+
+    .spot-type.natural {
+      background: #10b981;
+    }
+
+    .spot-type.human {
+      background: #3b82f6;
+    }
+
+    .spot-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #f8fafc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
+    /* Counters and control buttons */
+    .spot-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 5px;
+      background: rgba(30, 41, 59, 0.7);
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .btn-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      color: white;
+    }
+
+    .btn-minus {
+      background-color: #ef4444;
+    }
+
+    .btn-minus:hover {
+      background-color: #dc2626;
+    }
+
+    .btn-plus {
+      background-color: #10b981;
+    }
+
+    .btn-plus:hover {
+      background-color: #059669;
+    }
+
+    .btn-circle:active {
+      transform: scale(0.9);
+    }
+
+    .vote-count {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fbbf24;
+      width: 35px;
+      text-align: center;
+    }
+
+    /* Chalkboard writing for items */
+    .chalk-title {
+      font-family: var(--font-chalk);
+      font-size: 1.8rem;
+      color: rgba(255, 255, 255, 0.85);
+      position: absolute;
+      bottom: 25px;
+      width: 100%;
+      text-align: center;
+      pointer-events: none;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+
+    /* Sticker display area inside each column */
+    .sticker-area {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      /* Avoid stickers overlaying card directly */
+      margin-top: 15px;
+      margin-bottom: 70px;
+    }
+
+    /* Sticker pop animation */
+    .sticker {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--color-green-sticker);
+      border: 2px solid #ffffff;
+      box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: sticker-pop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      pointer-events: none;
+    }
+
+    .sticker::after {
+      content: '✔';
+      color: #065f46;
+      font-size: 0.9rem;
+      font-weight: 900;
+    }
+
+    @keyframes sticker-pop {
+      0% {
+        transform: scale(0) rotate(-45deg);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1) rotate(var(--rotation));
+        opacity: 1;
+      }
+    }
+
+    /* Header Total Votes Banner */
+    .total-banner-header {
+      background: rgba(251, 191, 36, 0.15);
+      border: 2px solid #fbbf24;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .total-banner-header .total-label {
+      color: #fbbf24;
+      font-size: 1rem;
+    }
+
+    .total-banner-header .total-count {
+      color: #fbbf24;
+      font-size: 1.25rem;
+    }
+
+    /* Text watermark behind the chalkboard */
+    .chalk-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-chalk);
+      font-size: 6rem;
+      color: rgba(255, 255, 255, 0.03);
+      pointer-events: none;
+      user-select: none;
+      text-align: center;
+      line-height: 1.2;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">
+      <h1>우리 반 친구들이 가보고 싶은 포천의 명소 (실시간 투표판) 🗺️</h1>
+    </div>
+    <div class="total-banner-header">
+      <span class="total-label">📊 총 투표 수:</span>
+      <span id="total-votes" class="total-count">0표</span>
+    </div>
+    <div class="controls">
+      <button id="btn-toggle-numbers" class="btn btn-toggle" onclick="toggleNumbers()">
+        <span id="toggle-icon">👁️‍🗨️</span> <span id="toggle-text">숫자 가리기</span>
+      </button>
+      <button class="btn btn-reset" onclick="resetBoard()">
+        <span>🗑️</span> 칠판 초기화
+      </button>
+    </div>
+  </header>
+
+  <div class="chalkboard-container">
+    <div class="chalkboard" id="board-surface">
+      <div class="chalk-watermark">
+        우리가 가보고 싶은 포천의 명소
+      </div>
+
+      <!-- 8 Columns -->
+      <!-- Column 1: 산정호수 -->
+      <div class="spot-column" id="col-sanjeong">
+        <div class="spot-card">
+          <img src="images/sanjeong_lake.png" alt="산정호수">
+          <div class="spot-name">산정호수 🏞️</div>
+          <div class="spot-controls">
+            <button class="btn-circle btn-minus" onclick="vote('sanjeong', -1)">-</button>
+            <span class="vote-count" id="count-sanjeong">0</span>
+            <button class="btn-circle btn-plus" onclick="vote('sanjeong', 1)">+</button>
+          </div>
+        </div>
+        <div class="sticker-area" id="area-sanjeong"></div>
+        <div class="chalk-title">산정호수</div>
+      </div>
+
+      <!-- Column 2: 포천아트밸리 -->
+      <div class="spot-column" id="col-artvalley">
+        <div class="spot-card">
+          <img src="images/art_valley.png" alt="포천아트밸리">
+          <div class="spot-name">포천아트밸리 🎨</div>
+          <div class="spot-controls">
+            <button class="btn-circle btn-minus" onclick="vote('artvalley', -1)">-</button>
+            <span class="vote-count" id="count-artvalley">0</span>
+            <button class="btn-circle btn-plus" onclick="vote('artvalley', 1)">+</button>
+          </div>
+        </div>
+        <div class="sticker-area" id="area-artvalley"></div>
+        <div class="chalk-title">포천아트밸리</div>
+      </div>
+
+      <!-- Column 3: 허브아일랜드 -->
+      <div class="spot-column" id="col-herbisland">
+        <div class="spot-card">
+          <img src="images/herb_island.png" alt="허브아일랜드">
+          <div class="spot-name">허브아일랜드 🌿</div>
+          <div class="spot-controls">
+            <button class="btn-circle btn-minus" onclick="vote('herbisland', -1)">-</button>
+            <span class="vote-count" id="count-herbisland">0</span>
+            <button class="btn-circle btn-plus" onclick="vote('herbisland', 1)">+</button>
+          </div>
+        </div>
+        <div class="sticker-area" id="area-herbisland"></div>
+        <div class="chalk-title">허브아일랜드</div>
+      </div>
+
+      <!-- Column 4: 국립수목원 -->
+      <div class="spot-column" id="col-arboretum">
+        <div class="spot-card">
+          <img src="images/national_arboretum.png" alt="국립수목원">
+          <div class="spot-name">국립수목원 🌳</div>
+          <div class="spot-controls">
+            <button class="btn-circle btn-minus" onclick="vote('arboretum', -1)">-</button>
+            <span class="vote-count" id="count-arboretum">0</span>
+            <button class="btn-circle btn-plus" onclick="vote('arboretum', 1)">+</button>
+          </div>
+        </div>
+        <div class="sticker-area" id="area-arboretum"></div>
+        <div class="chalk-title">국립수목원</div>
+      </div>
+
+      <!-- Column 5: 비둘기낭 폭포 -->
+      <div class="spot-column" id="col-bidulginang">
+        <div class="spot-card">
+          <img src="images/bidulginang.png" alt="비둘기낭 폭포">
+          <div class="spot-name">비둘기낭 폭포 🏞️</div>
+          <div class="spot-controls">
+            <button class="btn-circle btn-minus" onclick="vote('bidulginang', -1)">-</button>
+            <span class="vote-count" id="count-bidulginang">0</span>
+            <button class="btn-circle btn-plus" onclick="vote('bidulginang', 1)">+</button>
+          </div>
+        </div>
+        <div class="sticker-area" id="area-bidulginang"></div>
+        <div class="chalk-title">비둘기낭 폭포</div>
+      </div>
+
+      <!-- Column 6: 명성산 억새밭 -->
+      <div class="spot-column" id="col-myeongseong">
+        <div class="spot-card">
+          <img src="images/myeongseong_silvergrass.png" alt="명성산 억새밭">
+          <div class="spot-name">명성산 억새밭 🌾</div>
+          <div class="spot-controls">
+            <button class="btn-circle btn-minus" onclick="vote('myeongseong', -1)">-</button>
+            <span class="vote-count" id="count-myeongseong">0</span>
+            <button class="btn-circle btn-plus" onclick="vote('myeongseong', 1)">+</button>
+          </div>
+        </div>
+        <div class="sticker-area" id="area-myeongseong"></div>
+        <div class="chalk-title">명성산 억새밭</div>
+      </div>
+
+      <!-- Column 7: 한과박물관 -->
+      <div class="spot-column" id="col-hangawon">
+        <div class="spot-card">
+          <img src="images/hangawon.png" alt="한과박물관">
+          <div class="spot-name">한과박물관 🥮</div>
+          <div class="spot-controls">
+            <button class="btn-circle btn-minus" onclick="vote('hangawon', -1)">-</button>
+            <span class="vote-count" id="count-hangawon">0</span>
+            <button class="btn-circle btn-plus" onclick="vote('hangawon', 1)">+</button>
+          </div>
+        </div>
+        <div class="sticker-area" id="area-hangawon"></div>
+        <div class="chalk-title">한과박물관</div>
+      </div>
+
+      <!-- Column 8: 어메이징파크 -->
+      <div class="spot-column" id="col-amazing">
+        <div class="spot-card">
+          <img src="images/amazing_park.png" alt="어메이징파크">
+          <div class="spot-name">어메이징파크 🎡</div>
+          <div class="spot-controls">
+            <button class="btn-circle btn-minus" onclick="vote('amazing', -1)">-</button>
+            <span class="vote-count" id="count-amazing">0</span>
+            <button class="btn-circle btn-plus" onclick="vote('amazing', 1)">+</button>
+          </div>
+        </div>
+        <div class="sticker-area" id="area-amazing"></div>
+        <div class="chalk-title">어메이징파크</div>
+      </div>
+    </div>
+    <div class="chalk-ledge"></div>
+  </div>
+
+  <script>
+    // State management
+    const votes = {
+      sanjeong: 0,
+      artvalley: 0,
+      herbisland: 0,
+      arboretum: 0,
+      bidulginang: 0,
+      myeongseong: 0,
+      hangawon: 0,
+      amazing: 0
+    };
+
+    let numbersHidden = false;
+
+    // Web Audio Synthesizer for UI "Pop" Sound
+    function playPopSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(700, audioCtx.currentTime + 0.08);
+        
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch (e) {
+        console.log('Audio Context not started or supported:', e);
+      }
+    }
+
+    // Add or remove vote
+    function vote(spot, amount) {
+      const current = votes[spot];
+      const next = current + amount;
+      
+      if (next < 0) return; // Cannot be negative
+      if (next > 44) return; // Cap at 44 (logical limit)
+
+      votes[spot] = next;
+      
+      // Update UI count label
+      const countEl = document.getElementById(`count-${spot}`);
+      if (numbersHidden) {
+        countEl.textContent = '?';
+      } else {
+        countEl.textContent = votes[spot];
+      }
+
+      // Update Stickers
+      const area = document.getElementById(`area-${spot}`);
+      if (amount > 0) {
+        // Create new sticker
+        createSticker(area);
+        playPopSound();
+      } else {
+        // Remove last sticker
+        if (area.lastChild) {
+          area.removeChild(area.lastChild);
+        }
+      }
+
+      updateTotal();
+    }
+
+    // Create sticker with random position
+    function createSticker(container) {
+      const sticker = document.createElement('div');
+      sticker.className = 'sticker';
+      
+      // Calculate random absolute coordinates within container bounds
+      const containerWidth = container.clientWidth;
+      const containerHeight = container.clientHeight;
+      
+      // Add safe padding boundaries so stickers don't go off screen
+      const padding = 15;
+      const randomX = padding + Math.random() * (containerWidth - padding * 2 - 32);
+      const randomY = padding + Math.random() * (containerHeight - padding * 2 - 32);
+      const randomRotation = -20 + Math.random() * 40; // rotate randomly between -20deg and 20deg
+      
+      sticker.style.left = `${randomX}px`;
+      sticker.style.top = `${randomY}px`;
+      sticker.style.setProperty('--rotation', `${randomRotation}deg`);
+      
+      container.appendChild(sticker);
+    }
+
+    // Update sum total
+    function updateTotal() {
+      const total = Object.values(votes).reduce((sum, v) => sum + v, 0);
+      const totalEl = document.getElementById('total-votes');
+      
+      if (numbersHidden) {
+        totalEl.textContent = '?표';
+      } else {
+        totalEl.textContent = `${total}표`;
+      }
+    }
+
+    // Hide or Show numbers
+    function toggleNumbers() {
+      numbersHidden = !numbersHidden;
+      
+      const toggleText = document.getElementById('toggle-text');
+      const toggleIcon = document.getElementById('toggle-icon');
+      
+      if (numbersHidden) {
+        toggleText.textContent = '숫자 보이기';
+        toggleIcon.textContent = '👁️';
+        
+        // Replace numbers with ?
+        Object.keys(votes).forEach(spot => {
+          document.getElementById(`count-${spot}`).textContent = '?';
+        });
+        document.getElementById('total-votes').textContent = '?표';
+      } else {
+        toggleText.textContent = '숫자 가리기';
+        toggleIcon.textContent = '👁️‍🗨️';
+        
+        // Restore numbers
+        Object.keys(votes).forEach(spot => {
+          document.getElementById(`count-${spot}`).textContent = votes[spot];
+        });
+        updateTotal();
+      }
+    }
+
+    // Reset everything
+    function resetBoard() {
+      if (confirm('정말로 모든 투표 내용을 지우고 칠판을 초기화하겠습니까?')) {
+        Object.keys(votes).forEach(spot => {
+          votes[spot] = 0;
+          document.getElementById(`count-${spot}`).textContent = '0';
+          document.getElementById(`area-${spot}`).innerHTML = '';
+        });
+        numbersHidden = false;
+        document.getElementById('toggle-text').textContent = '숫자 가리기';
+        document.getElementById('toggle-icon').textContent = '👁️‍🗨️';
+        updateTotal();
+      }
+    }
+  </script>
+</body>
+</html>
