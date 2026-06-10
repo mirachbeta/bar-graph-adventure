@@ -502,6 +502,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // D. 페이지 전환 제어
   // ==========================================
   function showPanel(stepNum) {
+    if ((stepNum === 5 || stepNum === 6) && !window.IS_DEV_MODE) {
+      alert("4단계까지만 학습을 진행해 주세요! 😊");
+      return;
+    }
 
     if (window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
@@ -2685,7 +2689,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const isQ3Correct = ansQ3.value === 'b';
 
       if (isQ1Correct && isQ2Correct && isQ3Correct) {
-        fb.innerHTML = '모두 정답입니다! 🎉 막대그래프를 해석하는 능력도 대단하네요! 이제 5단계로 이동하여 눈금의 크기 비교 학습을 해봅시다.';
+        if (!window.IS_DEV_MODE) {
+          fb.innerHTML = '모두 정답입니다! 🎉 막대그래프를 해석하는 능력도 대단하네요! 4단계까지의 모든 학습을 성공적으로 마쳤습니다!';
+        } else {
+          fb.innerHTML = '모두 정답입니다! 🎉 막대그래프를 해석하는 능력도 대단하네요! 이제 5단계로 이동하여 눈금의 크기 비교 학습을 해봅시다.';
+        }
         fb.className = 'quiz-feedback success';
         fb.style.display = 'block';
         
