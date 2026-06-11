@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
     currentStep: 0,       // 현재 단계 (0~6)
     unlockedStep: 1,      // 열린 최고 단계 (1~6)
     activeScale31: 1,     // 3-1단계의 활성 눈금 크기 (1, 2, 5)
+    step5Act1Cleared: false,
+    step5Act2Cleared: false,
+    step5Act3Cleared: false,
     drawing31Data: {
       chopsticks: 0,
       cup: 0,
@@ -406,9 +409,39 @@ document.addEventListener('DOMContentLoaded', () => {
               if (checkDraw33) checkDraw33.click();
             }
           } else if (state.currentStep === 5) {
-            document.querySelectorAll('input[name="q5"][value="b"]').forEach(r => r.checked = true);
-            const checkStep5 = document.getElementById('btn-check-step5');
-            if (checkStep5) checkStep5.click();
+            // 활동 5-1 정답 채우기 및 클릭
+            const q1_2020 = document.querySelector('input[name="q51_1"][value="2020"]');
+            const q2_2020 = document.querySelector('input[name="q51_2"][value="2020"]');
+            const q3_b = document.querySelector('input[name="q51_3"][value="b"]');
+            const q4_dec = document.querySelector('input[name="q51_4"][value="decrease"]');
+            if (q1_2020) q1_2020.checked = true;
+            if (q2_2020) q2_2020.checked = true;
+            if (q3_b) q3_b.checked = true;
+            if (q4_dec) q4_dec.checked = true;
+            const checkAct5_1 = document.getElementById('btn-check-act5-1');
+            if (checkAct5_1) checkAct5_1.click();
+
+            // 활동 5-2 정답 채우기 및 클릭
+            const sel1 = document.getElementById('act52-select-1');
+            const sel2 = document.getElementById('act52-select-2');
+            const sel3 = document.getElementById('act52-select-3');
+            const sel4 = document.getElementById('act52-select-4');
+            const sel5 = document.getElementById('act52-select-5');
+            if (sel1) sel1.value = 'parking';
+            if (sel2) sel2.value = 'garbage';
+            if (sel3) sel3.value = 'safety';
+            if (sel4) sel4.value = '40';
+            if (sel5) sel5.value = 'noise';
+            const checkAct5_2 = document.getElementById('btn-check-act5-2');
+            if (checkAct5_2) checkAct5_2.click();
+
+            // 활동 5-3 정답 채우기 및 클릭
+            const q3_1_ans = document.querySelector('input[name="q53_1"][value="143680"]');
+            const q3_2_ans = document.querySelector('input[name="q53_2"][value="b"]');
+            if (q3_1_ans) q3_1_ans.checked = true;
+            if (q3_2_ans) q3_2_ans.checked = true;
+            const checkAct5_3 = document.getElementById('btn-check-act5-3');
+            if (checkAct5_3) checkAct5_3.click();
           } else {
             alert('이 단계는 자동완성할 수 있는 퀴즈가 없습니다. 😊');
           }
@@ -502,8 +535,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // D. 페이지 전환 제어
   // ==========================================
   function showPanel(stepNum) {
-    if ((stepNum === 5 || stepNum === 6) && !window.IS_DEV_MODE) {
-      alert("4단계까지만 학습을 진행해 주세요! 😊");
+    if (stepNum === 6 && !window.IS_DEV_MODE && (!state.step5Act1Cleared || !state.step5Act2Cleared || !state.step5Act3Cleared)) {
+      alert("5단계를 모두 완료해야 6단계로 갈 수 있어요! 😊");
       return;
     }
 
@@ -2724,38 +2757,228 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // J. 5단계: 눈금 단위 크기 비교 학습 (물결선 배제 교과 적용)
+  // J. 5단계: 생활 속 막대그래프 개편 로직 (교과서 122~123쪽 데이터 동기화)
   // ==========================================
-  const btnCheckStep5 = document.getElementById('btn-check-step5');
-  if (btnCheckStep5) {
-    btnCheckStep5.addEventListener('click', () => {
-      const q5 = document.querySelector('input[name="q5"]:checked');
-      const fb = document.getElementById('step5-feedback');
+  
+  // 5-1. 서브 탭 전환 및 상태 반영 함수
+  function initStep5() {
+    const tabs = document.querySelectorAll('.step5-tab-btn');
+    const panels = document.querySelectorAll('.step5-act-panel');
 
-      if (!q5) {
-        fb.textContent = '⚠️ 보기 중 하나를 선택해 주세요!';
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const actNum = tab.getAttribute('data-act');
+        
+        // 잠금 상태인 경우 클릭 무시
+        if (tab.classList.contains('locked') || tab.disabled) {
+          return;
+        }
+
+        // 탭 활성화 토글
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // 패널 활성화 토글
+        panels.forEach(p => p.classList.remove('active'));
+        const targetPanel = document.getElementById(`step5-act${actNum}-panel`);
+        if (targetPanel) {
+          targetPanel.classList.add('active');
+        }
+      });
+    });
+
+    updateStep5TabsUI();
+  }
+
+  // 5-2. 탭 UI 상태 업데이트
+  function updateStep5TabsUI() {
+    const btnAct5_2 = document.getElementById('btn-act5-2');
+    const btnAct5_3 = document.getElementById('btn-act5-3');
+    const btnNextTo6 = document.getElementById('btn-next-to-6');
+
+    // 5-1 클리어 시 5-2 열림
+    if (state.step5Act1Cleared) {
+      if (btnAct5_2) {
+        btnAct5_2.classList.remove('locked');
+        btnAct5_2.disabled = false;
+        btnAct5_2.innerHTML = '활동 5-2: 우리 지역 문제 해결 🏘️';
+      }
+    } else {
+      if (btnAct5_2) {
+        btnAct5_2.classList.add('locked');
+        btnAct5_2.disabled = true;
+        btnAct5_2.innerHTML = '활동 5-2: 우리 지역 문제 해결 🏘️ 🔒';
+      }
+    }
+
+    // 5-2 클리어 시 5-3 열림
+    if (state.step5Act2Cleared) {
+      if (btnAct5_3) {
+        btnAct5_3.classList.remove('locked');
+        btnAct5_3.disabled = false;
+        btnAct5_3.innerHTML = '활동 5-3: 독도 방문객 뉴스 🏝️';
+      }
+    } else {
+      if (btnAct5_3) {
+        btnAct5_3.classList.add('locked');
+        btnAct5_3.disabled = true;
+        btnAct5_3.innerHTML = '활동 5-3: 독도 방문객 뉴스 🏝️ 🔒';
+      }
+    }
+
+    // 모든 활동 완료 시 6단계로 가기 활성화
+    if (state.step5Act1Cleared && state.step5Act2Cleared && state.step5Act3Cleared) {
+      if (btnNextTo6) {
+        btnNextTo6.disabled = false;
+      }
+      unlockNext(5);
+    } else {
+      if (btnNextTo6) {
+        btnNextTo6.disabled = true;
+      }
+    }
+  }
+
+  // 활동 5-1 채점
+  const btnCheckAct5_1 = document.getElementById('btn-check-act5-1');
+  if (btnCheckAct5_1) {
+    btnCheckAct5_1.addEventListener('click', () => {
+      const q1 = document.querySelector('input[name="q51_1"]:checked');
+      const q2 = document.querySelector('input[name="q51_2"]:checked');
+      const q3 = document.querySelector('input[name="q51_3"]:checked');
+      const q4 = document.querySelector('input[name="q51_4"]:checked');
+      const fb = document.getElementById('act5-1-feedback');
+
+      if (!q1 || !q2 || !q3 || !q4) {
+        fb.textContent = '⚠️ 모든 질문의 답을 선택해 주세요!';
         fb.className = 'quiz-feedback error';
         fb.style.display = 'block';
         return;
       }
 
-      if (q5.value === 'b') {
-        fb.innerHTML = '정답입니다! 🎉 눈금 한 칸의 크기가 커지면(1개 ➡️ 5개), 데이터를 표현하기 위한 세로 격자 수가 줄어들기 때문에 막대의 총길이가 상대적으로 **짧아지고 완만**해 보입니다. 겉모습이 달라도 실제 수치는 같으니 반드시 눈금을 먼저 보아야 합니다!';
+      const isQ1Correct = (q1.value === '2020');
+      const isQ2Correct = (q2.value === '2020');
+      const isQ3Correct = (q3.value === 'b');
+      const isQ4Correct = (q4.value === 'decrease');
+
+      if (isQ1Correct && isQ2Correct && isQ3Correct && isQ4Correct) {
+        fb.innerHTML = '정답입니다! 🎉 친환경 자동차 등록 대수가 가장 많은 연도는 **2020년**이고, 일산화탄소 배출량이 가장 적은 연도도 **2020년**입니다. 두 그래프를 비교해보면 **친환경 자동차가 늘어남에 따라 배출량이 줄어든다**는 성질을 알 수 있습니다. 또한 친환경 자동차가 159만 대로 크게 늘어난 2022년에는 일산화탄소 배출량이 **더 줄어들었을 것**이라고 올바르게 예상하셨습니다. 이렇게 이미 조사된 그래프의 성질을 통해 조사되지 않은 미래의 값도 논리적으로 예상할 수 있습니다. 아주 멋집니다!';
         fb.className = 'quiz-feedback success';
         fb.style.display = 'block';
-        
-        unlockNext(5);
-        const btnNextTo6 = document.getElementById('btn-next-to-6');
-        if (btnNextTo6) btnNextTo6.disabled = false;
-        
+        state.step5Act1Cleared = true;
+        updateStep5TabsUI();
         playConfetti();
+        
+        // 2초 뒤 자동으로 활동 5-2 탭으로 이동
+        setTimeout(() => {
+          const btnAct5_2 = document.getElementById('btn-act5-2');
+          if (btnAct5_2) btnAct5_2.click();
+        }, 2000);
       } else {
-        fb.innerHTML = '아쉽게도 오답입니다. 눈금 한 칸이 1개일 때는 15개가 15칸 높이지만, 눈금 한 칸이 5개일 때는 3칸 높이로 표현됩니다. 눈금 크기가 커지면 막대는 더 어떻게 되나요?';
+        let errText = '❌ 일부 오답이 있습니다. 다시 확인해 볼까요?<br>';
+        if (!isQ1Correct) errText += '- **질문 1**: 왼쪽 그래프에서 막대의 높이가 가장 높은 연도를 다시 찾아보세요.<br>';
+        if (!isQ2Correct) errText += '- **질문 2**: 오른쪽 그래프에서 막대의 높이가 가장 낮은 연도를 다시 찾아보세요.<br>';
+        if (!isQ3Correct) errText += '- **질문 3**: 친환경 자동차의 막대 높이가 연도별로 높아질 때 일산화탄소 배출량 막대의 높이는 어떻게 변하는지 확인해 보세요.<br>';
+        if (!isQ4Correct) errText += '- **질문 4**: 친환경 자동차가 크게 늘어난 2022년에 일산화탄소 배출량은 이전보다 더 줄어들었을지, 늘어났을지 변화 성질을 바탕으로 다시 예상해 보세요.';
+        fb.innerHTML = errText;
         fb.className = 'quiz-feedback error';
         fb.style.display = 'block';
       }
     });
   }
+
+  // 활동 5-2 채점 (문장 빌더)
+  const btnCheckAct5_2 = document.getElementById('btn-check-act5-2');
+  if (btnCheckAct5_2) {
+    btnCheckAct5_2.addEventListener('click', () => {
+      const sel1 = document.getElementById('act52-select-1');
+      const sel2 = document.getElementById('act52-select-2');
+      const sel3 = document.getElementById('act52-select-3');
+      const sel4 = document.getElementById('act52-select-4');
+      const sel5 = document.getElementById('act52-select-5');
+      const fb = document.getElementById('act5-2-feedback');
+
+      if (!sel1.value || !sel2.value || !sel3.value || !sel4.value || !sel5.value) {
+        fb.textContent = '⚠️ 빈칸을 모두 선택해 주세요!';
+        fb.className = 'quiz-feedback error';
+        fb.style.display = 'block';
+        return;
+      }
+
+      const isCorrect1 = (sel1.value === 'parking');
+      const isCorrect2 = (sel2.value === 'garbage');
+      const isCorrect3 = (sel3.value === 'safety');
+      const isCorrect4 = (sel4.value === '40');
+      const isCorrect5 = (sel5.value === 'noise');
+
+      [sel1, sel2, sel3, sel4, sel5].forEach((sel, idx) => {
+        const correctFlag = [isCorrect1, isCorrect2, isCorrect3, isCorrect4, isCorrect5][idx];
+        if (correctFlag) {
+          sel.classList.add('correct');
+        } else {
+          sel.classList.remove('correct');
+        }
+      });
+
+      if (isCorrect1 && isCorrect2 && isCorrect3 && isCorrect4 && isCorrect5) {
+        fb.innerHTML = '정답입니다! 🎉 민우네 학교 지역 문제 그래프의 모든 사실을 완벽하게 글로 정리했습니다. 주차 문제가 80명으로 가장 많고, 쓰레기 문제가 20명으로 가장 적었으며, 안전 문제(50명)와 소음 문제(30명)의 합은 주차 문제(80명)와 같습니다. 아주 훌륭합니다!';
+        fb.className = 'quiz-feedback success';
+        fb.style.display = 'block';
+        state.step5Act2Cleared = true;
+        updateStep5TabsUI();
+        playConfetti();
+
+        // 2초 뒤 자동으로 활동 5-3 탭으로 이동
+        setTimeout(() => {
+          const btnAct5_3 = document.getElementById('btn-act5-3');
+          if (btnAct5_3) btnAct5_3.click();
+        }, 2000);
+      } else {
+        fb.innerHTML = '❌ 틀린 부분이 있습니다. 초록색으로 표시되지 않은 드롭다운 상자의 항목을 그래프 눈금과 다시 대조하여 맞추어 보세요.';
+        fb.className = 'quiz-feedback error';
+        fb.style.display = 'block';
+      }
+    });
+  }
+
+  // 활동 5-3 채점
+  const btnCheckAct5_3 = document.getElementById('btn-check-act5-3');
+  if (btnCheckAct5_3) {
+    btnCheckAct5_3.addEventListener('click', () => {
+      const q1 = document.querySelector('input[name="q53_1"]:checked');
+      const q2 = document.querySelector('input[name="q53_2"]:checked');
+      const fb = document.getElementById('act5-3-feedback');
+
+      if (!q1 || !q2) {
+        fb.textContent = '⚠️ 모든 질문의 답을 선택해 주세요!';
+        fb.className = 'quiz-feedback error';
+        fb.style.display = 'block';
+        return;
+      }
+
+      const isQ1Correct = (q1.value === '143680');
+      const isQ2Correct = (q2.value === 'b');
+
+      if (isQ1Correct && isQ2Correct) {
+        fb.innerHTML = '정답입니다! 🎉 2021년 한 해 동안 독도를 찾은 방문객 수는 **143,680명**입니다. 2020년에는 코로나19 전염병 대유행으로 인해 사람들의 여행 및 이동이 줄어들어 방문객 수가 약 10만 명대로 크게 감소했다는 사회적 맥락도 완벽히 파악했습니다! 5단계의 모든 활동을 정복했습니다!';
+        fb.className = 'quiz-feedback success';
+        fb.style.display = 'block';
+        state.step5Act3Cleared = true;
+        updateStep5TabsUI();
+        playConfetti();
+      } else {
+        let errText = '❌ 일부 오답이 있습니다. 다시 확인해 볼까요?<br>';
+        if (!isQ1Correct) errText += '- **질문 1**: 기사 내용이나 2021년 막대그래프 높이를 보고 방문객 수를 다시 판독해 보세요.<br>';
+        if (!isQ2Correct) errText += '- **질문 2**: 2020년 당시 사회적으로 전국적, 전 세계적 이동 제한을 부른 주요 감염병 유행 사건이 무엇인지 다시 생각해 보세요.';
+        fb.innerHTML = errText;
+        fb.className = 'quiz-feedback error';
+        fb.style.display = 'block';
+      }
+    });
+  }
+
+  // 페이지 로드 시 또는 리셋 시 5단계 탭 초기화 설정 호출
+  initStep5();
 
   const btnNextTo6 = document.getElementById('btn-next-to-6');
   if (btnNextTo6) {
@@ -2957,6 +3180,10 @@ document.addEventListener('DOMContentLoaded', () => {
           5: { chopsticks: 8, cup: 12, bag: 6, spoon: 2 }
         };
         state.drawing32Data = { chopsticks: 0, cup: 0, bag: 0, spoon: 0 };
+        state.step5Act1Cleared = false;
+        state.step5Act2Cleared = false;
+        state.step5Act3Cleared = false;
+        if (typeof updateStep5TabsUI === 'function') updateStep5TabsUI();
         
         const helperBox = document.getElementById('scale-31-helper-box');
         if (helperBox) helperBox.style.display = 'none';

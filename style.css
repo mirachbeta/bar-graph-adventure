@@ -1488,7 +1488,7 @@ h2 {
 
 .svg-graph {
   width: 100%;
-  max-width: 280px;
+  max-width: 400px;
   height: auto;
 }
 
@@ -1502,6 +1502,169 @@ h2 {
 
 .text-red { color: var(--color-danger); }
 .text-green { color: var(--color-success); }
+
+/* 5단계 개편: 생활 속 막대그래프 서브 탭 & 문장 빌더 & 뉴스 기사 */
+.step5-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 15px;
+}
+
+.step5-tab-btn {
+  padding: 10px 20px;
+  border-radius: var(--border-radius-md);
+  border: 2px solid #cbd5e1;
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step5-tab-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: #f0f9ff;
+}
+
+.step5-tab-btn.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+}
+
+.step5-tab-btn.locked {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.step5-act-panel {
+  display: none;
+  animation: fadeIn 0.4s ease;
+}
+
+.step5-act-panel.active {
+  display: block;
+}
+
+/* 문장 완성 빌더 */
+.sentence-builder-card {
+  background: #f8fafc;
+  border-radius: var(--border-radius-md);
+  border: 2px solid #e2e8f0;
+  padding: 25px;
+  margin-top: 25px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.sentence-builder-card h3 {
+  color: #1e293b;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #cbd5e1;
+  padding-bottom: 8px;
+  font-size: 1.15rem;
+}
+
+.sentence-builder-content p {
+  font-size: 1.1rem;
+  line-height: 2.2;
+  color: #334155;
+  margin: 0;
+}
+
+.builder-select {
+  padding: 5px 12px;
+  border-radius: var(--border-radius-sm);
+  border: 2px solid #cbd5e1;
+  background: white;
+  color: #1e293b;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.builder-select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  background: #f0f9ff;
+}
+
+.builder-select.correct {
+  border-color: var(--color-success);
+  background: #f0fdf4;
+  color: var(--color-success-dark);
+}
+
+/* 독도 뉴스 스타일 */
+.news-card {
+  background: #fcfcf9; /* 신문지 느낌의 밝은 아이보리 */
+  border: 1px solid #d1d5db;
+  border-top: 8px solid #1e293b; /* 신문지 헤더 느낌 */
+  border-radius: var(--border-radius-sm);
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+
+.news-header {
+  border-bottom: 2px dashed #9ca3af;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+
+.news-category {
+  display: inline-block;
+  background: #374151;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 3px;
+  margin-bottom: 10px;
+}
+
+.news-header h3 {
+  font-family: 'Georgia', serif;
+  font-size: 1.35rem;
+  color: #111827;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.news-date {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.news-lead {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #374151;
+  margin-bottom: 20px;
+}
+
+.news-graph-box {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--border-radius-md);
+  padding: 15px;
+}
+
+.bg-blue { background: var(--color-primary); }
+
+.graph-single-layout {
+  margin-bottom: 30px;
+}
 
 /* 6단계: 수료증 영역 */
 .certificate-container-wrapper {
