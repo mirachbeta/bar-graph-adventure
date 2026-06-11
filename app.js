@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
   try {
     window.APP_JS_LOADED = true;
     
-    // 수업 차시 제어: 1 = 1차시만, 2 = 2차시까지, 3 = 3차시(3단계)까지, 6 = 전체 사용
-    const MAX_ENABLED_STEP = 6;
+    // 수업 차시 제어: 1 = 1차시만, 2 = 2차시까지, 3 = 3차시(3단계)까지, 5 = 5단계까지(6단계 잠금)
+    const MAX_ENABLED_STEP = 5;
   
     function stripEmoji(str) {
       if (!str) return '';
