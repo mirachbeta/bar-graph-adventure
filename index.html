@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=1.1.8">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -1519,201 +1519,199 @@
       <!-- 4단계: 자료 조사하여 막대그래프로 나타내기 및 모둠 릴레이 -->
       <!-- 4단계: 자료 조사하여 막대그래프로 나타내기 (임시 안내 패널) -->
       <!-- 4단계: 자료 조사하여 막대그래프로 나타내기 -->
+            <!-- 4단계: 자료 조사하기 -->
       <section id="step-4-panel" class="step-panel">
-        <!-- 활동 4-1 카드 -->
-        <div class="card" id="sub-step-4-1">
-          <div class="badge">활동 4-1: 조사 항목 선택 및 표 완성하기</div>
-          
-          <div class="title-with-tts">
-            <h2>우리 반 명소 선호도 조사 항목을 골라봐요! 🗺️</h2>
-            <button class="btn-tts" data-tts="우리 모둠이 조사할 포천의 명소를 최소 네 개에서 최대 일곱 개까지 골라보세요. 다 고르면 선택 완료 버튼을 눌러주세요."></button>
-          </div>
-          <p class="description-text">포천의 대표 명소 8곳 중 **우리 모둠이 조사할 명소를 최소 4개에서 최대 7개까지** 자유롭게 선택해 보세요.</p>
+<!-- 활동 4-1 카드 -->
+<div class="card" id="sub-step-4-1">
+<div class="badge">활동 4-1: 조사 항목 선택 및 표 완성하기</div>
 
-          <!-- 8 Attractions Checkbox list -->
-          <div class="spot-selector-grid">
-            <!-- Spot 1 -->
-            <label class="spot-select-card" id="label-sanjeong">
-              <input type="checkbox" name="spot-select" value="sanjeong" checked>
-              <img src="images/sanjeong_lake.png" alt="산정호수">
-              <div class="spot-select-info">
-                <span class="spot-select-name">산정호수 🏞️</span>
-              </div>
-            </label>
-            <!-- Spot 2 -->
-            <label class="spot-select-card" id="label-artvalley">
-              <input type="checkbox" name="spot-select" value="artvalley" checked>
-              <img src="images/art_valley.png" alt="포천아트밸리">
-              <div class="spot-select-info">
-                <span class="spot-select-name">포천아트밸리 🎨</span>
-              </div>
-            </label>
-            <!-- Spot 3 -->
-            <label class="spot-select-card" id="label-herbisland">
-              <input type="checkbox" name="spot-select" value="herbisland" checked>
-              <img src="images/herb_island.png" alt="허브아일랜드">
-              <div class="spot-select-info">
-                <span class="spot-select-name">허브아일랜드 🌿</span>
-              </div>
-            </label>
-            <!-- Spot 4 -->
-            <label class="spot-select-card" id="label-arboretum">
-              <input type="checkbox" name="spot-select" value="arboretum" checked>
-              <img src="images/national_arboretum.png" alt="국립수목원">
-              <div class="spot-select-info">
-                <span class="spot-select-name">국립수목원 🌳</span>
-              </div>
-            </label>
-            <!-- Spot 5 -->
-            <label class="spot-select-card" id="label-bidulginang">
-              <input type="checkbox" name="spot-select" value="bidulginang">
-              <img src="images/bidulginang.png" alt="비둘기낭 폭포">
-              <div class="spot-select-info">
-                <span class="spot-select-name">비둘기낭 폭포 🏞️</span>
-              </div>
-            </label>
-            <!-- Spot 6 -->
-            <label class="spot-select-card" id="label-myeongseong">
-              <input type="checkbox" name="spot-select" value="myeongseong">
-              <img src="images/myeongseong_silvergrass.png" alt="명성산 억새밭">
-              <div class="spot-select-info">
-                <span class="spot-select-name">명성산 억새밭 🌾</span>
-              </div>
-            </label>
-            <!-- Spot 7 -->
-            <label class="spot-select-card" id="label-hangawon">
-              <input type="checkbox" name="spot-select" value="hangawon">
-              <img src="images/hangawon.png" alt="한과박물관">
-              <div class="spot-select-info">
-                <span class="spot-select-name">한과박물관 🥮</span>
-              </div>
-            </label>
-            <!-- Spot 8 -->
-            <label class="spot-select-card" id="label-amazing">
-              <input type="checkbox" name="spot-select" value="amazing">
-              <img src="images/amazing_park.png" alt="어메이징파크">
-              <div class="spot-select-info">
-                <span class="spot-select-name">어메이징파크 🎡</span>
-              </div>
-            </label>
-          </div>
+<div class="title-with-tts">
+<h2>우리 반 명소 선호도 조사 항목을 골라봐요! 🗺️</h2>
+<button class="btn-tts" data-tts="우리 모둠이 조사할 포천의 명소를 최소 네 개에서 최대 일곱 개까지 골라보세요. 다 고르면 선택 완료 버튼을 눌러주세요."></button>
+</div>
+<p class="description-text">포천의 대표 명소 8곳 중 **우리 모둠이 조사할 명소를 최소 4개에서 최대 7개까지** 자유롭게 선택해 보세요.</p>
 
-          <div class="selection-control-box">
-            <div id="selection-count-msg" class="text-info">현재 4개 선택됨 (4~7개 선택 가능)</div>
-            <button id="btn-complete-selection" class="btn btn-primary btn-large">항목 선택 완료! ✔️</button>
-          </div>
+<!-- 8 Attractions Checkbox list -->
+<div class="spot-selector-grid">
+<!-- Spot 1 -->
+<label class="spot-select-card" id="label-sanjeong">
+<input type="checkbox" name="spot-select" value="sanjeong" checked>
+<img src="images/sanjeong_lake.png" alt="산정호수">
+<div class="spot-select-info">
+<span class="spot-select-name">산정호수 🏞️</span>
+</div>
+</label>
+<!-- Spot 2 -->
+<label class="spot-select-card" id="label-artvalley">
+<input type="checkbox" name="spot-select" value="artvalley" checked>
+<img src="images/art_valley.png" alt="포천아트밸리">
+<div class="spot-select-info">
+<span class="spot-select-name">포천아트밸리 🎨</span>
+</div>
+</label>
+<!-- Spot 3 -->
+<label class="spot-select-card" id="label-herbisland">
+<input type="checkbox" name="spot-select" value="herbisland" checked>
+<img src="images/herb_island.png" alt="허브아일랜드">
+<div class="spot-select-info">
+<span class="spot-select-name">허브아일랜드 🌿</span>
+</div>
+</label>
+<!-- Spot 4 -->
+<label class="spot-select-card" id="label-arboretum">
+<input type="checkbox" name="spot-select" value="arboretum" checked>
+<img src="images/national_arboretum.png" alt="국립수목원">
+<div class="spot-select-info">
+<span class="spot-select-name">국립수목원 🌳</span>
+</div>
+</label>
+<!-- Spot 5 -->
+<label class="spot-select-card" id="label-bidulginang">
+<input type="checkbox" name="spot-select" value="bidulginang">
+<img src="images/bidulginang.png" alt="비둘기낭 폭포">
+<div class="spot-select-info">
+<span class="spot-select-name">비둘기낭 폭포 🏞️</span>
+</div>
+</label>
+<!-- Spot 6 -->
+<label class="spot-select-card" id="label-myeongseong">
+<input type="checkbox" name="spot-select" value="myeongseong">
+<img src="images/myeongseong_silvergrass.png" alt="명성산 억새밭 🌾">
+<div class="spot-select-info">
+<span class="spot-select-name">명성산 억새밭 🌾</span>
+</div>
+</label>
+<!-- Spot 7 -->
+<label class="spot-select-card" id="label-hangawon">
+<input type="checkbox" name="spot-select" value="hangawon">
+<img src="images/hangawon.png" alt="한과박물관 🥮">
+<div class="spot-select-info">
+<span class="spot-select-name">한과박물관 🥮</span>
+</div>
+</label>
+<!-- Spot 8 -->
+<label class="spot-select-card" id="label-amazing">
+<input type="checkbox" name="spot-select" value="amazing">
+<img src="images/amazing_park.png" alt="어메이징파크">
+<div class="spot-select-info">
+<span class="spot-select-name">어메이징파크 🎡</span>
+</div>
+</label>
+</div>
 
-          <!-- Counting table & Blackboard (Visible after selection) -->
-          <div id="counting-workspace-41" style="display:none; margin-top: 30px;">
-            <hr class="section-divider">
-            <div class="title-with-tts">
-              <h3>📝 스티커 수를 세어 표를 완성해 봅시다!</h3>
-              <button class="btn-tts" data-tts="교실 앞 티브이 화면에 띄워진 칠판의 투표 결과를 보고, 우리 모둠이 선택한 명소의 스티커 수와 합계를 세어 입력해 보세요. 만약 티브이 화면이 보이지 않는다면 하단의 미니 칠판 보기 버튼을 클릭하세요."></button>
-            </div>
-            
-            <p class="description-text">교실 앞 대형 화면의 **실시간 투표 칠판(survey.html)**을 보고, 우리 모둠이 고른 명소들의 초록색 스티커 수와 전체 합계를 정확히 세어 아래 표에 입력해 주세요.</p>
+<div class="selection-control-box">
+<div id="selection-count-msg" class="text-info">현재 4개 선택됨 (4~7개 선택 가능)</div>
+<button id="btn-complete-selection" class="btn btn-primary btn-large">항목 선택 완료! ✔️</button>
+</div>
 
-            <button id="btn-toggle-local-board" class="btn btn-outline btn-small mb-4">🖥️ 화면이 안 보여요! 가상 투표판 열기</button>
-            
-            <!-- Local Blackboard fallback (initially hidden) -->
-            <div id="local-board-box" class="local-chalkboard-container" style="display:none;">
-              <div class="local-chalkboard">
-                <div class="local-chalkboard-title">우리 반 투표 결과판 (기본값)</div>
-                <div class="local-stickers-grid" id="local-stickers-wrapper">
-                  <!-- JS renders fallback stickers here -->
-                </div>
-              </div>
-              <p class="text-muted mt-2" style="font-size:0.8rem; text-align:center;">※ 교사용 투표판과 연계되지 않는 학생 개별 자습용 기본 데이터 투표판입니다.</p>
-            </div>
+<!-- Counting table & Blackboard (Visible after selection) -->
+<div id="counting-workspace-41" style="display:none; margin-top: 30px;">
+<hr class="section-divider">
+<div class="title-with-tts">
+<h3>📝 스티커 수를 세어 표를 완성해 봅시다!</h3>
+<button class="btn-tts" data-tts="교실 앞 티브이 화면에 띄워진 칠판의 투표 결과를 보고, 우리 모둠이 선택한 명소의 스티커 수와 합계를 세어 입력해 보세요. 만약 티브이 화면이 보이지 않는다면 하단의 미니 칠판 보기 버튼을 클릭하세요."></button>
+</div>
 
-            <!-- Table Input -->
-            <div class="counting-table-container">
-              <table class="counting-table">
-                <thead>
-                  <tr>
-                    <th>명소 이름</th>
-                    <th style="width: 150px;">표 수 (개)</th>
-                  </tr>
-                </thead>
-                <tbody id="counting-table-body">
-                  <!-- Dynamic rows rendered by JS -->
-                </tbody>
-              </table>
-            </div>
+<p class="description-text">교실 앞 대형 화면의 **실시간 투표 칠판(survey.html)**을 보고, 우리 모둠이 고른 명소들의 초록색 스티커 수와 전체 합계를 정확히 세어 아래 표에 입력해 주세요.</p>
 
-            <button id="btn-check-table-41" class="btn btn-primary mt-4 w-full">표 완성하기! 🔍</button>
-            <div id="feedback-table-41" class="quiz-feedback"></div>
-          </div>
-        </div>
+<button id="btn-toggle-local-board" class="btn btn-outline btn-small mb-4">🖥️ 화면이 안 보여요! 가상 투표판 열기</button>
 
-        <!-- 활동 4-2 카드 -->
-        <div class="card" id="sub-step-4-2" style="display:none;">
-          <div class="badge">활동 4-2: 막대그래프 그리기 도구 활용하기</div>
-          
-          <div class="title-with-tts">
-            <h2>막대그래프 그리기 도구로 그래프를 완성해요! 📊</h2>
-            <button class="btn-tts" data-tts="막대그래프 그리기 도구를 사용하여 그래프를 완성해 봅시다. 좌측 표에 나온 포천 명소들의 표 수치를 확인하고, 오른쪽 그래프의 플러스와 마이너스 버튼을 눌러 알맞은 높이의 막대를 직접 그려 보세요. 다 그리면 그래프 검사하고 저장하기 버튼을 클릭하세요."></button>
-          </div>
-          <p class="description-text">좌측 **조사 결과 표**의 수치를 확인하고, 우측 그래프의 **[+]와 [-] 버튼**을 눌러 막대를 알맞은 높이로 직접 그려 보세요.</p>
+<!-- Local Blackboard fallback (initially hidden) -->
+<div id="local-board-box" class="
+<div class="local-chalkboard">
+<div class="local-chalkboard-title">우리 반 투표 결과판 (기본값)</div>
+<div class="local-stickers-grid" id="local-stickers-wrapper">
+<!-- JS renders fallback stickers here -->
+</div>
+</div>
+<p class="text-muted mt-2" style="font-size:0.8rem; text-align:center;">※ 교사용 투표판과 연계되지 않는 학생 개별 자습용 기본 데이터 투표판입니다.</p>
+</div>
 
-          <!-- EBSMath Easy Stats Simulator Mockup -->
-          <div class="ebs-simulator-container">
-            <div class="ebs-simulator-header">
-              <div class="ebs-logo">막대그래프 그리기 도구</div>
-            </div>
+<!-- Table Input -->
+<div class="counting-table-container">
+<table class="counting-table">
+<thead>
+<tr>
+<th>명소 이름</th>
+<th style="width: 150px;">표 수 (개)</th>
+</tr>
+</thead>
+<tbody id="counting-table-body">
+<!-- Dynamic rows rendered by JS -->
+</tbody>
+</table>
+</div>
 
-            <!-- Simulator Workspace -->
-            <div class="ebs-workspace" id="ebs-workspace">
-              <!-- Left: Inputs -->
-              <div class="ebs-sidebar">
-                <div class="ebs-section">
-                  <label class="ebs-label">📊 그래프 제목:</label>
-                  <input type="text" id="ebs-title" value="우리 반 친구들이 가장 가보고 싶은 포천의 명소" class="ebs-input">
-                </div>
+<button id="btn-check-table-41" class="btn btn-primary mt-4 w-full">표 완성하기! 🔍</button>
+<div id="feedback-table-41" class="quiz-feedback"></div>
+</div>
 
-                <div class="ebs-section">
-                  <label class="ebs-label">📋 우리 모둠의 조사 결과 표:</label>
-                  <div class="ebs-table-wrapper">
-                    <table class="ebs-input-table">
-                      <thead>
-                        <tr>
-                          <th>명소 이름</th>
-                          <th style="width: 80px;">표 수</th>
-                        </tr>
-                      </thead>
-                      <tbody id="ebs-table-body">
-                        <!-- Dynamic rows loaded from 4-1 -->
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
+<!-- 활동 4-2 카드 -->
+<div class="card" id="sub-step-4-2" style="display:none;">
+<div class="badge">활동 4-2: 막대그래프 그리기 도구 활용하기</div>
 
-              <!-- Right: Graph Board -->
-              <div class="ebs-chart-panel">
-                <!-- Toolbar -->
-                <div class="ebs-toolbar">
-                  <div class="ebs-tool-group">
-                    <label>눈금 설정:</label>
-                    <select id="ebs-scale-select" class="ebs-select">
-                      <option value="1">1표 간격</option>
-                      <option value="2" selected>2표 간격</option>
-                      <option value="3">3표 간격</option>
-                      <option value="4">4표 간격</option>
-                      <option value="5">5표 간격</option>
+<div class="title-with-tts">
+<h2>막대그래프 그리기 도구로 그래프를 완성해요! 📊</h2>
+<button class="btn-tts" data-tts="막대그래프 그리기 도구를 사용하여 그래프를 완성해 봅시다. 좌측 표에 나온 포천 명소들의 표 수치를 확인하고, 오른쪽 그래프의 플러스와 마이너스 버튼을 눌러 알맞은 높이의 막대를 직접 그려 보세요. 다 그리면 그래프 검사하고 저장하기 버튼을 클릭하세요."></button>
+</div>
+<p class="description-text">좌측 **조사 결과 표**의 수치를 확인하고, 우측 그래프의 **[+]와 [-] 버튼**을 눌러 막대를 알맞은 높이로 직접 그려 보세요.</p>
+
+<!-- EBSMath Easy Stats Simulator Mockup -->
+<div class="ebs-simulator-container">
+<div class="ebs-simulator-header">
+<div class="ebs-logo">막대그래프 그리기 도구</div>
+</div>
+
+<!-- Simulator Workspace -->
+<div class="ebs-workspace" id="ebs-workspace">
+<!-- Left: Inputs -->
+<div class="ebs-sidebar">
+<div class="ebs-section">
+<label class="ebs-label">📊 그래프 제목:</label>
+<input type="text" id="ebs-title" value="우리 반 친구들이 가장 가보고 싶은 포천의 명소" class="ebs-input">
+</div>
+
+<div class="ebs-section">
+<label class="ebs-label">📋 우리 모둠의 조사 결과 표:</label>
+<div class="ebs-table-wrapper">
+<table class="ebs-input-table">
+<thead>
+<tr>
+<th>명소 이름</th>
+<th style="width: 80px;">표 수</th>
+</tr>
+</thead>
+<tbody id="ebs-table-body">
+<!-- Dynamic rows loaded from 4-1 -->
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- Right: Graph Board -->
+<div class="ebs-chart-panel">
+<!-- Toolbar -->
+<div class="ebs-toolbar">
+<div class="ebs-tool-group">
+<label>눈금 설정:</label>
+<select id="ebs-scale-select" class="ebs-select">
+<option value="1">1표 간격</option>
+<option value="2" selected>2표 간격</option>
+
                     </select>
                   </div>
-                  <div class="ebs-tool-group">
+                  <div class="ebs-tool-group" style="display: none;">
                     <label>단위:</label>
                     <input type="text" id="ebs-unit-input" placeholder="단위(예: 표)" class="ebs-input-sm" value="표">
                   </div>
-                  <button id="btn-ebs-direction" class="btn-ebs-icon">가로/세로</button>
+                  <button id="btn-ebs-direction" class="btn-ebs-icon active">🔄 가로/세로 방향 바꾸기</button>
                 </div>
 
                 <!-- Main Drawing Board -->
                 <div class="ebs-board" id="ebs-board-grid">
                   <div class="ebs-chart-title" id="ebs-chart-title-label">우리 반 친구들이 가장 가보고 싶은 포천의 명소</div>
-                  <div class="ebs-unit-label" id="ebs-chart-unit-label">단위:</div>
+                  <div class="ebs-unit-label" id="ebs-chart-unit-label">단위: 표</div>
                   
                   <div class="ebs-chart-container" id="ebs-chart-inner">
                     <!-- Dynamic grid and bars will render here -->
@@ -1728,97 +1726,98 @@
             <div id="feedback-ebs-42" class="quiz-feedback"></div>
           </div>
 
-          <div class="action-footer">
-            <button id="btn-back-to-41" class="btn btn-outline">👈 이전으로 돌아가기</button>
-            <button id="btn-go-to-43" class="btn btn-success" disabled>활동 4-3으로 가기 👉</button>
-          </div>
-        </div>
+<div class="action-footer">
+<button id="btn-back-to-41" class="btn btn-outline">👈 이전으로 돌아가기</button>
+<button id="btn-go-to-43" class="btn btn-success" disabled>활동 4-3으로 가기 👉</button>
+</div>
+</div>
 
-        <!-- 활동 4-3 카드 -->
-        <div class="card" id="sub-step-4-3" style="display:none;">
-          <div class="badge">활동 4-3: 막대그래프 비교 및 해석하기</div>
-          
-          <div class="title-with-tts">
-            <h2>내가 그린 막대그래프를 읽어봅시다! 🕵️‍♂️</h2>
-            <button class="btn-tts" data-tts="자신이 만든 그래프를 보고 질문에 답해 보세요. 다 풀고 4단계 완전 클리어 버튼을 누르면 5단계 잠금이 해제됩니다."></button>
-          </div>
-          <p class="description-text">완성하여 저장한 **포천 명소 막대그래프**를 보고 다음 개념 탐구 퀴즈를 해결해 봅시다.</p>
+<!-- 활동 4-3 카드 -->
+<div class="card" id="sub-step-4-3" style="display:none;">
+<div class="badge">활동 4-3: 막대그래프 비교 및 해석하기</div>
 
-          <!-- Dynamic Preview Chart inside Activity 4-3 -->
-          <div class="preview-chart-showcase-box" style="background: rgba(15, 23, 42, 0.03); padding: 20px; border-radius: 12px; border: 1.5px solid var(--color-border); margin-top: 15px; margin-bottom: 25px;">
-            <h4 id="q43-graph-title" style="text-align: center; color: var(--color-primary-hover); font-size: 1.15rem; margin-bottom: 15px; font-weight: 800;">내가 완성한 포천 명소 그래프</h4>
-            <div class="q43-chart-container" style="height: 200px; display: flex; align-items: flex-end; justify-content: space-around; padding-bottom: 20px; border-bottom: 2px solid #475569; position: relative; width: 100%; margin: 0 auto; max-width: 500px;">
-              <div id="q43-bars-wrapper" style="display: flex; width: 100%; height: 100%; align-items: flex-end; justify-content: space-around; z-index: 2;">
-                <!-- Dynamic Bars will be rendered here by JS -->
-              </div>
-            </div>
-            <button id="btn-q43-toggle-direction" class="btn btn-outline" style="display: block; margin: 15px auto 0 auto; font-size: 0.9rem; padding: 6px 16px; align-items: center; gap: 6px;">
-              🔄 가로/세로 방향 바꾸기
-            </button>
-          </div>
+<div class="title-with-tts">
+<h2>내가 그린 막대그래프를 읽어봅시다! 🕵️‍♂️</h2>
+<button class="btn-tts" data-tts="자신이 만든 그래프를 보고 질문에 답해 보세요. 다 풀고 4단계 완전 클리어 버튼을 누르면 5단계 잠금이 해제됩니다."></button>
+</div>
+<p class="description-text">완성하여 저장한 **포천 명소 막대그래프**를 보고 다음 개념 탐구 퀴즈를 해결해 봅시다.</p>
 
-          <div class="quiz-area">
-            <!-- Q1 -->
-            <div class="quiz-item">
-              <div class="title-with-tts">
-                <h4>Q1. 우리 모둠 조사 결과, 학생들이 가장 가보고 싶어 하는 포천의 명소는 어디인가요?</h4>
-                <button class="btn-tts" data-tts="Q1. 우리 모둠 조사 결과, 학생들이 가장 가보고 싶어 하는 포천의 명소는 어디인가요?"></button>
-              </div>
-              <div class="radio-options vertical" id="q43-q1-options">
-                <!-- Dynamic options loaded from saved items -->
-              </div>
-            </div>
+<!-- Dynamic Preview Chart inside Activity 4-3 -->
+<div class="preview-chart-showcase-box" style="background: rgba(15, 23, 42, 0.03); padding: 20px; border-radius: 12px; border: 1.5px solid var(--color-border); margin-top: 15px; margin-bottom: 25px;">
+<h4 id="q43-graph-title" style="text-align: center; color: var(--color-primary-hover); font-size: 1.15rem; margin-bottom: 15px; font-weight: 800;">내가 완성한 포천 명소 그래프</h4>
+<div class="q43-chart-container" style="height: 200px; display: flex; align-items: flex-end; justify-content: space-around; padding-bottom: 20px; border-bottom: 2px solid #475569; position: relative; width: 100%; margin: 0 auto; max-width: 500px;">
+<div id="q43-bars-wrapper" style="display: flex; width: 100%; height: 100%; align-items: flex-end; justify-content: space-around; z-index: 2;">
+<!-- Dynamic Bars will be rendered here by JS -->
+</div>
+</div>
+<button id="btn-q43-toggle-direction" class="btn btn-outline" style="display: block; margin: 15px auto 0 auto; font-size: 0.9rem; padding: 6px 16px; align-items: center; gap: 6px;">
+🔄 가로/세로 방향 바꾸기
+</button>
+</div>
 
-            <!-- Q2 -->
-            <div class="quiz-item">
-              <div class="title-with-tts">
-                <h4>Q2. 세로 막대그래프를 가로 막대그래프로 방향을 바꾸어 그릴 때, 가로와 세로에 나타내는 내용은 어떻게 변하나요?</h4>
-                <button class="btn-tts" data-tts="Q2. 세로 막대그래프를 가로 막대그래프로 방향을 바꾸어 그릴 때, 가로와 세로에 나타내는 내용은 어떻게 변하나요?"></button>
-              </div>
-              <div class="radio-options vertical">
-                <label>
-                  <input type="radio" name="q43_2" value="a">
-                  가로와 세로가 나타내는 내용이 서로 바뀐다.
-                </label>
-                <label>
-                  <input type="radio" name="q43_2" value="b">
-                  가로와 세로가 나타내는 내용은 전혀 변하지 않는다.
-                </label>
-              </div>
-            </div>
+<div class="quiz-area">
+<!-- Q1 -->
+<div class="quiz-item">
+<div class="title-with-tts">
+<h4>Q1. 우리 모둠 조사 결과, 학생들이 가장 가보고 싶어 하는 포천의 명소는 어디인가요?</h4>
+<button class="btn-tts" data-tts="Q1. 우리 모둠 조사 결과, 학생들이 가장 가보고 싶어 하는 포천의 명소는 어디인가요?"></button>
+</div>
+<div class="radio-options vertical" id="q43-q1-options">
+<!-- Dynamic options loaded from saved items -->
+</div>
+</div>
 
-            <!-- Q3 -->
-            <div class="quiz-item">
-              <div class="title-with-tts">
-                <h4>Q3. 막대그래프의 방향을 세로에서 가로로 바꾸어도 전혀 변하지 않는 성질은 무엇인가요?</h4>
-                <button class="btn-tts" data-tts="Q3. 막대그래프의 방향을 세로에서 가로로 바꾸어도 전혀 변하지 않는 성질은 무엇인가요?"></button>
-              </div>
-              <div class="radio-options vertical">
-                <label>
-                  <input type="radio" name="q43_3" value="a">
-                  막대의 가로 너비와 막대 색상
-                </label>
-                <label>
-                  <input type="radio" name="q43_3" value="b">
-                  막대의 길이와 그것이 나타내는 실제 투표 수
-                </label>
-                <label>
-                  <input type="radio" name="q43_3" value="c">
-                  가로와 세로의 눈금 한 칸의 크기
-                </label>
-              </div>
-            </div>
+<!-- Q2 -->
+<div class="quiz-item">
+<div class="title-with-tts">
+<h4>Q2. 세로 막대그래프를 가로 막대그래프로 방향을 바꾸어 그릴 때, 가로와 세로에 나타내는 내용은 어떻게 변하나요?</h4>
+<button class="btn-tts" data-tts="Q2. 세로 막대그래프를 가로 막대그래프로 방향을 바꾸어 그릴 때, 가로와 세로에 나타내는 내용은 어떻게 변하나요?"></button>
+</div>
+<div class="radio-options vertical">
+<label>
+<input type="radio" name="q43_2" value="a">
+가로와 세로가 나타내는 내용이 서로 바뀐다.
+</label>
+<label>
+<input type="radio" name="q43_2" value="b">
+가로와 세로가 나타내는 내용은 전혀 변하지 않는다.
+</label>
+</div>
+</div>
 
-            <button id="btn-check-sub43" class="btn btn-primary mt-4">정답 제출하고 4단계 클리어! ✔️</button>
-            <div id="feedback-sub43" class="quiz-feedback"></div>
-          </div>
+<!-- Q3 -->
+<div class="quiz-item">
+<div class="title-with-tts">
+<h4>Q3. 막대그래프의 방향을 세로에서 가로로 바꾸어도 전혀 변하지 않는 성질은 무엇인가요?</h4>
+<button class="btn-tts" data-tts="Q3. 막대그래프의 방향을 세로에서 가로로 바꾸어도 전혀 변하지 않는 성질은 무엇인가요?"></button>
+</div>
+<div class="radio-options vertical">
+<label>
+<input type="radio" name="q43_3" value="a">
+막대의 가로 너비와 막대 색상
+</label>
+<label>
+<input type="radio" name="q43_3" value="b">
+막대의 길이와 그것이 나타내는 실제 투표 수
+</label>
+<label>
+<input type="radio" name="q43_3" value="c">
+가로와 세로의 눈금 한 칸의 크기
+</label>
+</div>
+</div>
 
-          <div class="action-footer">
-            <button id="btn-back-to-42" class="btn btn-outline">👈 이전으로 돌아가기</button>
-            <button id="btn-next-to-5" class="btn btn-success" disabled>5단계 생활 속 그래프로 가기 👉</button>
-          </div>
-        </div>
-      </section>
+<button id="btn-check-sub43" class="btn btn-primary mt-4">정답 제출하고 4단계 클리어! ✔️</button>
+<div id="feedback-sub43" class="quiz-feedback"></div>
+</div>
+
+<div class="action-footer">
+<button id="btn-back-to-42" class="btn btn-outline">👈 이전으로 돌아가기</button>
+<button id="btn-next-to-5" class="btn btn-success" disabled>5단계 생활 속 그래프로 가기 👉</button>
+</div>
+</div>
+</section>
+
 
       <!-- 5단계: 생활 속 막대그래프 -->
       <section id="step-5-panel" class="step-panel">
@@ -2246,143 +2245,431 @@
       </section>
 
       <!-- 6단계: 우리 지역 포천 탐구 -->
+            <!-- 6단계: 우리 지역 포천 탐구 -->
       <section id="step-6-panel" class="step-panel">
-        <div class="card">
-          <div class="badge">6단계: 우리 지역 포천 탐구</div>
-          
+        
+        <!-- 활동 6-1 카드: 구역 선택 및 디지털 지도 기호 세기 -->
+        <div class="card" id="sub-step-6-1">
+          <div class="badge">활동 6-1: 우리 구역 지도 조사하기 🗺️</div>
           <div class="title-with-tts">
-            <h2>우리 지역 포천 탐구 🗺️</h2>
-            <button class="btn-tts" data-tts="육단계 우리 지역 포천 탐구입니다. 원하는 주제와 값을 적어서 나만의 그래프를 만들어 봐! 다 만들고 나서 모둠 친구들과 함께하기를 누르면 친구들의 태블릿으로 퀴즈 릴레이를 할 수 있어! 모든 활동을 마치면 마스터 수료증이 나옵니다."></button>
+            <h2>우리 구역 지도에서 기호를 찾아 세어봐요!</h2>
+            <button class="btn-tts" data-tts="오늘 탐구할 우리 고장 포천의 구역을 선택하고, 세부 지도 속의 기호들을 하나씩 터치하며 개수를 세어 표에 채워보세요. 기호를 터치하면 체크마크가 표시되어 헷갈리지 않고 셀 수 있습니다."></button>
           </div>
-          <p class="description-text">우리 지역 포천을 탐구하며 나만의 막대그래프를 완성하고, 모둠 친구들과 릴레이 퀴즈를 해결하여 최종 마스터 수료증을 획득해 봅시다!</p>
+          <p class="description-text">
+            남부, 북부, 중부 중 <strong>우리 모둠이 배정받은 포천의 구역</strong>을 선택하세요.<br>
+            지도의 기호들을 손가락으로 콕 짚어가며(터치) 개수를 세고, 표를 완성하여 검사받아 봅시다!
+          </p>
 
-          <!-- Completed Graph Preview Showcase -->
-          <div class="completed-preview-showcase" style="margin-top: 20px; margin-bottom: 30px;">
-            <h3>📊 내가 직접 기획하고 그린 포천 명소 그래프</h3>
-            <p class="description-text">4단계 막대그래프 그리기 도구를 사용해 완성한 나만의 막대그래프입니다.</p>
-            <div class="preview-chart-showcase-box" style="background: rgba(15, 23, 42, 0.4); padding: 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); margin-top: 15px;">
-              <h4 id="showcase-graph-title" style="text-align: center; color: #fbbf24; font-size: 1.2rem; margin-bottom: 15px;">포천의 명소 선호도 조사</h4>
-              <div class="showcase-chart-container" style="height: 200px; display: flex; align-items: flex-end; justify-content: space-around; padding-bottom: 20px; border-bottom: 2px solid #475569; position: relative;">
-                <div id="showcase-bars-wrapper" style="display: flex; width: 100%; height: 100%; align-items: flex-end; justify-content: space-around; z-index: 2;">
-                  <!-- Dynamic Bars will be rendered here by JS -->
-                </div>
+          <!-- Zone Selector -->
+          <div class="zone-selector-wrapper" style="background: rgba(15, 23, 42, 0.04); padding: 18px; border-radius: 12px; border: 1.5px solid var(--color-border); margin-bottom: 25px;">
+            <p style="font-weight: 800; font-size: 1.1rem; color: var(--color-primary-hover); margin-bottom: 12px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px;">🗺️ 우리 모둠의 조사 구역을 먼저 선택해 주세요</p>
+            <div class="zone-buttons" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+              <button type="button" class="btn btn-zone-select active" data-zone="south" style="background: #3b82f6; color: #ffffff; border: 2px solid #3b82f6; flex: 1; min-width: 160px; justify-content: center; font-weight: 800; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                남부 구역 🗺️
+              </button>
+              <button type="button" class="btn btn-zone-select" data-zone="north" style="background: #1e293b; color: #f8fafc; border: 2px solid rgba(255,255,255,0.15); flex: 1; min-width: 160px; justify-content: center; font-weight: 800; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                북부 구역 🗺️
+              </button>
+              <button type="button" class="btn btn-zone-select" data-zone="middle" style="background: #1e293b; color: #f8fafc; border: 2px solid rgba(255,255,255,0.15); flex: 1; min-width: 160px; justify-content: center; font-weight: 800; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                중부 구역 🗺️
+              </button>
+            </div>
+          </div>
+
+          <!-- Map and Work Area -->
+          <div class="map-exploration-layout" style="display: flex; flex-direction: column; align-items: center; gap: 30px; margin-top: 20px;">
+            
+            <!-- Left: Interactive Map Container -->
+            <div class="map-container-box" style="width: 100%; max-width: 550px; display: flex; flex-direction: column; gap: 0;">
+              <div class="map-title-bar" style="background: #475569; color: white; padding: 10px 15px; border-radius: 8px 8px 0 0; font-weight: 800; text-align: center;">
+                <span id="exploration-map-title">포천시 남부 구역 지도</span>
               </div>
-            </div>
-          </div>
-
-          <!-- 알짜정리 배움 카드 (Takeaway Summary Card) -->
-          <div class="takeaway-card" id="summary-takeaway-card" style="margin-top: 30px; margin-bottom: 30px;">
-            <div class="card-header-takeaway" style="display: flex; justify-content: space-between; align-items: center; background: #1e3f20; border: 2px solid #8b5a2b; border-radius: 12px 12px 0 0; padding: 12px 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.15);">
-              <h3 style="color: #f8fafc; font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">📚 오늘의 알짜정리 (배움 정리)</h3>
-              <button class="btn-tts" data-tts="오늘 배운 중요한 내용을 정리해 봅시다. 각 항목을 클릭하여 배움을 확인하고 체크해 보세요. 일번, 조사할 내용, 조사 항목, 조사 방법, 조사 대상, 조사 시기를 정한다. 이번, 조사한 내용을 분류한다. 삼번, 조사한 것을 표나 그래프로 나타낸다." style="background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #f8fafc;">🔊</button>
-            </div>
-            <div class="takeaway-body" style="background: #1e293b; border: 2px solid rgba(255,255,255,0.15); border-top: none; border-radius: 0 0 12px 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
-              <p class="description-text" style="margin-bottom: 10px;">오늘 공부한 내용을 다시 한 번 머릿속에 쏙쏙 정리해 봅시다. **아래 3가지 항목을 차례대로 터치**하여 배움을 확인하고 체크표시(`✔️`)를 채워보세요!</p>
               
-              <div class="takeaway-list" style="display: flex; flex-direction: column; gap: 12px;">
-                <!-- Takeaway Item 1 -->
-                <div class="takeaway-item" id="takeaway-item-1" style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s ease;">
-                  <div class="takeaway-check" style="width: 24px; height: 24px; border-radius: 6px; border: 2px solid #94a3b8; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: #10b981; background: transparent;"></div>
-                  <div class="takeaway-content" style="flex: 1; display: flex; align-items: center; gap: 10px;">
-                    <span class="takeaway-num" style="background: #3b82f6; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">1</span>
-                    <p style="font-size: 1rem; font-weight: 600; color: #e2e8f0;">조사할 내용, 조사 항목, 조사 방법, 조사 대상, 조사 시기를 정한다.</p>
-                  </div>
-                  <button class="btn-tts" data-tts="일번. 조사할 내용, 조사 항목, 조사 방법, 조사 대상, 조사 시기를 정한다." style="background: none; border: none; cursor: pointer; font-size: 1rem; color: #94a3b8;">🔊</button>
-                </div>
+              <div class="interactive-map-area" id="interactive-map-wrapper" style="position: relative; width: 100%; aspect-ratio: 1/1; background: #ffffff; border: 3px solid #475569; border-top: none; border-radius: 0 0 8px 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); user-select: none; display: flex; align-items: center; justify-content: center;">
+                <!-- Map image and pins are dynamically injected by JS -->
+              </div>
+            </div>
 
-                <!-- Takeaway Item 2 -->
-                <div class="takeaway-item" id="takeaway-item-2" style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s ease;">
-                  <div class="takeaway-check" style="width: 24px; height: 24px; border-radius: 6px; border: 2px solid #94a3b8; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: #10b981; background: transparent;"></div>
-                  <div class="takeaway-content" style="flex: 1; display: flex; align-items: center; gap: 10px;">
-                    <span class="takeaway-num" style="background: #3b82f6; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">2</span>
-                    <p style="font-size: 1rem; font-weight: 600; color: #e2e8f0;">조사한 내용을 분류한다.</p>
-                  </div>
-                  <button class="btn-tts" data-tts="이번. 조사한 내용을 분류한다." style="background: none; border: none; cursor: pointer; font-size: 1rem; color: #94a3b8;">🔊</button>
-                </div>
+            <!-- Right: Survey Data Table -->
+            <div class="map-data-table-box" style="width: 100%; max-width: 550px; display: flex; flex-direction: column; margin-top: 10px;">
+              <h3 style="margin-top: 0; color: var(--color-primary-hover); display: flex; align-items: center; gap: 8px;">📋 기호 조사 기록표</h3>
+              <div class="counting-table-container">
+                <table class="counting-table map-input-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 80px;">기호</th>
+                      <th>기호 이름</th>
+                      <th style="width: 100px;">수량(개)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="symbol-col" style="text-align: center; height: 44px; padding: 4px 0;">
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                          <svg viewBox="0 0 40 40" width="22" height="22">
+                            <line x1="15" y1="6" x2="15" y2="34" stroke="#0f172a" stroke-width="3.2" stroke-linecap="round"/>
+                            <polygon points="15,7 32,7 32,19 15,19" fill="#0f172a" stroke="#0f172a" stroke-width="1" stroke-linejoin="round"/>
+                            <line x1="8" y1="34" x2="22" y2="34" stroke="#0f172a" stroke-width="3.2" stroke-linecap="round"/>
+                          </svg>
+                        </div>
+                      </td>
+                      <td style="font-weight: 800; font-size: 0.82rem;">학교</td>
+                      <td><input type="number" class="table-map-input ebs-input" data-key="school" min="0" placeholder="0" style="width:100%; text-align:center; font-weight:bold;"></td>
+                    </tr>
+                    <tr>
+                      <td class="symbol-col" style="text-align: center; height: 44px; padding: 4px 0;">
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                          <svg viewBox="0 0 40 40" width="22" height="22">
+                            <g fill="#0f172a">
+                              <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z"/>
+                              <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(45 20 20)"/>
+                              <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(90 20 20)"/>
+                              <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(135 20 20)"/>
+                              <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(180 20 20)"/>
+                              <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(225 20 20)"/>
+                              <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(270 20 20)"/>
+                              <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(315 20 20)"/>
+                            </g>
+                            <circle cx="20" cy="20" r="11" fill="none" stroke="#0f172a" stroke-width="3"/>
+                            <circle cx="20" cy="20" r="5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+                          </svg>
+                        </div>
+                      </td>
+                      <td style="font-weight: 800; font-size: 0.82rem;">공장</td>
+                      <td><input type="number" class="table-map-input ebs-input" data-key="factory" min="0" placeholder="0" style="width:100%; text-align:center; font-weight:bold;"></td>
+                    </tr>
+                    <tr>
+                      <td class="symbol-col" style="text-align: center; height: 44px; padding: 4px 0;">
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                          <svg viewBox="0 0 40 40" width="22" height="22">
+                            <path d="M 6,17 L 14,17 M 8,17 L 8,11 M 12,17 L 12,11 M 16,17 L 24,17 M 18,17 L 18,11 M 22,17 L 22,11 M 26,17 L 34,17 M 28,17 L 28,11 M 32,17 L 32,11 M 11,29 L 19,29 M 13,29 L 13,23 M 17,29 L 17,23 M 21,29 L 29,29 M 23,29 L 23,23 M 27,29 L 27,23" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                          </svg>
+                        </div>
+                      </td>
+                      <td style="font-weight: 800; font-size: 0.82rem;">논</td>
+                      <td><input type="number" class="table-map-input ebs-input" data-key="field" min="0" placeholder="0" style="width:100%; text-align:center; font-weight:bold;"></td>
+                    </tr>
+                    <tr>
+                      <td class="symbol-col" style="text-align: center; height: 44px; padding: 4px 0;">
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                          <svg viewBox="0 0 40 40" width="22" height="22">
+                            <polygon points="20,8 6,32 34,32" fill="#0f172a"/>
+                          </svg>
+                        </div>
+                      </td>
+                      <td style="font-weight: 800; font-size: 0.82rem;">산</td>
+                      <td><input type="number" class="table-map-input ebs-input" data-key="mountain" min="0" placeholder="0" style="width:100%; text-align:center; font-weight:bold;"></td>
+                    </tr>
+                    <tr>
+                      <td class="symbol-col" style="text-align: center; height: 44px; padding: 4px 0;">
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                          <svg viewBox="0 0 40 40" width="22" height="22">
+                            <circle cx="20" cy="12" r="3.5" fill="#ef4444"/>
+                            <circle cx="11" cy="28" r="3.5" fill="#ef4444"/>
+                            <circle cx="29" cy="28" r="3.5" fill="#ef4444"/>
+                          </svg>
+                        </div>
+                      </td>
+                      <td style="font-weight: 800; font-size: 0.82rem;">명승고적</td>
+                      <td><input type="number" class="table-map-input ebs-input" data-key="museum" min="0" placeholder="0" style="width:100%; text-align:center; font-weight:bold;"></td>
+                    </tr>
+                    <tr>
+                      <td class="symbol-col" style="text-align: center; height: 44px; padding: 4px 0;">
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                          <svg viewBox="0 0 40 40" width="22" height="22">                            <path d="M 12.2 27.8 A 11 11 0 1 1 27.8 27.8" fill="none" stroke="#c2410c" stroke-width="3" stroke-linecap="round"/>                            <line x1="12.2" y1="27.8" x2="14.3" y2="25.7" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                            <line x1="9.4" y1="22.8" x2="12.3" y2="22.1" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                            <line x1="9" y1="20" x2="12" y2="20" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                            <line x1="9.4" y1="17.2" x2="12.3" y2="17.9" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                            <line x1="12.2" y1="12.2" x2="14.3" y2="14.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                            <line x1="17.2" y1="9.4" x2="17.9" y2="12.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                            <line x1="20" y1="9" x2="20" y2="12" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                            <line x1="22.8" y1="9.4" x2="22.1" y2="12.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                            <line x1="27.8" y1="12.2" x2="25.7" y2="14.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                            <line x1="30.6" y1="17.2" x2="27.7" y2="17.9" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                            <line x1="31" y1="20" x2="28" y2="20" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                            <line x1="30.6" y1="22.8" x2="27.7" y2="22.1" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                            <line x1="27.8" y1="27.8" x2="25.7" y2="25.7" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>                          </svg>
+                        </div>
+                      </td>
+                      <td style="font-weight: 800; font-size: 0.82rem;">채석장</td>
+                      <td><input type="number" class="table-map-input ebs-input" data-key="quarry" min="0" placeholder="0" style="width:100%; text-align:center; font-weight:bold;"></td>
+                    </tr>
+                    <tr class="sum-row" style="background: rgba(15,23,42,0.08); font-weight: bold;">
+                      <td>-</td>
+                      <td style="font-weight: 800; color: var(--color-primary-hover);">합계</td>
+                      <td><input type="number" id="table-map-sum-input" class="ebs-input" min="0" placeholder="0" style="width:100%; text-align:center; font-weight: 800; color: var(--color-primary-hover); background: #fef08a; border: 1.5px solid #eab308;"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
 
-                <!-- Takeaway Item 3 -->
-                <div class="takeaway-item" id="takeaway-item-3" style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s ease;">
-                  <div class="takeaway-check" style="width: 24px; height: 24px; border-radius: 6px; border: 2px solid #94a3b8; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: #10b981; background: transparent;"></div>
-                  <div class="takeaway-content" style="flex: 1; display: flex; align-items: center; gap: 10px;">
-                    <span class="takeaway-num" style="background: #3b82f6; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">3</span>
-                    <p style="font-size: 1rem; font-weight: 600; color: #e2e8f0;">조사한 것을 표나 그래프로 나타낸다.</p>
+              <button id="btn-check-table-61" class="btn btn-primary mt-4 w-full" style="font-weight: bold; padding: 12px;">기호 조사 결과 확인하기 🔍</button>
+              <div id="feedback-table-61" class="quiz-feedback"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 활동 6-2 카드: 막대그래프 그리기 도구 -->
+        <div class="card" id="sub-step-6-2" style="display:none;">
+          <div class="badge">활동 6-2: 우리 구역 막대그래프 완성하기 📊</div>
+          <div class="title-with-tts">
+            <h2>기호 개수 조사 결과를 막대그래프로 그려요!</h2>
+            <button class="btn-tts" data-tts="왼쪽의 기호 조사 기록표를 보고 오른쪽에 막대그래프를 그려주세요. 플러스와 마이너스 단추를 이용해 막대의 높이를 맞추고, 다 그리면 검사하고 저장하기 버튼을 누르세요."></button>
+          </div>
+          <p class="description-text">
+            방금 조사하여 표에 입력한 <strong>우리 구역의 기호 수</strong>를 바탕으로 막대그래프를 똑같이 완성해 봅시다.
+          </p>
+
+          <!-- EBSMath Easy Stats Simulator Mockup -->
+          <div class="ebs-simulator-container">
+            <div class="ebs-simulator-header">
+              <div class="ebs-logo">막대그래프 그리기 도구</div>
+            </div>
+
+            <!-- Simulator Workspace -->
+            <div class="ebs-workspace" id="ebs-workspace-6">
+              <!-- Left: Inputs -->
+              <div class="ebs-sidebar">
+                <div class="ebs-section">
+                  <label class="ebs-label">📋 우리 모둠의 조사 결과 표:</label>
+                  <div class="ebs-table-wrapper">
+                    <table class="ebs-input-table">
+                      <thead>
+                        <tr>
+                          <th>기호 이름</th>
+                          <th style="width: 80px;">개수</th>
+                        </tr>
+                      </thead>
+                      <tbody id="ebs-table-body-6">
+                        <!-- Dynamic rows loaded from 6-1 -->
+                      </tbody>
+                    </table>
                   </div>
-                  <button class="btn-tts" data-tts="삼번. 조사한 것을 표나 그래프로 나타낸다." style="background: none; border: none; cursor: pointer; font-size: 1rem; color: #94a3b8;">🔊</button>
                 </div>
               </div>
 
-              <button id="btn-complete-takeaway" class="btn btn-success mt-4 w-full" style="width:100%; display:flex; justify-content:center; align-items:center;" disabled>요약 완료 및 수료증 발급! 🎓</button>
+              <!-- Right: Graph Board -->
+              <div class="ebs-chart-panel">
+                <!-- Toolbar -->
+                <div class="ebs-toolbar">
+                  <div class="ebs-tool-group" style="display: none;">
+                    <label>눈금 설정:</label>
+                    <select id="ebs-scale-select-6" class="ebs-select">
+                      <option value="1" selected>1개 간격</option>
+                      <option value="2">2개 간격</option>
+                    </select>
+                  </div>
+                  <button id="btn-ebs-direction-6" class="btn-ebs-icon active">🔄 가로/세로 방향 바꾸기</button>
+                </div>
+
+                <!-- Main Drawing Board -->
+                <div class="ebs-board" id="ebs-board-grid-6">
+                  <div class="ebs-chart-title" id="ebs-chart-title-label-6">우리 구역 지도 속 기호 수</div>
+                  <div class="ebs-unit-label" id="ebs-chart-unit-label-6">단위: 개</div>
+                  
+                  <div class="ebs-chart-container" id="ebs-chart-inner-6">
+                    <!-- Dynamic grid and bars will render here -->
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Certificate Section (Originally Step 6 contents, hidden by default) -->
-          <div id="certificate-section" style="display:none; margin-top: 30px;">
-            <hr class="section-divider">
-            <div class="title-with-tts">
-              <h2>🎉 대모험 완료! 단원 정리 포트폴리오</h2>
-              <button class="btn-tts" data-tts="축하합니다! 막대그래프 대모험의 모든 코스를 성공적으로 수료하였습니다. 하단의 수료증을 인쇄하거나 피디에프로 저장해봐!"></button>
+          <div class="ebs-simulator-actions">
+            <button id="btn-save-ebs-graph-62" class="btn btn-success btn-large" style="font-weight: bold;">그래프 검사하고 저장하기! 💾</button>
+            <div id="feedback-ebs-62" class="quiz-feedback"></div>
+          </div>
+
+          <div class="action-footer">
+            <button id="btn-back-to-61" class="btn btn-outline">👈 이전으로 돌아가기</button>
+            <button id="btn-go-to-63" class="btn btn-success" disabled>활동 6-3으로 가기 👉</button>
+          </div>
+        </div>
+
+        <!-- 활동 6-3 카드: 우리 구역 소개글 작성하기 -->
+        <div class="card" id="sub-step-6-3" style="display:none; position: relative;">
+          <div class="badge">활동 6-3: 우리 구역 소개글 쓰기 ✍️</div>
+          
+          <!-- Teacher Guide Overlay / 안내 대기 단계 -->
+          <div id="teacher-guide-overlay-63" class="teacher-guide-overlay-box" style="background: rgba(15, 23, 42, 0.95); border-radius: 12px; display: flex; align-items: center; justify-content: center; z-index: 100; padding: 40px 30px; text-align: center; color: white; margin-top: 20px;">
+            <div class="overlay-content" style="max-width: 500px;">
+              <span style="font-size: 3rem; display: block; margin-bottom: 15px;">🏫</span>
+              <h3 style="font-size: 1.5rem; font-weight: 800; color: #fef08a; margin-top: 0; margin-bottom: 15px;">선생님의 안내를 기다려 주세요</h3>
+              <p style="font-size: 1rem; line-height: 1.6; color: #cbd5e1; margin-bottom: 25px;">선생님께서 우리 구역을 소개하는 글을 쓰는 요령과 규칙에 대해 설명해 주실 것입니다.<br>설명을 경청한 후, 선생님의 시작 신호에 맞춰 아래 버튼을 클릭하여 쓰기 도전에 참가해 보세요!</p>
+              <button id="btn-start-writing-challenge" class="btn btn-primary btn-large" style="font-weight: bold; font-size: 1.1rem; padding: 12px 28px; background: #3b82f6; border: 2px solid #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);">✍️ 설명 확인 완료! 도전 시작하기</button>
             </div>
-            <p class="description-text">축하합니다! 막대그래프 단원의 모든 미션을 완료했습니다. 아래는 여러분이 직접 탐구한 그래프와 핵심 학습 요약이 담긴 수료증입니다.</p>
+          </div>
 
-            <!-- Certificate Frame (Printable/Saveable) -->
-            <div class="certificate-container-wrapper">
-              <div class="certificate-box" id="certificate-print-area">
-                <div class="cert-border-outer">
-                  <div class="cert-border-inner">
-                    <div class="cert-badge">🏅</div>
-                    <h1 class="cert-title">막대그래프 마스터 수료증</h1>
-                    
-                    <div class="cert-recipient">
-                      <span class="cert-name" id="cert-name-label">홍길동</span> 탐험가
-                    </div>
+          <div class="writing-challenge-workspace" id="writing-challenge-workspace" style="display: none;">
+            <div class="title-with-tts">
+              <h2>우리 구역을 소개하는 멋진 글을 작성해요!</h2>
+              <button class="btn-tts" data-tts="우리 구역의 그래프 조사 결과를 바탕으로 특징을 줄글로 적어보세요. 쓰기가 어려운 친구는 육십초가 지나면 켜지는 낱말 고르기 상자나 빈칸 힌트 단추를 활용할 수 있습니다."></button>
+            </div>
+            
+            <p class="description-text">
+              완성된 그래프를 보고, <strong>가장 개수가 많은 기호</strong>와 <strong>두 번째로 많은 기호</strong> 및 <strong>구역의 지리적 특성</strong>이 드러나게 소개글을 줄글로 완성해 봅시다.
+            </p>
 
-                    <p class="cert-body">
-                      위 학생은 초등학교 4학년 [막대그래프] 단원의 전 과정을 끈기 있게 탐험하고, 
-                      가로와 세로 읽기, 눈금 크기 함정 돌파 등 다양한 퀴즈 해결과 포천의 명소 선호도 조사 및 배움 정리(알짜정리) 미션을 우수하게 완료하였기에 이 수료증을 수여합니다.
-                    </p>
-
-                    <!-- Dynamic Mini-Portfolio inside Certificate -->
-                    <div class="cert-mini-portfolio">
-                      <h4>🎨 내가 직접 조사하여 만든 그래프</h4>
-                      <div id="cert-portfolio-title" class="cert-portfolio-title">우리 반 친구들이 가장 가보고 싶은 포천의 명소</div>
-                      <div class="cert-mini-chart" id="cert-mini-chart-wrapper">
-                        <!-- Mini chart rendered dynamically via JS -->
-                      </div>
-                    </div>
-
-                    <!-- Takeaways Board inside Certificate -->
-                    <div class="cert-comments-board">
-                      <h4>📚 오늘 배운 막대그래프의 핵심 내용</h4>
-                      <div class="comments-rolling-display" id="cert-comments-list">
-                        <div class="comment-row">"1. 조사할 내용, 조사 항목, 조사 방법, 조사 대상, 조사 시기를 정한다."</div>
-                        <div class="comment-row">"2. 조사한 내용을 분류한다."</div>
-                        <div class="comment-row">"3. 조사한 것을 표나 그래프로 나타낸다."</div>
-                      </div>
-                    </div>
-
-                    <div class="cert-footer">
-                      <div class="cert-date" id="cert-date-display">2026년 6월 2일</div>
-                      <div class="cert-issuer">막대그래프 탐험 사령부 印</div>
-                    </div>
-                  </div>
+            <!-- Mini graph display for reference -->
+            <div style="background: white; border: 1.5px solid var(--color-border); border-radius: 8px; padding: 15px 20px; margin-bottom: 20px; text-align: center;">
+              <span style="font-weight: 800; color: #1e3f20; font-size: 0.95rem; display: block; margin-bottom: 15px;">📊 작성 참고용 막대그래프</span>
+              <div style="position: relative; height: 160px; max-width: 440px; margin: 0 auto 25px auto; padding-left: 35px; padding-bottom: 20px; box-sizing: border-box;">
+                <div id="writing-mini-chart-wrapper-6" style="position: relative; width: 100%; height: 100%; box-sizing: border-box;">
+                  <!-- Injected dynamically by JS -->
                 </div>
               </div>
             </div>
 
-            <!-- Utility buttons for PDF/Print -->
-            <div class="certificate-actions">
-              <button id="btn-print-cert" class="btn btn-primary btn-large">📂 수료증 PDF 저장 / 인쇄하기</button>
-              <button id="btn-restart-adventure" class="btn btn-outline">🔄 처음부터 다시 도전하기</button>
+            <!-- Example Guide Panel -->
+            <div class="example-guide-box" style="background: rgba(15,23,42,0.03); border: 1.5px solid var(--color-border); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+              <span class="example-label" style="font-weight: 800; color: var(--color-primary-hover); font-size: 0.9rem; display: block; margin-bottom: 8px;">💡 작성 예시문 (참고용)</span>
+              <p id="writing-example-sentence" class="example-sentence" style="font-size: 1.05rem; line-height: 1.6; margin: 0; color: #475569; font-weight: 600;">
+                <!-- Selected zone example sentence is loaded here -->
+              </p>
             </div>
-            <div class="tip-box mt-4" style="text-align: center; max-width: 600px; margin: 20px auto 0 auto; background: var(--color-primary-light); color: var(--color-primary-hover); border: 1px solid rgba(2, 132, 199, 0.15); border-radius: var(--border-radius-sm); padding: 12px 16px;">
-              💡 <strong>패들릿(Padlet) 공유 팁:</strong> 수료증을 PDF 파일로 저장하거나 태블릿 화면을 캡처(스크린샷)하여 우리 반 패들릿 게시판에 올려 친구들과 멋진 포트폴리오를 나눠보세요!
+
+            <!-- Scaffolding Action Controls -->
+            <div class="writing-helpers-bar" style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+              <div style="display:flex; gap: 10px;">
+                <button id="btn-show-blanks-hint" class="btn btn-outline btn-small" style="display: none; font-weight: bold; border-color: #8b5a2b; color: #8b5a2b;">💡 예시글 더보기</button>
+                <button id="btn-switch-to-dropdown" class="btn btn-outline btn-small" style="display: none; font-weight: bold; border-color: #d97706; color: #d97706;">🪄 낱말 골라 채우기로 바꾸기</button>
+              </div>
+              <span id="writing-timer-badge" class="badge-timer" style="background: #3b4252; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.5px;">⏳ 남은 시간: 60초</span>
+            </div>
+
+            <!-- Main Writing Form -->
+            <div class="writing-interface-container" style="border: 2px solid var(--color-border); border-radius: 8px; overflow: hidden; background: white;">
+              <!-- Mode A: Textarea writing (Default) -->
+              <div id="writing-mode-text" class="writing-mode-panel" style="padding: 15px;">
+                <textarea id="textarea-description-63" class="desc-textarea" placeholder="여기에 우리 구역을 소개하는 글을 줄글로 적어보세요. (예: 남부 구역은 학교가 가장 많고...)" style="width: 100%; height: 120px; border: none; outline: none; font-family: var(--font-main); font-size: 1.1rem; line-height: 1.6; resize: none;"></textarea>
+              </div>
+
+              <!-- Mode B: Dropdown Sentence Builder (Initially hidden) -->
+              <div id="writing-mode-dropdown" class="writing-mode-panel" style="display: none; padding: 25px; background: #f8fafc;">
+                <div class="sentence-dropdown-builder" id="sentence-dropdown-builder-container" style="font-size: 1.15rem; line-height: 2.2; font-family: var(--font-main); color: #1e293b; font-weight: 600;">
+                  <!-- Dynamic dropdown sentence injected by JS -->
+                </div>
+              </div>
+            </div>
+
+            <button id="btn-check-description-63" class="btn btn-primary mt-4 w-full" style="font-weight: bold; padding: 12px; font-size:1.1rem;">소개글 완성 및 제출하기 📝</button>
+            <div id="feedback-description-63" class="quiz-feedback"></div>
+
+            <div class="action-footer mt-4">
+              <button id="btn-back-to-62" class="btn btn-outline">👈 이전으로 돌아가기</button>
+              <button id="btn-go-to-64" class="btn btn-success" disabled>활동 6-4로 가기 👉</button>
             </div>
           </div>
         </div>
+
+        <!-- 활동 6-4 카드: 배움 정리 및 수료증 -->
+        <div class="card" id="sub-step-6-4" style="display:none;">
+          <div class="badge">활동 6-4: 배움 정리 및 수료증 받기 🎓</div>
+          
+          <div class="takeaway-card" id="summary-takeaway-card-6" style="margin-top: 10px; margin-bottom: 25px;">
+            <div class="card-header-takeaway" style="display: flex; justify-content: space-between; align-items: center; background: #1e3f20; border: 2px solid #8b5a2b; border-radius: 12px 12px 0 0; padding: 12px 20px;">
+              <h3 style="color: #f8fafc; font-size: 1.25rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px;">📚 오늘의 알짜정리 (배움 정리)</h3>
+              <button class="btn-tts" data-tts="오늘 배운 막대그래프 단원의 주요 내용을 확인하고 클릭하여 체크해 주세요. 3가지 항목을 모두 완료하면 최종 마스터 수료증이 발급됩니다." style="background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #f8fafc;">🔊</button>
+            </div>
+            <div class="takeaway-body" style="background: #1e293b; border: 2px solid rgba(255,255,255,0.15); border-top: none; border-radius: 0 0 12px 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+              <p class="description-text" style="margin-bottom: 5px; color: #cbd5e1;">오늘 공부한 지도의 요소와 그래프 그리기 원칙을 확인해 보세요. <strong>아래 3가지 항목을 차례대로 클릭</strong>하여 체크표시(`✔️`)를 완료하세요!</p>
+              
+              <div class="takeaway-list" style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Takeaway Item 1 -->
+                <div class="takeaway-item-6" data-num="1" style="display: flex; align-items: center; gap: 15px; padding: 12px 15px; background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s ease;">
+                  <div class="takeaway-check-6" style="width: 24px; height: 24px; border-radius: 6px; border: 2px solid #94a3b8; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: #10b981; background: transparent;"></div>
+                  <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
+                    <span style="background: #3b82f6; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">1</span>
+                    <p style="font-size: 0.95rem; font-weight: 600; color: #e2e8f0; margin: 0;">지도의 기호가 무엇을 나타내는지 알려주는 표는 '범례'이고, 방향을 알려주는 십자 아이콘은 '방위표'이다.</p>
+                  </div>
+                </div>
+
+                <!-- Takeaway Item 2 -->
+                <div class="takeaway-item-6" data-num="2" style="display: flex; align-items: center; gap: 15px; padding: 12px 15px; background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s ease;">
+                  <div class="takeaway-check-6" style="width: 24px; height: 24px; border-radius: 6px; border: 2px solid #94a3b8; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: #10b981; background: transparent;"></div>
+                  <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
+                    <span style="background: #3b82f6; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">2</span>
+                    <p style="font-size: 0.95rem; font-weight: 600; color: #e2e8f0; margin: 0;">막대그래프를 그릴 때는 조사 결과 표의 수량과 막대의 높이가 정확하게 일치하도록 정성껏 그려야 한다.</p>
+                  </div>
+                </div>
+
+                <!-- Takeaway Item 3 -->
+                <div class="takeaway-item-6" data-num="3" style="display: flex; align-items: center; gap: 15px; padding: 12px 15px; background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s ease;">
+                  <div class="takeaway-check-6" style="width: 24px; height: 24px; border-radius: 6px; border: 2px solid #94a3b8; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: #10b981; background: transparent;"></div>
+                  <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
+                    <span style="background: #3b82f6; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">3</span>
+                    <p style="font-size: 0.95rem; font-weight: 600; color: #e2e8f0; margin: 0;">막대그래프의 방향을 세로에서 가로로 바꿔 그려도, 자료의 값이나 막대의 길이와 같은 고유한 성질은 전혀 변하지 않는다.</p>
+                  </div>
+                </div>
+              </div>
+
+              <button id="btn-complete-takeaway-64" class="btn btn-success mt-4 w-full" style="font-weight: bold; padding: 12px;" disabled>요약 완료 및 최종 수료증 발급! 🎓</button>
+            </div>
+          </div>
+
+          <!-- Certificate Frame (Printable/Saveable) -->
+          <div id="certificate-showcase-area" style="display:none; margin-top: 20px;">
+            <div class="certificate-container-wrapper" style="width: 100%; max-width: 650px; margin: 0 auto; background: #fffbeb; padding: 15px; border-radius: 12px; border: 3px solid #b45309;">
+              <div class="certificate-box" id="certificate-print-area" style="background: #fffbeb; border: 1px solid #d97706; padding: 30px; position: relative;">
+                <!-- Inner borders -->
+                <div class="cert-border-outer" style="border: 2px solid #d97706; padding: 6px;">
+                  <div class="cert-border-inner" style="border: 1px solid #f59e0b; padding: 25px; text-align: center; position: relative; background: #fffdf5;">
+                    <!-- Dynamic Watermark overlay -->
+                    <div id="cert-watermark-overlay" class="cert-watermark-overlay" style="position: absolute; inset: 0; opacity: 0.12; background-size: contain; background-repeat: no-repeat; background-position: center; pointer-events: none; z-index: 1;"></div>
+                    
+                    <div class="cert-badge" id="cert-badge-emoji" style="font-size: 3.5rem; margin-bottom: 15px; position: relative; z-index: 2;">🏅</div>
+                    <h1 class="cert-title" style="font-family: var(--font-fancy); font-size: 2.2rem; color: #78350f; margin-bottom: 20px; position: relative; z-index: 2; font-weight: bold;">막대그래프 탐험 수료증</h1>
+                    
+                    <div class="cert-recipient" style="font-size: 1.3rem; font-weight: 800; color: #1e293b; margin-bottom: 20px; position: relative; z-index: 2;">
+                      <span class="cert-name" id="cert-name-label" style="font-size: 1.6rem; color: #b45309; text-decoration: underline; text-decoration-color: #f59e0b; text-underline-offset: 6px; padding: 0 5px;">홍길동</span> 탐험가 (모둠 조사관)
+                    </div>
+
+                    <p class="cert-body" id="cert-main-body-text" style="font-size: 1.05rem; line-height: 1.7; color: #4b5563; margin-bottom: 25px; text-align: justify; word-break: keep-all; position: relative; z-index: 2;">
+                      위 학생은 초등학교 4학년 수학 [막대그래프]와 사회 [우리 지역의 특성] 단원의 교과 융합 프로젝트 수업에 성실히 참여하여, 포천 구역별 지도의 기호를 직접 탐구하고 막대그래프 완성 및 우리 지역의 지역적 특성 분석 소개글 작성 미션을 훌륭하게 해결하였기에 이 수료증을 수여합니다.
+                    </p>
+
+                    <!-- Row containing graph preview and details side-by-side -->
+                    <div class="cert-details-layout" style="display: flex; gap: 20px; align-items: center; justify-content: center; margin-top: 20px; margin-bottom: 25px; width: 100%; position: relative; z-index: 2; box-sizing: border-box;">
+                      
+                      <!-- Center: Mini Graph -->
+                      <div class="cert-mini-portfolio-box" style="width: 100%; text-align: left; background: rgba(255,255,255,0.95); border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 35px 25px 25px 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); box-sizing: border-box;">
+                        <h4 style="margin: -25px 0 15px -35px; font-size:0.85rem; color:#1e293b; font-weight: 800;">📊 내가 탐구한 구역 막대그래프</h4>
+                        <div class="cert-mini-chart" id="cert-mini-chart-wrapper-6" style="position: relative; width: 100%; height: 120px; box-sizing: border-box;">
+                          <!-- Dynamic Bars -->
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <!-- Introduction sentence at bottom of certificate -->
+                    <div class="cert-introduction-text" id="cert-introduction-text" style="font-weight: 800; color: #1e3f20; font-size: 1rem; text-align: center; border-top: 1.5px dashed rgba(30, 63, 32, 0.3); padding-top: 12px; margin-top: 15px; position: relative; z-index: 2; font-family: var(--font-fancy);">
+                      <!-- Sentences -->
+                    </div>
+
+                    <div class="cert-date" style="margin-top: 20px; font-size:0.85rem; font-weight:800; color:#64748b; text-align:center; position: relative; z-index: 2;">
+                      2026년 6월 17일
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Certificate Actions (Printing, copying, linking) -->
+            <div class="certificate-actions-box" style="margin-top: 20px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+              <button id="btn-copy-cert-clipboard" class="btn btn-primary btn-large" style="display: flex; align-items: center; gap: 8px; font-weight: bold; background: #0284c7; border: 2px solid #0284c7; padding: 12px 24px;">
+                📋 수료증 이미지 복사하기
+              </button>
+              <a href="https://padlet.com/mirach92/padlet-ynm9xca0hdwjpqe3" target="_blank" class="btn btn-success btn-large" style="display: flex; align-items: center; gap: 8px; font-weight: bold; text-decoration: none; padding: 12px 24px;">
+                🌐 학급 패들릿 바로가기 👉
+              </a>
+              <button id="btn-print-cert-6" class="btn btn-outline btn-large" style="display: flex; align-items: center; gap: 8px; padding: 12px 24px;">
+                🖨️ 수료증 인쇄 / PDF 저장
+              </button>
+            </div>
+            
+            <p class="text-muted text-center mt-3" style="font-size: 0.9rem; line-height: 1.6; color: #475569;">
+              ※ <strong>[수료증 이미지 복사하기]</strong>를 누른 뒤, 패들릿 게시판에서 다음과 같이 붙여넣으세요:<br>
+              💻 <strong>컴퓨터</strong>: 키보드의 <strong>[Ctrl + V]</strong>를 누르세요.<br>
+              📱 <strong>태블릿 / 스마트폰</strong>: 글쓰기 빈칸을 <strong>길게 꾹 누른 뒤 [붙여넣기]</strong>를 누르세요!
+            </p>
+          </div>
+        </div>
+
       </section>
+
     </main>
   </div>
 
-  <script src="app.js?v=1.1.8"></script>
+  <script>window.IS_DEV_MODE = false;</script>
+  <script src="app.js"></script>
 </body>
 </html>

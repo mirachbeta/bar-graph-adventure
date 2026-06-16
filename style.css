@@ -1699,6 +1699,24 @@ h2 {
   position: relative;
 }
 
+.cert-border-inner > * {
+  position: relative;
+  z-index: 1;
+}
+
+.cert-border-inner::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: var(--cert-bg-image, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.12; /* Faint watermark background */
+  z-index: 0;
+  pointer-events: none;
+}
+
 .cert-badge {
   font-size: 4rem;
   margin-bottom: 10px;
@@ -2698,7 +2716,13 @@ input:checked + .slider:before {
   left: 0;
   right: 0;
   height: 1px;
-  background: #e2e8f0;
+  border-top: 1px dashed rgba(71, 85, 105, 0.25); /* 1칸은 점선 */
+  background: none;
+}
+
+.ebs-grid-line.major {
+  border-top: 2px solid rgba(71, 85, 105, 0.6); /* 5칸마다 굵은 선 */
+  z-index: 1;
 }
 
 .ebs-grid-line-vertical {
@@ -2706,7 +2730,52 @@ input:checked + .slider:before {
   top: 0;
   bottom: 0;
   width: 1px;
-  background: #e2e8f0;
+  border-left: 1px dashed rgba(71, 85, 105, 0.25); /* 1칸은 점선 */
+  background: none;
+}
+
+.ebs-grid-line-vertical.major {
+  border-left: 2px solid rgba(71, 85, 105, 0.6); /* 5칸마다 굵은 선 */
+  z-index: 1;
+}
+
+/* Axis Labels (장소 & 개수) */
+.ebs-axis-label-y {
+  position: absolute;
+  left: -40px;
+  top: -22px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #475569;
+}
+
+.ebs-axis-label-x {
+  position: absolute;
+  right: -40px;
+  bottom: -22px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #475569;
+}
+
+.ebs-axis-label-y-horizontal {
+  position: absolute;
+  left: -135px;
+  top: -22px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #475569;
+  text-align: right;
+  width: 130px;
+}
+
+.ebs-axis-label-x-horizontal {
+  position: absolute;
+  right: -55px;
+  bottom: -22px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #475569;
 }
 
 .ebs-axis-y {
@@ -3041,4 +3110,168 @@ input:checked + .slider:before {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+
+/* ========================================== */
+/* Step 6 Interactive Map & Counting Styles   */
+/* ========================================== */
+
+.interactive-map-area {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: #f8fafc;
+  border: 3px solid #475569;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  user-select: none;
+}
+
+.interactive-map-area svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.map-pin {
+  transition: box-shadow 0.2s ease;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+
+.map-pin:hover {
+  transform: translate(-50%, -50%) scale(var(--pin-scale, 1)) !important;
+}
+
+.map-pin.checked {
+  filter: drop-shadow(0 0 8px rgba(16,185,129,0.6));
+}
+
+.map-pin .checkmark {
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Sentence builder dropdown style */
+.sentence-builder-dropdown {
+  background: white;
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-family: var(--font-main);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-primary-hover);
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+  margin: 0 4px;
+}
+
+.sentence-builder-dropdown:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.sentence-builder-dropdown.correct {
+  border-color: #10b981;
+  background: #ecfdf5;
+  color: #047857;
+}
+
+/* Badge and timer */
+.badge-timer {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Takeaway checked state for step 6 */
+.takeaway-item-6 {
+  transition: all 0.2s ease;
+}
+
+.takeaway-item-6:hover {
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  transform: translateX(4px);
+}
+
+.takeaway-item-6.checked {
+  background: rgba(16, 185, 129, 0.08) !important;
+  border-color: #10b981 !important;
+}
+
+.takeaway-item-6.checked .takeaway-check-6 {
+  border-color: #10b981 !important;
+  background: #10b981 !important;
+  color: white;
+}
+
+.takeaway-item-6.checked p {
+  color: #34d399 !important;
+  text-decoration: line-through rgba(52, 211, 153, 0.4);
+}
+
+/* Certificate Styles */
+.certificate-box {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.cert-watermark-overlay {
+  transition: background-image 0.5s ease;
+}
+
+.certificate-container-wrapper {
+  transition: transform 0.2s ease;
+}
+
+/* Compact Map Legend Styles */
+.map-legend {
+  position: absolute !important;
+  bottom: 8px !important;
+  right: 8px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 4px !important;
+  padding: 4px 5px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  font-size: 0.52rem !important;
+  z-index: 10 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15) !important;
+  width: 72px !important;
+  box-sizing: border-box !important;
+}
+
+.map-legend svg {
+  width: 11px !important;
+  height: 11px !important;
+  display: block !important;
+}
+
+.map-legend div {
+  gap: 4px !important;
 }

@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
   try {
     window.APP_JS_LOADED = true;
     
-    // 수업 차시 제어: 1 = 1차시만, 2 = 2차시까지, 3 = 3차시(3단계)까지, 5 = 5단계까지(6단계 잠금)
-    const MAX_ENABLED_STEP = 5;
+    // 수업 차시 제어: 1 = 1차시만, 2 = 2차시까지, 3 = 3차시(3단계)까지, 6 = 전체 사용
+    const MAX_ENABLED_STEP = 6;
   
     function stripEmoji(str) {
       if (!str) return '';
@@ -23,9 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     currentStep: 0,       // 현재 단계 (0~6)
     unlockedStep: 1,      // 열린 최고 단계 (1~6)
     activeScale31: 1,     // 3-1단계의 활성 눈금 크기 (1, 2, 5)
-    step5Act1Cleared: false,
-    step5Act2Cleared: false,
-    step5Act3Cleared: false,
     drawing31Data: {
       chopsticks: 0,
       cup: 0,
@@ -184,12 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
               <button class="btn-dev-jump" data-step="0">0단계</button>
               <button class="btn-dev-jump" data-step="1">1단계</button>
               <button class="btn-dev-jump" data-step="2">2단계</button>
-              <button class="btn-dev-jump" data-step="3" data-sub="1">3-1</button>
-              <button class="btn-dev-jump" data-step="3" data-sub="2">3-2</button>
-              <button class="btn-dev-jump" data-step="3" data-sub="3">3-3</button>
+              <button class="btn-dev-jump" data-step="3">3단계</button>
               <button class="btn-dev-jump" data-step="4">4단계</button>
               <button class="btn-dev-jump" data-step="5">5단계</button>
-              <button class="btn-dev-jump" data-step="6">6단계</button>
+              <button class="btn-dev-jump" data-step="6" data-sub="1">6-1</button>
+              <button class="btn-dev-jump" data-step="6" data-sub="2">6-2</button>
+              <button class="btn-dev-jump" data-step="6" data-sub="3">6-3</button>
             </div>
           </div>
           <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 10px;">
@@ -253,23 +250,83 @@ document.addEventListener('DOMContentLoaded', () => {
           updateNavigationUI();
 
           // Handle sub steps in step 3
-          if (step === 3 && sub) {
+          if (step === 3) {
             const sub31 = document.getElementById('sub-step-3-1');
             const sub32 = document.getElementById('sub-step-3-2');
             const sub33 = document.getElementById('sub-step-3-3');
-            if (sub31) sub31.style.display = 'none';
+            if (sub31) sub31.style.display = 'block';
             if (sub32) sub32.style.display = 'none';
             if (sub33) sub33.style.display = 'none';
             
-            const targetSub = document.getElementById(`sub-step-3-${sub}`);
+            update31DrawingUI();
+            if (sub31) {
+              sub31.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+
+          // Handle sub steps in step 6
+          if (step === 6 && sub) {
+            const sub61 = document.getElementById('sub-step-6-1');
+            const sub62 = document.getElementById('sub-step-6-2');
+            const sub63 = document.getElementById('sub-step-6-3');
+            const sub64 = document.getElementById('sub-step-6-4');
+            if (sub61) sub61.style.display = 'none';
+            if (sub62) sub62.style.display = 'none';
+            if (sub63) sub63.style.display = 'none';
+            if (sub64) sub64.style.display = 'none';
+
+            // Ensure selectedZone is set
+            if (!state.selectedZone) {
+              state.selectedZone = 'south';
+            }
+
+            const targetSub = document.getElementById(`sub-step-6-${sub}`);
             if (targetSub) {
               targetSub.style.display = 'block';
               targetSub.scrollIntoView({ behavior: 'smooth' });
             }
 
-            if (sub === '1') update31DrawingUI();
-            if (sub === '2') update32DrawingUI();
-            if (sub === '3') update33DrawingUI();
+            if (sub === '2') {
+              const zone = state.selectedZone;
+              const targetCounts = ZONE_DATA[zone].counts;
+              state.customGraph.items = [
+                { key: 'school', name: '학교', val: targetCounts.school },
+                { key: 'factory', name: '공장', val: targetCounts.factory },
+                { key: 'field', name: '논', val: targetCounts.field },
+                { key: 'mountain', name: '산', val: targetCounts.mountain },
+                { key: 'museum', name: '명승고적', val: targetCounts.museum },
+                { key: 'quarry', name: '채석장', val: targetCounts.quarry }
+              ];
+              state.customGraph.unit = '개';
+              state.customGraph.title = '우리 구역 지도 속 기호 수';
+              loadEbsTableData6();
+            } else if (sub === '3') {
+              const overlay = document.getElementById('teacher-guide-overlay-63');
+              const workspace = document.getElementById('writing-challenge-workspace');
+              if (overlay) overlay.style.display = 'none';
+              if (workspace) workspace.style.display = 'block';
+
+              const zone = state.selectedZone;
+              const exampleText = getExampleSentence(zone);
+              const exampleSentenceEl = document.getElementById('writing-example-sentence');
+              if (exampleSentenceEl) exampleSentenceEl.textContent = exampleText;
+
+              renderWritingMiniGraph6();
+
+              const textarea = document.getElementById('textarea-description-63');
+              if (textarea) textarea.value = '';
+
+              const blanksBtn = document.getElementById('btn-show-blanks-hint');
+              const dropdownBtn = document.getElementById('btn-switch-to-dropdown');
+              if (blanksBtn) blanksBtn.style.display = 'inline-block';
+              if (dropdownBtn) dropdownBtn.style.display = 'inline-block';
+
+              const timerBadge = document.getElementById('writing-timer-badge');
+              if (timerBadge) {
+                timerBadge.textContent = '✔️ 도움 요청 가능';
+                timerBadge.style.background = '#10b981';
+              }
+            }
           }
         });
       });
@@ -409,39 +466,9 @@ document.addEventListener('DOMContentLoaded', () => {
               if (checkDraw33) checkDraw33.click();
             }
           } else if (state.currentStep === 5) {
-            // 활동 5-1 정답 채우기 및 클릭
-            const q1_2020 = document.querySelector('input[name="q51_1"][value="2020"]');
-            const q2_2020 = document.querySelector('input[name="q51_2"][value="2020"]');
-            const q3_b = document.querySelector('input[name="q51_3"][value="b"]');
-            const q4_dec = document.querySelector('input[name="q51_4"][value="decrease"]');
-            if (q1_2020) q1_2020.checked = true;
-            if (q2_2020) q2_2020.checked = true;
-            if (q3_b) q3_b.checked = true;
-            if (q4_dec) q4_dec.checked = true;
-            const checkAct5_1 = document.getElementById('btn-check-act5-1');
-            if (checkAct5_1) checkAct5_1.click();
-
-            // 활동 5-2 정답 채우기 및 클릭
-            const sel1 = document.getElementById('act52-select-1');
-            const sel2 = document.getElementById('act52-select-2');
-            const sel3 = document.getElementById('act52-select-3');
-            const sel4 = document.getElementById('act52-select-4');
-            const sel5 = document.getElementById('act52-select-5');
-            if (sel1) sel1.value = 'parking';
-            if (sel2) sel2.value = 'garbage';
-            if (sel3) sel3.value = 'safety';
-            if (sel4) sel4.value = '40';
-            if (sel5) sel5.value = 'noise';
-            const checkAct5_2 = document.getElementById('btn-check-act5-2');
-            if (checkAct5_2) checkAct5_2.click();
-
-            // 활동 5-3 정답 채우기 및 클릭
-            const q3_1_ans = document.querySelector('input[name="q53_1"][value="143680"]');
-            const q3_2_ans = document.querySelector('input[name="q53_2"][value="b"]');
-            if (q3_1_ans) q3_1_ans.checked = true;
-            if (q3_2_ans) q3_2_ans.checked = true;
-            const checkAct5_3 = document.getElementById('btn-check-act5-3');
-            if (checkAct5_3) checkAct5_3.click();
+            document.querySelectorAll('input[name="q5"][value="b"]').forEach(r => r.checked = true);
+            const checkStep5 = document.getElementById('btn-check-step5');
+            if (checkStep5) checkStep5.click();
           } else {
             alert('이 단계는 자동완성할 수 있는 퀴즈가 없습니다. 😊');
           }
@@ -535,10 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // D. 페이지 전환 제어
   // ==========================================
   function showPanel(stepNum) {
-    if (stepNum === 6 && !window.IS_DEV_MODE && (!state.step5Act1Cleared || !state.step5Act2Cleared || !state.step5Act3Cleared)) {
-      alert("5단계를 모두 완료해야 6단계로 갈 수 있어요! 😊");
-      return;
-    }
+
 
     if (window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
@@ -555,8 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (stepNum === 6) {
-      renderPreviewGraph();
-      renderCertificate();
+      renderCertificate6();
     }
   }
 
@@ -1967,6 +1990,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const btnNextTo5 = document.getElementById('btn-next-to-5');
+  if (btnNextTo5) {
+    btnNextTo5.addEventListener('click', () => {
+      showPanel(5);
+      updateNavigationUI();
+    });
+  }
+
+  const btnNextTo6 = document.getElementById('btn-next-to-6');
+  if (btnNextTo6) {
+    btnNextTo6.addEventListener('click', () => {
+      showPanel(6);
+      updateNavigationUI();
+    });
+  }
+
   const btnNextTo4 = document.getElementById('btn-next-to-4');
   if (btnNextTo4) {
     btnNextTo4.addEventListener('click', () => {
@@ -2023,6 +2062,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // ==========================================
+  // I. 4단계: 자료 조사하여 막대그래프로 나타내기 (복원된 로직)
+  // ==========================================
   const btnCompleteSelection = document.getElementById('btn-complete-selection');
   if (btnCompleteSelection) {
     btnCompleteSelection.addEventListener('click', () => {
@@ -2050,7 +2092,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <td><strong>${spot.name}</strong></td>
             <td>
               <input type="number" class="table-vote-input ebs-input" data-key="${key}" min="0" max="50" placeholder="개수 입력">
-            </td>
+              </div></td>
           `;
           tbody.appendChild(row);
         });
@@ -2061,7 +2103,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td><strong>합계</strong></td>
           <td>
             <input type="number" id="table-sum-input" class="ebs-input" style="font-weight: 800; border-color: #fbbf24;" min="0" placeholder="합계 입력">
-          </td>
+            </div></td>
         `;
         tbody.appendChild(sumRow);
       }
@@ -2146,15 +2188,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const typedSum = parseInt(typedSumStr, 10);
 
-      if (calculatedSum !== typedSum) {
-        feedback.innerHTML = '❌ 합계가 맞지 않습니다! 입력한 각 명소의 표 수를 다시 한 번 더해 보세요.';
-        feedback.className = 'quiz-feedback error';
-        feedback.style.display = 'block';
-        return;
-      }
+      // Validate counts
+      let isMatches = true;
+      inputs.forEach(inp => {
+        const key = inp.getAttribute('data-key');
+        const correctVal = POCHEON_SPOTS[key].votes;
+        const val = parseInt(inp.value.trim(), 10) || 0;
+        if (val !== correctVal) {
+          isMatches = false;
+        }
+      });
 
-      if (values.some(v => v < 0)) {
-        feedback.textContent = '❌ 표 수는 0보다 작을 수 없습니다!';
+      if (!isMatches || calculatedSum !== typedSum) {
+        feedback.innerHTML = '❌ 입력한 표의 값 또는 합계가 맞지 않습니다! 투표 결과를 다시 자세히 보고 정확하게 기재해 보세요.';
         feedback.className = 'quiz-feedback error';
         feedback.style.display = 'block';
         return;
@@ -2193,6 +2239,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tbody.innerHTML = '';
     
     state.customGraph.items.forEach(item => {
+      item.name = SYMBOL_NAMES[item.key] || item.name;
       const row = document.createElement('tr');
       row.setAttribute('data-key', item.key);
       row.innerHTML = `
@@ -2201,88 +2248,71 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       tbody.appendChild(row);
 
-      // Initialize drawn value to 0
       state.drawnSimulatorValues[item.key] = 0;
     });
-    
-    ebsDirection = 'vertical';
+
     renderEbsGraph();
-
-    const unitLabel = document.getElementById('ebs-chart-unit-label');
-    if (unitLabel) unitLabel.textContent = '단위: 표';
-
-    // Show the check and save button immediately
-    const saveBtn = document.getElementById('btn-save-ebs-graph');
-    if (saveBtn) {
-      saveBtn.style.display = 'block';
-      saveBtn.textContent = '그래프 검사하고 저장하기! 💾';
-    }
-
-    // Enable toolbar controls
-    const ebsScaleSelect = document.getElementById('ebs-scale-select');
-    const ebsUnitInput = document.getElementById('ebs-unit-input');
-    const btnEbsDirection = document.getElementById('btn-ebs-direction');
-    if (ebsScaleSelect) ebsScaleSelect.disabled = false;
-    if (ebsUnitInput) ebsUnitInput.disabled = false;
-    if (btnEbsDirection) btnEbsDirection.disabled = false;
   }
 
-  // Bind click event listener on the chart area for adjust buttons
-  const chartInner = document.getElementById('ebs-chart-inner');
-  if (chartInner) {
-    chartInner.addEventListener('click', (e) => {
-      const btn = e.target.closest('.btn-ebs-adjust');
-      if (!btn) return;
-      const key = btn.getAttribute('data-key');
-      const isUp = btn.classList.contains('ebs-up');
-      
-      const item = state.customGraph.items.find(x => x.key === key);
-      if (!item) return;
-
-      const scaleSelect = document.getElementById('ebs-scale-select');
-      const scale = parseInt(scaleSelect ? scaleSelect.value : '2', 10);
-      const minDivisions = 5;
-      const limit = Math.max(Math.ceil(Math.max(...state.customGraph.items.map(x => x.val), 1) / scale), minDivisions) * scale;
-
-      let val = state.drawnSimulatorValues[key] || 0;
-      if (isUp) {
-        if (val < limit) val++;
-      } else {
-        if (val > 0) val--;
+  // EBS adjust click listeners for Step 4
+  document.addEventListener('click', (e) => {
+    const upBtn = e.target.closest('.btn-ebs-adjust.ebs-up');
+    const downBtn = e.target.closest('.btn-ebs-adjust.ebs-down');
+    
+    if (upBtn) {
+      const key = upBtn.getAttribute('data-key');
+      // Step 4 adjusts if key is in POCHEON_SPOTS
+      if (POCHEON_SPOTS[key]) {
+        state.drawnSimulatorValues[key] = (state.drawnSimulatorValues[key] || 0) + 1;
+        renderEbsGraph();
       }
-      state.drawnSimulatorValues[key] = val;
-      renderEbsGraph();
-    });
-  }
-
-  const ebsTitleInput = document.getElementById('ebs-title');
-  if (ebsTitleInput) {
-    ebsTitleInput.addEventListener('input', () => {
-      const titleLabel = document.getElementById('ebs-chart-title-label');
-      if (titleLabel) titleLabel.textContent = ebsTitleInput.value.trim() || '무제';
-    });
-  }
-
-  const ebsScaleSelect = document.getElementById('ebs-scale-select');
-  if (ebsScaleSelect) {
-    ebsScaleSelect.addEventListener('change', () => {
-      renderEbsGraph();
-    });
-  }
-
-  const ebsUnitInput = document.getElementById('ebs-unit-input');
-  if (ebsUnitInput) {
-    ebsUnitInput.addEventListener('input', () => {
-      const unitLabel = document.getElementById('ebs-chart-unit-label');
-      if (unitLabel) unitLabel.textContent = `단위: ${ebsUnitInput.value.trim() || '표'}`;
-    });
-  }
+    }
+    
+    if (downBtn) {
+      const key = downBtn.getAttribute('data-key');
+      if (POCHEON_SPOTS[key]) {
+        state.drawnSimulatorValues[key] = Math.max((state.drawnSimulatorValues[key] || 0) - 1, 0);
+        renderEbsGraph();
+      }
+    }
+  });
 
   const btnEbsDirection = document.getElementById('btn-ebs-direction');
   if (btnEbsDirection) {
     btnEbsDirection.addEventListener('click', () => {
-      ebsDirection = (ebsDirection === 'vertical') ? 'horizontal' : 'vertical';
+      ebsDirection = ebsDirection === 'vertical' ? 'horizontal' : 'vertical';
       renderEbsGraph();
+    });
+  }
+
+  const btnSaveEbsGraph = document.getElementById('btn-save-ebs-graph');
+  if (btnSaveEbsGraph) {
+    btnSaveEbsGraph.addEventListener('click', () => {
+      const isHeightCorrect = state.customGraph.items.every(item => {
+        const targetVal = item.val;
+        const drawnVal = state.drawnSimulatorValues[item.key] || 0;
+        return targetVal === drawnVal;
+      });
+
+      const fb = document.getElementById('feedback-ebs-42');
+      if (!isHeightCorrect) {
+        if (fb) {
+          fb.innerHTML = '❌ 막대그래프의 높이가 표의 값과 다릅니다! 표를 보고 알맞은 높이가 되도록 [+], [-] 버튼으로 직접 그려 보세요.';
+          fb.className = 'quiz-feedback error';
+          fb.style.display = 'block';
+        }
+        return;
+      }
+
+      if (fb) {
+        fb.innerHTML = '정답입니다! 🎉 막대그래프를 정확하게 그렸습니다. 이제 해석 미션 단계로 이동하세요!';
+        fb.className = 'quiz-feedback success';
+        fb.style.display = 'block';
+      }
+
+      const btnGoTo43 = document.getElementById('btn-go-to-43');
+      if (btnGoTo43) btnGoTo43.disabled = false;
+      playConfetti();
     });
   }
 
@@ -2292,23 +2322,16 @@ document.addEventListener('DOMContentLoaded', () => {
     container.innerHTML = '';
 
     const items = state.customGraph.items.map(item => {
-      const val = state.drawnSimulatorValues[item.key] !== undefined ? state.drawnSimulatorValues[item.key] : 0;
       return {
         key: item.key,
-        name: item.name,
-        val: val
+        name: SYMBOL_NAMES[item.key] || item.name,
+        val: state.drawnSimulatorValues[item.key] || 0
       };
     });
 
-    if (items.length === 0) return;
-
-    const scale = parseInt(ebsScaleSelect ? ebsScaleSelect.value : '2', 10);
-    const unit = ebsUnitInput ? ebsUnitInput.value.trim() || '표' : '표';
-
-    // Use target values for Y-axis scaling to keep grid limits consistent
+    const scale = parseInt(document.getElementById('ebs-scale-select').value, 10) || 1;
     const maxVal = Math.max(...state.customGraph.items.map(x => x.val), 1);
-    const minDivisions = 5;
-    const divisions = Math.max(Math.ceil(maxVal / scale), minDivisions);
+    const divisions = Math.max(Math.ceil(maxVal / scale), 5);
     const limit = divisions * scale;
 
     const axisY = document.createElement('div');
@@ -2321,10 +2344,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (ebsDirection === 'vertical') {
       container.classList.remove('ebs-mode-horizontal');
+
       for (let i = 0; i <= divisions; i++) {
         const pct = (i / divisions) * 100;
         const line = document.createElement('div');
         line.className = 'ebs-grid-line';
+        if (i % 5 === 0) line.classList.add('major');
         line.style.bottom = `${pct}%`;
         container.appendChild(line);
       }
@@ -2333,7 +2358,11 @@ document.addEventListener('DOMContentLoaded', () => {
       yLabelBox.className = 'ebs-y-label-box';
       for (let i = divisions; i >= 0; i--) {
         const labelDiv = document.createElement('div');
-        labelDiv.textContent = i * scale;
+        if (i % 5 === 0 || divisions <= 10) {
+          labelDiv.textContent = i * scale;
+        } else {
+          labelDiv.textContent = '';
+        }
         yLabelBox.appendChild(labelDiv);
       }
       container.appendChild(yLabelBox);
@@ -2342,12 +2371,23 @@ document.addEventListener('DOMContentLoaded', () => {
       xLabelBox.className = 'ebs-x-label-box';
       items.forEach(item => {
         const labelDiv = document.createElement('div');
-        labelDiv.textContent = stripEmoji(item.name);
+        labelDiv.textContent = item.name;
         labelDiv.style.flex = '1';
         labelDiv.style.textAlign = 'center';
         xLabelBox.appendChild(labelDiv);
       });
       container.appendChild(xLabelBox);
+
+      // axis titles
+      const axisLabelY = document.createElement('div');
+      axisLabelY.className = 'ebs-axis-label-y';
+      axisLabelY.textContent = '개수';
+      container.appendChild(axisLabelY);
+
+      const axisLabelX = document.createElement('div');
+      axisLabelX.className = 'ebs-axis-label-x';
+      axisLabelX.textContent = '기호';
+      container.appendChild(axisLabelX);
 
       const barsWrapper = document.createElement('div');
       barsWrapper.className = 'ebs-bars-wrapper';
@@ -2358,12 +2398,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const pct = (item.val / limit) * 100;
         col.innerHTML = `
-          <div class="ebs-bar" style="height: ${pct}%; width: 24px; background-color: #3b82f6; border-radius: 4px 4px 0 0; position: relative; transition: height 0.2s ease;">
-            <div class="ebs-bar-val-label">${item.val}</div>
+          <div class="ebs-bar" style="height: ${pct}%; width: 22px; background-color: #f59e0b; border-radius: 4px 4px 0 0; position: relative; transition: height 0.2s ease;">
+            <div class="ebs-bar-val-label" style="color: #cbd5e1; font-weight:800;">${item.val}</div>
           </div>
           <div class="ebs-bar-adjust" style="position: absolute; top: -35px; display: flex; gap: 2px; z-index: 10;">
-            <button class="btn-ebs-adjust ebs-up" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; user-select: none;">+</button>
-            <button class="btn-ebs-adjust ebs-down" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; user-select: none;">-</button>
+            <button class="btn-ebs-adjust ebs-up" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">+</button>
+            <button class="btn-ebs-adjust ebs-down" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">-</button>
           </div>
         `;
         barsWrapper.appendChild(col);
@@ -2372,10 +2412,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } else {
       container.classList.add('ebs-mode-horizontal');
+
       for (let i = 0; i <= divisions; i++) {
         const pct = (i / divisions) * 100;
         const line = document.createElement('div');
         line.className = 'ebs-grid-line-vertical';
+        if (i % 5 === 0) line.classList.add('major');
         line.style.left = `${pct}%`;
         container.appendChild(line);
       }
@@ -2384,7 +2426,11 @@ document.addEventListener('DOMContentLoaded', () => {
       xLabelBoxHorizontal.className = 'ebs-x-label-box-horizontal';
       for (let i = 0; i <= divisions; i++) {
         const labelDiv = document.createElement('div');
-        labelDiv.textContent = i * scale;
+        if (i % 5 === 0 || divisions <= 10) {
+          labelDiv.textContent = i * scale;
+        } else {
+          labelDiv.textContent = '';
+        }
         labelDiv.style.position = 'absolute';
         labelDiv.style.left = `${(i / divisions) * 100}%`;
         labelDiv.style.transform = 'translateX(-50%)';
@@ -2396,9 +2442,7 @@ document.addEventListener('DOMContentLoaded', () => {
       yLabelBoxHorizontal.className = 'ebs-y-label-box-horizontal';
       items.forEach(item => {
         const labelDiv = document.createElement('div');
-        const cleanName = stripEmoji(item.name);
-        labelDiv.textContent = cleanName;
-        labelDiv.title = cleanName;
+        labelDiv.textContent = item.name;
         labelDiv.style.height = `${100 / items.length}%`;
         labelDiv.style.display = 'flex';
         labelDiv.style.alignItems = 'center';
@@ -2406,6 +2450,16 @@ document.addEventListener('DOMContentLoaded', () => {
         yLabelBoxHorizontal.appendChild(labelDiv);
       });
       container.appendChild(yLabelBoxHorizontal);
+
+      const axisLabelY = document.createElement('div');
+      axisLabelY.className = 'ebs-axis-label-y-horizontal';
+      axisLabelY.textContent = '기호';
+      container.appendChild(axisLabelY);
+
+      const axisLabelX = document.createElement('div');
+      axisLabelX.className = 'ebs-axis-label-x-horizontal';
+      axisLabelX.textContent = '개수';
+      container.appendChild(axisLabelX);
 
       const barsWrapperHorizontal = document.createElement('div');
       barsWrapperHorizontal.className = 'ebs-bars-wrapper-horizontal';
@@ -2419,58 +2473,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const pct = (item.val / limit) * 100;
         row.innerHTML = `
-          <div class="ebs-bar-horizontal" style="width: ${pct}%; height: 14px; background-color: #3b82f6; border-radius: 0 4px 4px 0; position: relative; transition: width 0.2s ease;">
-            <div class="ebs-bar-val-label-horizontal">${item.val}</div>
+          <div class="ebs-bar-horizontal" style="width: ${pct}%; height: 14px; background-color: #f59e0b; border-radius: 0 3px 3px 0; position: relative; transition: width 0.2s ease;">
+            <div class="ebs-bar-val-label-horizontal" style="color: #cbd5e1; font-weight:800;">${item.val}</div>
           </div>
           <div class="ebs-bar-adjust-horizontal" style="position: absolute; right: -60px; display: flex; gap: 4px; z-index: 10;">
-            <button class="btn-ebs-adjust ebs-up" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; user-select: none;">+</button>
-            <button class="btn-ebs-adjust ebs-down" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; user-select: none;">-</button>
+            <button class="btn-ebs-adjust ebs-up" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">+</button>
+            <button class="btn-ebs-adjust ebs-down" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">-</button>
           </div>
         `;
         barsWrapperHorizontal.appendChild(row);
       });
       container.appendChild(barsWrapperHorizontal);
     }
-  }
-
-  const btnSaveEbsGraph = document.getElementById('btn-save-ebs-graph');
-  if (btnSaveEbsGraph) {
-    btnSaveEbsGraph.addEventListener('click', () => {
-      const isCorrect = state.customGraph.items.every(item => {
-        const targetVal = item.val;
-        const drawnVal = state.drawnSimulatorValues[item.key] || 0;
-        return targetVal === drawnVal;
-      });
-
-      const fb = document.getElementById('feedback-ebs-42');
-
-      if (!isCorrect) {
-        if (fb) {
-          fb.innerHTML = '❌ 막대그래프의 높이가 조사 결과 표의 값과 다릅니다! 표를 보고 알맞은 높이가 되도록 [+], [-] 버튼으로 직접 그려 보세요.';
-          fb.className = 'quiz-feedback error';
-          fb.style.display = 'block';
-        }
-        return;
-      }
-
-      state.customGraph.title = (ebsTitleInput ? ebsTitleInput.value.trim() : '') || '우리 반 친구들이 가장 가보고 싶은 포천의 명소';
-      state.customGraph.unit = (ebsUnitInput ? ebsUnitInput.value.trim() : '') || '표';
-      state.customGraph.direction = ebsDirection;
-      state.customGraph.scale = parseInt(ebsScaleSelect ? ebsScaleSelect.value : '2', 10);
-
-      localStorage.setItem('barGraph_customGraph', JSON.stringify(state.customGraph));
-
-      if (fb) {
-        fb.innerHTML = '정답입니다! 🎉 표의 수치와 막대의 높이가 정확히 일치합니다. 그래프를 성공적으로 완성하여 저장했습니다!';
-        fb.className = 'quiz-feedback success';
-        fb.style.display = 'block';
-      }
-
-      const btnGoTo43 = document.getElementById('btn-go-to-43');
-      if (btnGoTo43) btnGoTo43.disabled = false;
-
-      playConfetti();
-    });
   }
 
   const btnGoTo43 = document.getElementById('btn-go-to-43');
@@ -2481,18 +2495,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (card42) card42.style.display = 'none';
       if (card43) {
         card43.style.display = 'block';
-        populateQ43Options();
+        renderQ43Options();
         renderQ43PreviewGraph();
         card43.scrollIntoView({ behavior: 'smooth' });
       }
-    });
-  }
-
-  const btnQ43ToggleDirection = document.getElementById('btn-q43-toggle-direction');
-  if (btnQ43ToggleDirection) {
-    btnQ43ToggleDirection.addEventListener('click', () => {
-      state.customGraph.direction = state.customGraph.direction === 'horizontal' ? 'vertical' : 'horizontal';
-      renderQ43PreviewGraph();
     });
   }
 
@@ -2503,6 +2509,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const card41 = document.getElementById('sub-step-4-1');
       if (card42) card42.style.display = 'none';
       if (card41) {
+        card41.style.display = 'block';
         card41.scrollIntoView({ behavior: 'smooth' });
       }
     });
@@ -2521,41 +2528,1194 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function populateQ43Options() {
-    const container = document.getElementById('q43-q1-options');
-    if (!container) return;
-    container.innerHTML = '';
+  function renderQ43Options() {
+    const q1Options = document.getElementById('q43-q1-options');
+    if (!q1Options) return;
+    q1Options.innerHTML = '';
 
-    state.customGraph.items.forEach(item => {
+    state.customGraph.items.forEach((item, idx) => {
       const label = document.createElement('label');
       label.innerHTML = `
-        <input type="radio" name="q43_1" value="${item.name}">
-        ${item.name}
+        <input type="radio" name="q43_1" value="${item.key}">
+        ${item.name} (${item.val}표)
       `;
-      container.appendChild(label);
+      q1Options.appendChild(label);
     });
   }
 
   function renderQ43PreviewGraph() {
-    const titleLabel = document.getElementById('q43-graph-title');
+    const wrapper = document.getElementById('q43-bars-wrapper');
+    if (!wrapper) return;
+    wrapper.innerHTML = '';
+
     const items = state.customGraph.items || [];
     if (items.length === 0) return;
 
-    if (titleLabel) {
-      titleLabel.textContent = state.customGraph.title || '내가 완성한 포천 명소 그래프';
+    const maxVal = Math.max(...items.map(x => x.val), 1);
+    
+    items.forEach(item => {
+      const col = document.createElement('div');
+      col.className = 'showcase-bar-col';
+      
+      const pct = (item.val / maxVal) * 100;
+      col.innerHTML = `
+        <div class="showcase-bar" style="height: ${pct * 0.7}px; width: 24px; background: linear-gradient(180deg, #3b82f6, #1d4ed8); border-radius: 4px 4px 0 0; position:relative;">
+          <div class="showcase-val-label" style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:0.75rem; font-weight:800;">${item.val}</div>
+        </div>
+        <div class="showcase-bar-name" style="font-size:0.75rem; font-weight:800; color:#cbd5e1; margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:60px; text-align:center;">${stripEmoji(item.name)}</div>
+      `;
+      wrapper.appendChild(col);
+    });
+  }
+  const btnCheckSub43 = document.getElementById('btn-check-sub43');
+  if (btnCheckSub43) {
+    btnCheckSub43.addEventListener('click', () => {
+      const q1Selected = document.querySelector('input[name="q43_1"]:checked');
+      const q2Selected = document.querySelector('input[name="q43_2"]:checked');
+      const q3Selected = document.querySelector('input[name="q43_3"]:checked');
+      const fb = document.getElementById('feedback-sub43');
+
+      if (!q1Selected || !q2Selected || !q3Selected) {
+        fb.textContent = '⚠️ 세 질문 모두 답변을 선택해 주세요!';
+        fb.className = 'quiz-feedback error';
+        fb.style.display = 'block';
+        return;
+      }
+
+      // Find spot with maximum votes
+      const sorted = [...state.customGraph.items].sort((a,b) => b.val - a.val);
+      const correctQ1Key = sorted[0].key;
+      const isQ1Correct = q1Selected.value === correctQ1Key;
+      const isQ2Correct = q2Selected.value === 'a';
+      const isQ3Correct = q3Selected.value === 'b';
+
+      if (isQ1Correct && isQ2Correct && isQ3Correct) {
+        fb.innerHTML = '모두 정답입니다! 🎉 4단계를 완벽하게 클리어하셨습니다! 다음 5단계로 이동하세요.';
+        fb.className = 'quiz-feedback success';
+        fb.style.display = 'block';
+        playConfetti();
+
+        const btnNextTo5 = document.getElementById('btn-next-to-5');
+        if (btnNextTo5) btnNextTo5.disabled = false;
+        unlockNext(4);
+      } else {
+        let errStr = '❌ 오답이 있습니다. 다시 그래프를 꼼꼼하게 읽어 보세요!<br>';
+        if (!isQ1Correct) errStr += '- <strong>Q1</strong>: 그래프에서 가장 높은 막대의 명소를 골라주세요.<br>';
+        if (!isQ2Correct) errStr += '- <strong>Q2</strong>: 그래프 방향을 가로로 바꾸면 축의 가로/세로 내용도 바뀝니다.<br>';
+        if (!isQ3Correct) errStr += '- <strong>Q3</strong>: 그래프 방향이 바뀌어도 막대 고유의 길이나 실제 투표 수는 변하지 않습니다.';
+        fb.innerHTML = errStr;
+        fb.className = 'quiz-feedback error';
+        fb.style.display = 'block';
+      }
+    });
+  }
+
+  // ==========================================
+  // L. 6단계: 우리 지역 포천 탐구 (구조 개편 및 지도 연동)
+  // ==========================================
+  const DEFAULT_PADLET_URL = 'https://padlet.com/mirach92/padlet-ynm9xca0hdwjpqe3';
+  state.selectedZone = 'south';
+  state.usedHelper = false;
+  state.drawnSimulatorValues6 = {};
+  let ebsDirection6 = 'vertical';
+
+  const ZONE_DATA = {
+    south: {
+      name: "남부 구역",
+      bg: "#e0f2fe",
+      pins: [
+        { type: "school", x: 20, y: 73 }, { type: "school", x: 28, y: 81 }, { type: "school", x: 28, y: 73 },
+        { type: "field", x: 35, y: 67 }, { type: "school", x: 24, y: 67 }, { type: "mountain", x: 38, y: 82 },
+        { type: "school", x: 16, y: 95 }, { type: "field", x: 20, y: 94 }, { type: "school", x: 18, y: 88 },
+        { type: "factory", x: 20, y: 81 }, { type: "factory", x: 24, y: 77 }, { type: "factory", x: 35, y: 72 },
+        { type: "factory", x: 18, y: 67 }, { type: "factory", x: 28, y: 88 }, { type: "factory", x: 34, y: 80 },
+        { type: "factory", x: 23, y: 86 },
+        { type: "field", x: 29, y: 67 }, { type: "field", x: 16, y: 83 },
+        { type: "mountain", x: 22, y: 91 },
+        { type: "museum", x: 24, y: 69 }, { type: "museum", x: 24, y: 82 },
+        { type: "quarry", x: 32, y: 84 }
+      ],
+      counts: { school: 6, factory: 7, field: 4, mountain: 2, museum: 2, quarry: 1 }
+    },
+    north: {
+      name: "북부 구역",
+      bg: "#dcfce7",
+      pins: [
+        { type: "school", x: 35, y: 28 }, { type: "school", x: 65, y: 32 },
+        { type: "factory", x: 31, y: 38 },
+        { type: "field", x: 25, y: 30 }, { type: "field", x: 30, y: 22 }, { type: "field", x: 61, y: 38 }, { type: "field", x: 72, y: 34 },
+        { type: "mountain", x: 28, y: 8 }, { type: "mountain", x: 48, y: 12 }, { type: "mountain", x: 52, y: 6 },
+        { type: "mountain", x: 72, y: 19 }, { type: "school", x: 82, y: 22 }, { type: "mountain", x: 78, y: 28 },
+        { type: "mountain", x: 42, y: 24 }, { type: "mountain", x: 55, y: 20 },
+        { type: "museum", x: 48, y: 32 }, { type: "museum", x: 62, y: 25 },
+        { type: "quarry", x: 43, y: 33 }
+      ],
+      counts: { school: 3, factory: 1, field: 4, mountain: 7, museum: 2, quarry: 1 }
+    },
+    middle: {
+      name: "중부 구역",
+      bg: "#ffedd5",
+      pins: [
+        { type: "school", x: 30, y: 56 },
+        { type: "factory", x: 22, y: 53 }, { type: "factory", x: 52, y: 48 }, { type: "factory", x: 52, y: 83 },
+        { type: "field", x: 19, y: 59 }, { type: "field", x: 52, y: 58 }, { type: "field", x: 65, y: 55 }, { type: "field", x: 72, y: 48 },
+        { type: "mountain", x: 80, y: 45 }, { type: "mountain", x: 76, y: 58 },
+        { type: "museum", x: 11, y: 51 }, { type: "museum", x: 28, y: 54 }, { type: "museum", x: 36, y: 58 },
+        { type: "museum", x: 45, y: 45 }, { type: "school", x: 58, y: 42 }, { type: "museum", x: 62, y: 62 }, { type: "school", x: 50, y: 78 }, { type: "museum", x: 51, y: 90 },
+        { type: "quarry", x: 15, y: 62 }, { type: "quarry", x: 18, y: 48 }, { type: "quarry", x: 29, y: 62 }, { type: "quarry", x: 41, y: 62 }, { type: "quarry", x: 52, y: 66 }
+      ],
+      counts: { school: 3, factory: 3, field: 4, mountain: 2, museum: 6, quarry: 5 }
+    }
+  };
+
+  const MAP_SVGS = {
+    south: "",
+    north: "",
+    middle: ""
+  };
+
+  const SYMBOL_EMOJIS = {
+    school: "🏫",
+    factory: "🏭",
+    field: "🌾",
+    mountain: "⛰️",
+    museum: "🎨",
+    quarry: "⛏️"
+  };
+
+  const SYMBOL_SVGS = {
+    school: `<svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">
+      <line x1="15" y1="6" x2="15" y2="34" stroke="#0f172a" stroke-width="3.2" stroke-linecap="round"/>
+      <polygon points="15,7 32,7 32,19 15,19" fill="#0f172a" stroke="#0f172a" stroke-width="1" stroke-linejoin="round"/>
+      <line x1="8" y1="34" x2="22" y2="34" stroke="#0f172a" stroke-width="3.2" stroke-linecap="round"/>
+    </svg>`,
+    factory: `<svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">
+      <g fill="#0f172a">
+        <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z"/>
+        <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(45 20 20)"/>
+        <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(90 20 20)"/>
+        <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(135 20 20)"/>
+        <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(180 20 20)"/>
+        <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(225 20 20)"/>
+        <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(270 20 20)"/>
+        <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(315 20 20)"/>
+      </g>
+      <circle cx="20" cy="20" r="11" fill="none" stroke="#0f172a" stroke-width="3"/>
+      <circle cx="20" cy="20" r="5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+    </svg>`,
+    field: `<svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">
+      <path d="M 6,17 L 14,17 M 8,17 L 8,11 M 12,17 L 12,11 M 16,17 L 24,17 M 18,17 L 18,11 M 22,17 L 22,11 M 26,17 L 34,17 M 28,17 L 28,11 M 32,17 L 32,11 M 11,29 L 19,29 M 13,29 L 13,23 M 17,29 L 17,23 M 21,29 L 29,29 M 23,29 L 23,23 M 27,29 L 27,23" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    </svg>`,
+    mountain: `<svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">
+      <polygon points="20,8 6,32 34,32" fill="#0f172a"/>
+    </svg>`,
+    museum: `<svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">
+      <circle cx="20" cy="12" r="3.5" fill="#ef4444"/>
+      <circle cx="11" cy="28" r="3.5" fill="#ef4444"/>
+      <circle cx="29" cy="28" r="3.5" fill="#ef4444"/>
+    </svg>`,
+    quarry: `<svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">
+      <path d="M 12.2 27.8 A 11 11 0 1 1 27.8 27.8" fill="none" stroke="#c2410c" stroke-width="3" stroke-linecap="round"/>
+      <line x1="12.2" y1="27.8" x2="14.3" y2="25.7" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="9.4" y1="22.8" x2="12.3" y2="22.1" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="9" y1="20" x2="12" y2="20" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="9.4" y1="17.2" x2="12.3" y2="17.9" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="12.2" y1="12.2" x2="14.3" y2="14.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="17.2" y1="9.4" x2="17.9" y2="12.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="20" y1="9" x2="20" y2="12" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="22.8" y1="9.4" x2="22.1" y2="12.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="27.8" y1="12.2" x2="25.7" y2="14.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="30.6" y1="17.2" x2="27.7" y2="17.9" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="31" y1="20" x2="28" y2="20" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="30.6" y1="22.8" x2="27.7" y2="22.1" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="27.8" y1="27.8" x2="25.7" y2="25.7" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>
+    </svg>`
+  };
+
+  const SYMBOL_CODES = {
+    school: "",
+    factory: "",
+    field: "",
+    mountain: "",
+    museum: "",
+    quarry: ""
+  };
+
+  const SYMBOL_NAMES = {
+    school: "학교",
+    factory: "공장",
+    field: "논",
+    mountain: "산",
+    museum: "명승고적",
+    quarry: "채석장"
+  };
+
+  // 6-1. 구역 버튼 클릭 시 지도 렌더링
+  function selectZone(zone) {
+    state.selectedZone = zone;
+    const zoneButtons = document.querySelectorAll('.btn-zone-select');
+    zoneButtons.forEach(btn => {
+      if (btn.getAttribute('data-zone') === zone) {
+        btn.classList.add('active');
+        btn.style.background = '#3b82f6';
+        btn.style.color = '#ffffff';
+        btn.style.borderColor = '#3b82f6';
+      } else {
+        btn.classList.remove('active');
+        btn.style.background = '#1e293b';
+        btn.style.color = '#f8fafc';
+        btn.style.borderColor = 'rgba(255,255,255,0.15)';
+      }
+    });
+    initDetailedMap6(zone);
+  }
+
+  const zoneButtons = document.querySelectorAll('.btn-zone-select');
+  zoneButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const zone = btn.getAttribute('data-zone');
+      selectZone(zone);
+    });
+  });
+
+  function initDetailedMap6(zone) {
+    const title = document.getElementById('exploration-map-title');
+    if (title) {
+      title.textContent = `포천시 ${ZONE_DATA[zone].name} 지도`;
     }
 
-    const scale = state.customGraph.scale || 2;
-    const maxVal = Math.max(...items.map(x => x.val), 1);
-    const minDivisions = 5;
-    const divisions = Math.max(Math.ceil(maxVal / scale), minDivisions);
-    const limit = divisions * scale;
-    const isHorizontal = state.customGraph.direction === 'horizontal';
+    const wrapper = document.getElementById('interactive-map-wrapper');
+    if (!wrapper) return;
+    wrapper.innerHTML = '';
+    wrapper.style.background = '#ffffff';
 
-    const container = document.querySelector('.q43-chart-container');
-    if (container) {
-      container.innerHTML = '';
+    // Zoom parameters optimized via translate-first translation and scale centering
+    const zoomConfig = {
+      south: { scale: 2.2, tx: '46%', ty: '-68%' }, // Slightly larger scale and pushed further up-right
+      north: { scale: 1.4, tx: '0%', ty: '28%' },   // Keep North unchanged
+      middle: { scale: 1.3, tx: '7%', ty: '-18%' }   // Moved slightly more right (to the right)
+    };
+    const currentZoom = zoomConfig[zone] || { scale: 1.0, tx: '0%', ty: '0%' };
+
+    // Container to keep map image and pins perfectly aligned
+    const mapInner = document.createElement('div');
+    mapInner.className = 'map-inner-container';
+    // Position target region to the absolute center of viewport, then scale it
+    mapInner.style.cssText = `position: relative; height: 100%; display: inline-block; aspect-ratio: 918/1437; max-width: 100%; margin: 0 auto; transform: translate(${currentZoom.tx}, ${currentZoom.ty}) scale(${currentZoom.scale}); transform-origin: center; transition: transform 0.6s ease-in-out;`;
+
+    // Render PPTX exported map image
+    const img = document.createElement('img');
+    img.src = `images/${zone}_zone.png`;
+    img.style.cssText = 'height: 100%; width: auto; display: block; object-fit: contain; pointer-events: none;';
+    mapInner.appendChild(img);
+    wrapper.appendChild(mapInner);
+
+    // Add Compass Rose (방위표) to wrapper (fixed position, does not zoom)
+    const compass = document.createElement('div');
+    compass.className = 'map-compass';
+    compass.style.cssText = 'position: absolute; top: 15px; right: 15px; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; user-select: none; transition: transform 0.2s; filter: drop-shadow(0px 1px 2px rgba(255,255,255,0.8)) drop-shadow(0px 1px 3px rgba(0,0,0,0.15));';
+    compass.innerHTML = `<svg viewBox="0 0 100 100" width="100%" height="100%">
+      <line x1="50" y1="20" x2="50" y2="80" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+      <line x1="28" y1="50" x2="72" y2="50" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+      <line x1="50" y1="28" x2="28" y2="50" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+      <text x="50" y="11" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e293b" font-family="sans-serif">북</text>
+      <text x="50" y="93" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e293b" font-family="sans-serif">남</text>
+      <text x="85" y="55" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e293b" font-family="sans-serif">동</text>
+      <text x="15" y="55" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e293b" font-family="sans-serif">서</text>
+    </svg>`;
+    compass.title = '방위표';
+    compass.addEventListener('click', () => {
+      compass.style.transform = 'scale(1.25)';
+      setTimeout(() => { compass.style.transform = 'scale(1)'; }, 200);
+    });
+    wrapper.appendChild(compass);
+
+    // Add Legend (범례) to wrapper (fixed position, does not zoom)
+    const legend = document.createElement('div');
+    legend.className = 'map-legend';
+    legend.style.cssText = 'position: absolute; bottom: 10px; left: 10px; background: rgba(255, 255, 255, 0.95); border: 2px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 14px; font-size: 0.72rem; z-index: 10; font-weight: bold; box-shadow: 0 3px 6px rgba(0,0,0,0.1); width: 340px;';
+    legend.innerHTML = `
+      <div style="display:flex; align-items:center; gap:6px;">${SYMBOL_SVGS.school} <span style="color:#0f172a; white-space:nowrap;">학교</span></div>
+      <div style="display:flex; align-items:center; gap:6px;">${SYMBOL_SVGS.factory} <span style="color:#0f172a; white-space:nowrap;">공장</span></div>
+      <div style="display:flex; align-items:center; gap:6px;">${SYMBOL_SVGS.field} <span style="color:#0f172a; white-space:nowrap;">논</span></div>
+      <div style="display:flex; align-items:center; gap:6px;">${SYMBOL_SVGS.mountain} <span style="color:#0f172a; white-space:nowrap;">산</span></div>
+      <div style="display:flex; align-items:center; gap:6px;">${SYMBOL_SVGS.museum} <span style="color:#0f172a; white-space:nowrap;">명승고적</span></div>
+      <div style="display:flex; align-items:center; gap:6px;">${SYMBOL_SVGS.quarry} <span style="color:#0f172a; white-space:nowrap;">채석장</span></div>
+    `;
+    wrapper.appendChild(legend);
+
+    // Render pins inside mapInner (they scale relative to map, but size is compensated)
+    const pinScale = 1.0 / currentZoom.scale;
+    ZONE_DATA[zone].pins.forEach((pin, idx) => {
+      const pinDiv = document.createElement('div');
+      pinDiv.className = 'map-pin';
+      // Use compensated scale to prevent pins from becoming excessively large or blurry when zoomed in
+      pinDiv.style.cssText = `position: absolute; left: ${pin.x}%; top: ${pin.y}%; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); border: 2px solid #475569; box-shadow: 0 2px 4px rgba(0,0,0,0.15); user-select: none; transform: translate(-50%, -50%) scale(${pinScale}); transform-origin: center; transition: transform 0.15s ease-in-out;`;
+      pinDiv.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:center; width:20px; height:20px;">
+          ${SYMBOL_SVGS[pin.type]}
+        </div>
+        <span class="checkmark" style="position: absolute; top: -7px; right: -7px; font-size: 0.7rem; background: #10b981; color: white; border: 1px solid white; border-radius: 50%; width: 15px; height: 15px; display: none; align-items: center; justify-content: center; font-weight: bold; z-index: 10;">✔</span>
+      `;
+
+      pinDiv.addEventListener('click', () => {
+        const check = pinDiv.querySelector('.checkmark');
+        if (pinDiv.classList.contains('checked')) {
+          pinDiv.classList.remove('checked');
+          pinDiv.style.transform = `translate(-50%, -50%) scale(${pinScale})`;
+          if (check) check.style.display = 'none';
+        } else {
+          pinDiv.classList.add('checked');
+          pinDiv.style.transform = `translate(-50%, -50%) scale(${pinScale * 1.25})`;
+          if (check) check.style.display = 'flex';
+        }
+      });
+      mapInner.appendChild(pinDiv);
+    });
+
+    // Clear previous inputs
+    document.querySelectorAll('.table-map-input').forEach(inp => inp.value = '');
+    const sumInp = document.getElementById('table-map-sum-input');
+    if (sumInp) sumInp.value = '';
+    const fb = document.getElementById('feedback-table-61');
+    if (fb) fb.style.display = 'none';
+  }
+
+  // Initialize detailed map for South on first load
+  initDetailedMap6('south');
+
+  // 6-1. 표 검증
+  const btnCheckTable61 = document.getElementById('btn-check-table-61');
+  if (btnCheckTable61) {
+    btnCheckTable61.addEventListener('click', () => {
+      const inputs = document.querySelectorAll('.table-map-input');
+      const sumInput = document.getElementById('table-map-sum-input');
+      const feedback = document.getElementById('feedback-table-61');
+      const zone = state.selectedZone;
+      const targetCounts = ZONE_DATA[zone].counts;
+
+      let hasEmpty = false;
+      let calculatedSum = 0;
+      let values = [];
+      let inputMap = {};
+
+      inputs.forEach(inp => {
+        const valStr = inp.value.trim();
+        if (valStr === '') hasEmpty = true;
+        const val = parseInt(valStr, 10) || 0;
+        calculatedSum += val;
+        values.push(val);
+        inputMap[inp.getAttribute('data-key')] = val;
+      });
+
+      const typedSumStr = sumInput.value.trim();
+      if (hasEmpty || typedSumStr === '') {
+        feedback.textContent = '⚠️ 모든 표의 항목 칸과 합계 칸을 채워 주세요!';
+        feedback.className = 'quiz-feedback error';
+        feedback.style.display = 'block';
+        return;
+      }
+
+      const typedSum = parseInt(typedSumStr, 10);
+
+      // Validate counts
+      let isMatches = true;
+      inputs.forEach(inp => {
+        const key = inp.getAttribute('data-key');
+        const correctVal = targetCounts[key];
+        const val = parseInt(inp.value.trim(), 10) || 0;
+        if (val !== correctVal) {
+          isMatches = false;
+        }
+      });
+
+      if (!isMatches || calculatedSum !== typedSum) {
+        feedback.innerHTML = '❌ 입력한 기호 수 또는 합계가 지도 조사 결과와 맞지 않습니다! 지도의 기호 개수(체크마크 도우미 참고)를 다시 정확하게 세어 보세요.';
+        feedback.className = 'quiz-feedback error';
+        feedback.style.display = 'block';
+        return;
+      }
+
+      // If correct
+      state.customGraph.items = [
+        { key: 'school', name: '학교', val: targetCounts.school },
+        { key: 'factory', name: '공장', val: targetCounts.factory },
+        { key: 'field', name: '논', val: targetCounts.field },
+        { key: 'mountain', name: '산', val: targetCounts.mountain },
+        { key: 'museum', name: '명승고적', val: targetCounts.museum },
+        { key: 'quarry', name: '채석장', val: targetCounts.quarry }
+      ];
+      state.customGraph.unit = '개';
+      state.customGraph.title = '우리 구역 지도 속 기호 수';
+
+      feedback.innerHTML = '정답입니다! 🎉 기호 개수를 모두 정확하게 기록했습니다. 이제 6-2단계 막대그래프 그리기 도구로 그래프를 그려봅시다!';
+      feedback.className = 'quiz-feedback success';
+      feedback.style.display = 'block';
+      playConfetti();
+
+      const step61Card = document.getElementById('sub-step-6-1');
+      if (step61Card) step61Card.style.display = 'none';
+
+      const step62Card = document.getElementById('sub-step-6-2');
+      if (step62Card) {
+        step62Card.style.display = 'block';
+        loadEbsTableData6();
+        step62Card.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  // 6-2. 막대그래프 그리기 도구 로드
+  function loadEbsTableData6() {
+    const tbody = document.getElementById('ebs-table-body-6');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    state.customGraph.items.forEach(item => {
+      item.name = SYMBOL_NAMES[item.key] || item.name;
+      // Sanitize name to prevent loading corrupted/old name from localStorage
+      item.name = SYMBOL_NAMES[item.key] || item.name;
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="font-weight: 800; color: #1e293b; padding: 4px 8px;">
+          <div style="display: flex; align-items: center; gap: 8px; height: 36px;">
+          ${SYMBOL_SVGS[item.key]}
+          <span>${SYMBOL_NAMES[item.key]}</span>
+          </div></td>
+        <td style="padding: 4px 8px; vertical-align: middle;"><span style="font-weight: bold; color: #0284c7;">${item.val}개</span></td>
+      `;
+      tbody.appendChild(row);
+
+      state.drawnSimulatorValues6[item.key] = 0;
+    });
+
+    renderEbsGraph6();
+  }
+
+  function renderEbsGraph6() {
+    const container = document.getElementById('ebs-chart-inner-6');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const items = state.customGraph.items.map(item => {
+      return {
+        key: item.key,
+        name: SYMBOL_NAMES[item.key] || item.name,
+        val: state.drawnSimulatorValues6[item.key] || 0
+      };
+    });
+
+    const scale = parseInt(document.getElementById('ebs-scale-select-6').value, 10) || 1;
+    const maxVal = Math.max(...state.customGraph.items.map(x => x.val), 1);
+    const divisions = Math.max(Math.ceil(maxVal / scale), 5);
+    const limit = divisions * scale;
+
+    const axisY = document.createElement('div');
+    axisY.className = 'ebs-axis-y';
+    container.appendChild(axisY);
+
+    const axisX = document.createElement('div');
+    axisX.className = 'ebs-axis-x';
+    container.appendChild(axisX);
+
+    if (ebsDirection6 === 'vertical') {
+      container.classList.remove('ebs-mode-horizontal');
+
+      for (let i = 0; i <= divisions; i++) {
+        const pct = (i / divisions) * 100;
+        const line = document.createElement('div');
+        line.className = 'ebs-grid-line';
+        if (i % 5 === 0) line.classList.add('major');
+        line.style.bottom = `${pct}%`;
+        container.appendChild(line);
+      }
+
+      const yLabelBox = document.createElement('div');
+      yLabelBox.className = 'ebs-y-label-box';
+      for (let i = divisions; i >= 0; i--) {
+        const labelDiv = document.createElement('div');
+        if (i % 5 === 0 || divisions <= 10) {
+          labelDiv.textContent = i * scale;
+        } else {
+          labelDiv.textContent = '';
+        }
+        yLabelBox.appendChild(labelDiv);
+      }
+      container.appendChild(yLabelBox);
+
+      const xLabelBox = document.createElement('div');
+      xLabelBox.className = 'ebs-x-label-box';
+      items.forEach(item => {
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = item.name;
+        labelDiv.style.flex = '1';
+        labelDiv.style.textAlign = 'center';
+        xLabelBox.appendChild(labelDiv);
+      });
+      container.appendChild(xLabelBox);
+
+      // axis titles
+      const axisLabelY = document.createElement('div');
+      axisLabelY.className = 'ebs-axis-label-y';
+      axisLabelY.textContent = '개수';
+      container.appendChild(axisLabelY);
+
+      const axisLabelX = document.createElement('div');
+      axisLabelX.className = 'ebs-axis-label-x';
+      axisLabelX.textContent = '기호';
+      container.appendChild(axisLabelX);
+
+      const barsWrapper = document.createElement('div');
+      barsWrapper.className = 'ebs-bars-wrapper';
+      items.forEach(item => {
+        const col = document.createElement('div');
+        col.className = 'ebs-bar-col';
+        col.style.flex = '1';
+
+        const pct = (item.val / limit) * 100;
+        col.innerHTML = `
+          <div class="ebs-bar" style="height: ${pct}%; width: 22px; background-color: #f59e0b; border-radius: 4px 4px 0 0; position: relative; transition: height 0.2s ease;">
+            <div class="ebs-bar-val-label" style="color: #cbd5e1; font-weight:800;">${item.val}</div>
+          </div>
+          <div class="ebs-bar-adjust" style="position: absolute; top: -35px; display: flex; gap: 2px; z-index: 10;">
+            <button class="btn-ebs-adjust-6 ebs-up" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">+</button>
+            <button class="btn-ebs-adjust-6 ebs-down" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">-</button>
+          </div>
+        `;
+        barsWrapper.appendChild(col);
+      });
+      container.appendChild(barsWrapper);
+
+    } else {
+      container.classList.add('ebs-mode-horizontal');
+
+      for (let i = 0; i <= divisions; i++) {
+        const pct = (i / divisions) * 100;
+        const line = document.createElement('div');
+        line.className = 'ebs-grid-line-vertical';
+        if (i % 5 === 0) line.classList.add('major');
+        line.style.left = `${pct}%`;
+        container.appendChild(line);
+      }
+
+      const xLabelBoxHorizontal = document.createElement('div');
+      xLabelBoxHorizontal.className = 'ebs-x-label-box-horizontal';
+      for (let i = 0; i <= divisions; i++) {
+        const labelDiv = document.createElement('div');
+        if (i % 5 === 0 || divisions <= 10) {
+          labelDiv.textContent = i * scale;
+        } else {
+          labelDiv.textContent = '';
+        }
+        labelDiv.style.position = 'absolute';
+        labelDiv.style.left = `${(i / divisions) * 100}%`;
+        labelDiv.style.transform = 'translateX(-50%)';
+        xLabelBoxHorizontal.appendChild(labelDiv);
+      }
+      container.appendChild(xLabelBoxHorizontal);
+
+      const yLabelBoxHorizontal = document.createElement('div');
+      yLabelBoxHorizontal.className = 'ebs-y-label-box-horizontal';
+      items.forEach(item => {
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = item.name;
+        labelDiv.style.height = `${100 / items.length}%`;
+        labelDiv.style.display = 'flex';
+        labelDiv.style.alignItems = 'center';
+        labelDiv.style.justifyContent = 'flex-end';
+        yLabelBoxHorizontal.appendChild(labelDiv);
+      });
+      container.appendChild(yLabelBoxHorizontal);
+
+      const axisLabelY = document.createElement('div');
+      axisLabelY.className = 'ebs-axis-label-y-horizontal';
+      axisLabelY.textContent = '기호';
+      container.appendChild(axisLabelY);
+
+      const axisLabelX = document.createElement('div');
+      axisLabelX.className = 'ebs-axis-label-x-horizontal';
+      axisLabelX.textContent = '개수';
+      container.appendChild(axisLabelX);
+
+      const barsWrapperHorizontal = document.createElement('div');
+      barsWrapperHorizontal.className = 'ebs-bars-wrapper-horizontal';
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'ebs-bar-row-horizontal';
+        row.style.height = `${100 / items.length}%`;
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.width = '100%';
+
+        const pct = (item.val / limit) * 100;
+        row.innerHTML = `
+          <div class="ebs-bar-horizontal" style="width: ${pct}%; height: 14px; background-color: #f59e0b; border-radius: 0 3px 3px 0; position: relative; transition: width 0.2s ease;">
+            <div class="ebs-bar-val-label-horizontal" style="color: #cbd5e1; font-weight:800;">${item.val}</div>
+          </div>
+          <div class="ebs-bar-adjust-horizontal" style="position: absolute; right: -60px; display: flex; gap: 4px; z-index: 10;">
+            <button class="btn-ebs-adjust-6 ebs-up" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">+</button>
+            <button class="btn-ebs-adjust-6 ebs-down" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">-</button>
+          </div>
+        `;
+        barsWrapperHorizontal.appendChild(row);
+      });
+      container.appendChild(barsWrapperHorizontal);
+    }
+  }
+
+  // Clicks for adjustments in Step 6
+  document.addEventListener('click', (e) => {
+    const upBtn = e.target.closest('.btn-ebs-adjust-6.ebs-up');
+    const downBtn = e.target.closest('.btn-ebs-adjust-6.ebs-down');
+
+    if (upBtn) {
+      const key = upBtn.getAttribute('data-key');
+      const targetCounts = ZONE_DATA[state.selectedZone].counts;
+      if (targetCounts[key] !== undefined) {
+        state.drawnSimulatorValues6[key] = (state.drawnSimulatorValues6[key] || 0) + 1;
+        renderEbsGraph6();
+      }
+    }
+
+    if (downBtn) {
+      const key = downBtn.getAttribute('data-key');
+      const targetCounts = ZONE_DATA[state.selectedZone].counts;
+      if (targetCounts[key] !== undefined) {
+        state.drawnSimulatorValues6[key] = Math.max((state.drawnSimulatorValues6[key] || 0) - 1, 0);
+        renderEbsGraph6();
+      }
+    }
+  });
+
+  const scaleSelect6 = document.getElementById('ebs-scale-select-6');
+  if (scaleSelect6) {
+    scaleSelect6.addEventListener('change', renderEbsGraph6);
+  }
+
+  const btnEbsDirection6 = document.getElementById('btn-ebs-direction-6');
+  if (btnEbsDirection6) {
+    btnEbsDirection6.addEventListener('click', () => {
+      ebsDirection6 = ebsDirection6 === 'vertical' ? 'horizontal' : 'vertical';
+      renderEbsGraph6();
+    });
+  }
+
+  const btnSaveEbsGraph62 = document.getElementById('btn-save-ebs-graph-62');
+  if (btnSaveEbsGraph62) {
+    btnSaveEbsGraph62.addEventListener('click', () => {
+      const targetCounts = ZONE_DATA[state.selectedZone].counts;
+      const isHeightCorrect = state.customGraph.items.every(item => {
+        const targetVal = targetCounts[item.key];
+        const drawnVal = state.drawnSimulatorValues6[item.key] || 0;
+        return targetVal === drawnVal;
+      });
+
+      const fb = document.getElementById('feedback-ebs-62');
+      if (!isHeightCorrect) {
+        if (fb) {
+          fb.innerHTML = '❌ 막대그래프의 높이가 표의 값과 다릅니다! 표를 보고 알맞은 높이가 되도록 [+], [-] 버튼으로 직접 그려 보세요.';
+          fb.className = 'quiz-feedback error';
+          fb.style.display = 'block';
+        }
+        return;
+      }
+
+      if (fb) {
+        fb.innerHTML = '정답입니다! 🎉 막대그래프를 정확하게 완성했습니다. 이제 글쓰기 도전 단계로 이동하세요!';
+        fb.className = 'quiz-feedback success';
+        fb.style.display = 'block';
+      }
+
+      const btnGoTo63 = document.getElementById('btn-go-to-63');
+      if (btnGoTo63) btnGoTo63.disabled = false;
+      playConfetti();
+    });
+  }
+
+  // 6-3. 소개글 쓰기 전환 및 대기 로직
+  const btnGoTo63 = document.getElementById('btn-go-to-63');
+  if (btnGoTo63) {
+    btnGoTo63.addEventListener('click', () => {
+      const card62 = document.getElementById('sub-step-6-2');
+      const card63 = document.getElementById('sub-step-6-3');
+      if (card62) card62.style.display = 'none';
+      if (card63) {
+        card63.style.display = 'block';
+        
+        // Reset 6-3 UI states
+        state.usedHelper = false;
+        document.getElementById('teacher-guide-overlay-63').style.display = 'flex';
+        document.getElementById('writing-challenge-workspace').style.display = 'none';
+        
+        // Example Sentence Text Setup
+        const zone = state.selectedZone;
+        const exampleText = getExampleSentence(zone);
+        document.getElementById('writing-example-sentence').textContent = exampleText;
+
+        // Reset Textarea
+        document.getElementById('textarea-description-63').value = '';
+        
+        // Reset helpers bar
+        document.getElementById('btn-show-blanks-hint').style.display = 'none';
+        document.getElementById('btn-switch-to-dropdown').style.display = 'none';
+        document.getElementById('writing-timer-badge').textContent = '⏳ 남은 시간: 60초';
+        document.getElementById('writing-timer-badge').style.background = '#3b4252';
+
+        // Render mini graph for 6-3
+        renderWritingMiniGraph6();
+
+        card63.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  function getExampleSentence(zone) {
+    if (zone === 'south') {
+      return "남부 구역에서 가장 많은 것은 ( )개의 ( )이고, 두 번째로 많은 것은 ( )개의 ( )입니다. 이곳은 ( )할 수 있는 지역입니다.";
+    } else if (zone === 'north') {
+      return "북부 구역에서 가장 많은 것은 ( )개의 ( )이고, 두 번째로 많은 것은 ( )개의 ( )입니다. 이곳은 ( )할 수 있는 지역입니다.";
+    } else {
+      return "중부 구역에서 가장 많은 것은 ( )개의 ( )이고, 두 번째로 많은 것은 ( )개의 ( )입니다. 이곳은 ( )할 수 있는 지역입니다.";
+    }
+  }
+
+  function getBlanksHint(zone) {
+    if (zone === 'south') {
+      return "남부 구역에서 가장 많은 것은 ( 7 )개의 ( 공장 )이고, 두 번째로 많은 것은 ( 6 )개의 ( 학교 )입니다. 이곳은 많은 사람들이 살아가고 물건을 생산하는 활기찬 도시 지역입니다.";
+    } else if (zone === 'north') {
+      return "북부 구역에서 가장 많은 것은 ( 7 )개의 ( 산 )이고, 두 번째로 많은 것은 ( 4 )개의 ( 논 )입니다. 이곳은 높은 산이 많고 농사를 많이 짓는 산림 농업 지역입니다.";
+    } else {
+      return "중부 구역에서 가장 많은 것은 ( 6 )개의 ( 명승고적 )이고, 두 번째로 많은 것은 ( 5 )개의 ( 채석장 )입니다. 이곳은 멋진 자연유산을 감상하고, 풍부한 돌 자원을 얻을 수 있는 지질 지역입니다.";
+    }
+  }
+
+  // Start challenge and Timer
+  let challengeTimer = null;
+  const btnStartWritingChallenge = document.getElementById('btn-start-writing-challenge');
+  if (btnStartWritingChallenge) {
+    btnStartWritingChallenge.addEventListener('click', () => {
+      document.getElementById('teacher-guide-overlay-63').style.display = 'none';
+      document.getElementById('writing-challenge-workspace').style.display = 'block';
+
+      // Start countdown
+      let remaining = 60;
+      const badge = document.getElementById('writing-timer-badge');
       
+      // Clear previous timer if any
+      if (challengeTimer) clearInterval(challengeTimer);
+      
+      challengeTimer = setInterval(() => {
+        remaining--;
+        if (remaining > 0) {
+          badge.textContent = `⏳ 남은 시간: ${remaining}초`;
+        } else {
+          clearInterval(challengeTimer);
+          badge.textContent = `✔️ 도움 요청 가능`;
+          badge.style.background = '#10b981';
+          
+          // Enable helpers
+          document.getElementById('btn-show-blanks-hint').style.display = 'inline-block';
+          document.getElementById('btn-switch-to-dropdown').style.display = 'inline-block';
+        }
+      }, 1000);
+    });
+  }
+
+  // Blank Hint Button
+  const btnShowBlanksHint = document.getElementById('btn-show-blanks-hint');
+  if (btnShowBlanksHint) {
+    btnShowBlanksHint.addEventListener('click', () => {
+      state.usedHelper = true;
+      const zone = state.selectedZone;
+      document.getElementById('writing-example-sentence').textContent = getBlanksHint(zone);
+      alert("도움 힌트가 열렸습니다! 예시글의 빈칸을 참고해 문장을 완성해 보세요. (마스터 배지가 격하됩니다) 💡");
+    });
+  }
+
+  // Switch to Dropdown mode
+  const btnSwitchToDropdown = document.getElementById('btn-switch-to-dropdown');
+  if (btnSwitchToDropdown) {
+    btnSwitchToDropdown.addEventListener('click', () => {
+      state.usedHelper = true;
+      document.getElementById('writing-mode-text').style.display = 'none';
+      document.getElementById('writing-mode-dropdown').style.display = 'block';
+      
+      // Inject builder UI
+      initDropdownSentenceBuilder6();
+    });
+  }
+
+  function initDropdownSentenceBuilder6() {
+    const container = document.getElementById('sentence-dropdown-builder-container');
+    if (!container) return;
+    
+    const zone = state.selectedZone;
+    if (zone === 'south') {
+      container.innerHTML = `
+        남부 구역에서 가장 많은 것은 
+        <select id="sel-63-2" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800;">
+          <option value="">--선택--</option>
+          <option value="1">1</option> <option value="2">2</option> <option value="4">4</option> <option value="6">6</option> <option value="7">7</option>
+        </select>개의 
+        <select id="sel-63-1" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800; font-family:var(--font-main);">
+          <option value="">--선택--</option>
+          <option value="school">학교</option> <option value="factory">공장</option> <option value="field">논</option>
+          <option value="mountain">산</option> <option value="museum">명승고적</option> <option value="quarry">채석장</option>
+        </select>이고, 
+        두 번째로 많은 것은 
+        <select id="sel-63-4" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800;">
+          <option value="">--선택--</option>
+          <option value="1">1</option> <option value="2">2</option> <option value="4">4</option> <option value="6">6</option> <option value="7">7</option>
+        </select>개의 
+        <select id="sel-63-3" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800; font-family:var(--font-main);">
+          <option value="">--선택--</option>
+          <option value="school">학교</option> <option value="factory">공장</option> <option value="field">논</option>
+          <option value="mountain">산</option> <option value="museum">명승고적</option> <option value="quarry">채석장</option>
+        </select>입니다. 이곳에는 
+        <select id="sel-63-5" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800; font-family:var(--font-main);">
+          <option value="">--선택--</option>
+          <option value="urban">공장에서 물건을 만들거나 학교에 다니며 편리하게 생활</option>
+          <option value="tourism">숲을 가꾸고 논밭에서 농사를 지으며 평화롭게 생활</option>
+          <option value="industrial">자연 유산을 가꾸고 채석장에서 돌을 캐며 생활</option>
+        </select>하는 사람이 많은 지역입니다.
+      `;
+    } else if (zone === 'north') {
+      container.innerHTML = `
+        북부 구역에서 가장 많은 것은 
+        <select id="sel-63-2" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800;">
+          <option value="">--선택--</option>
+          <option value="1">1</option> <option value="2">2</option> <option value="3">3</option> <option value="4">4</option> <option value="7">7</option>
+        </select>개의 
+        <select id="sel-63-1" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800; font-family:var(--font-main);">
+          <option value="">--선택--</option>
+          <option value="school">학교</option> <option value="factory">공장</option> <option value="field">논</option>
+          <option value="mountain">산</option> <option value="museum">명승고적</option> <option value="quarry">채석장</option>
+        </select>이고, 
+        두 번째로 많은 것은 
+        <select id="sel-63-4" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800;">
+          <option value="">--선택--</option>
+          <option value="1">1</option> <option value="2">2</option> <option value="3">3</option> <option value="4">4</option> <option value="7">7</option>
+        </select>개의 
+        <select id="sel-63-3" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800; font-family:var(--font-main);">
+          <option value="">--선택--</option>
+          <option value="school">학교</option> <option value="factory">공장</option> <option value="field">논</option>
+          <option value="mountain">산</option> <option value="museum">명승고적</option> <option value="quarry">채석장</option>
+        </select>입니다. 이곳에는 
+        <select id="sel-63-5" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800; font-family:var(--font-main);">
+          <option value="">--선택--</option>
+          <option value="urban">공장에서 물건을 만들거나 학교에 다니며 편리하게 생활</option>
+          <option value="tourism">숲을 가꾸고 논밭에서 농사를 지으며 평화롭게 생활</option>
+          <option value="industrial">자연 유산을 가꾸고 채석장에서 돌을 캐며 생활</option>
+        </select>하는 사람이 많은 지역입니다.
+      `;
+    } else {
+      container.innerHTML = `
+        중부 구역에서 가장 많은 것은 
+        <select id="sel-63-2" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800;">
+          <option value="">--선택--</option>
+          <option value="2">2</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option>
+        </select>개의 
+        <select id="sel-63-1" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800; font-family:var(--font-main);">
+          <option value="">--선택--</option>
+          <option value="school">학교</option> <option value="factory">공장</option> <option value="field">논</option>
+          <option value="mountain">산</option> <option value="museum">명승고적</option> <option value="quarry">채석장</option>
+        </select>이고, 
+        두 번째로 많은 것은 
+        <select id="sel-63-4" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800;">
+          <option value="">--선택--</option>
+          <option value="2">2</option> <option value="3">3</option> <option value="4">4</option> <option value="5">5</option> <option value="6">6</option>
+        </select>개의 
+        <select id="sel-63-3" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800; font-family:var(--font-main);">
+          <option value="">--선택--</option>
+          <option value="school">학교</option> <option value="factory">공장</option> <option value="field">논</option>
+          <option value="mountain">산</option> <option value="museum">명승고적</option> <option value="quarry">채석장</option>
+        </select>입니다. 이곳에는 
+        <select id="sel-63-5" class="ebs-select-sm" style="font-size:1.1rem; font-weight:800; font-family:var(--font-main);">
+          <option value="">--선택--</option>
+          <option value="urban">공장에서 물건을 만들거나 학교에 다니며 편리하게 생활</option>
+          <option value="tourism">숲을 가꾸고 논밭에서 농사를 지으며 평화롭게 생활</option>
+          <option value="industrial">자연 유산을 가꾸고 채석장에서 돌을 캐며 생활</option>
+        </select>하는 사람이 많은 지역입니다.
+      `;
+    }
+  }
+
+  // 6-3. 소개글 검사
+  function validateTextareaDescription(zone, text) {
+    const t = text.replace(/\s+/g, ""); // Remove spaces
+    if (zone === 'south') {
+      return (t.includes('학교') && (t.includes('9') || t.includes('아홉')) && t.includes('공장') && (t.includes('7') || t.includes('일곱')) && (t.includes('도시') || t.includes('주거')));
+    } else if (zone === 'north') {
+      return ((t.includes('산') || t.includes('호수')) && (t.includes('8') || t.includes('여덟')) && (t.includes('논') || t.includes('밭')) && (t.includes('4') || t.includes('네')) && (t.includes('자연') || t.includes('관광')));
+    } else if (zone === 'middle') {
+      return ((t.includes('체험관') || t.includes('박물관') || t.includes('미술관') || t.includes('명승고적')) && (t.includes('10') || t.includes('열')) && t.includes('채석장') && (t.includes('8') || t.includes('여덟')) && (t.includes('체험') || t.includes('문화') || t.includes('산업')));
+    }
+    return false;
+  }
+
+  const btnCheckDescription63 = document.getElementById('btn-check-description-63');
+  if (btnCheckDescription63) {
+    btnCheckDescription63.addEventListener('click', () => {
+      const isDropdownMode = document.getElementById('writing-mode-dropdown').style.display === 'block';
+      const feedback = document.getElementById('feedback-description-63');
+      const zone = state.selectedZone;
+      
+      let isCorrect = false;
+
+      if (!isDropdownMode) {
+        // Textarea mode
+        const text = document.getElementById('textarea-description-63').value.trim();
+        if (text === '') {
+          feedback.textContent = '⚠️ 빈칸으로 제출할 수 없습니다! 우리 구역의 소개글을 작성해 주세요.';
+          feedback.className = 'quiz-feedback error';
+          feedback.style.display = 'block';
+          return;
+        }
+
+        isCorrect = true; // 줄글 모드에서는 비어 있지 않으면 무조건 자동 통과
+      } else {
+        // Dropdown mode
+        const s1 = document.getElementById('sel-63-1').value;
+        const s2 = document.getElementById('sel-63-2').value;
+        const s3 = document.getElementById('sel-63-3').value;
+        const s4 = document.getElementById('sel-63-4').value;
+        const s5 = document.getElementById('sel-63-5').value;
+
+        if (s1 === '' || s2 === '' || s3 === '' || s4 === '' || s5 === '') {
+          feedback.textContent = '⚠️ 문장의 모든 빈칸을 선택상자로 채워 주세요!';
+          feedback.className = 'quiz-feedback error';
+          feedback.style.display = 'block';
+          return;
+        }
+
+        if (zone === 'south') {
+          isCorrect = (s1 === 'factory' && s2 === '7' && s3 === 'school' && s4 === '6' && s5 === 'urban');
+        } else if (zone === 'north') {
+          isCorrect = (s1 === 'mountain' && s2 === '7' && s3 === 'field' && s4 === '4' && s5 === 'tourism');
+        } else {
+          isCorrect = (s1 === 'museum' && s2 === '6' && s3 === 'quarry' && s4 === '5' && s5 === 'industrial');
+        }
+      }
+
+      if (isCorrect) {
+        feedback.innerHTML = '훌륭합니다! 🎉 우리 구역 지도의 조사 결과를 알기 쉽게 문장으로 완성하였습니다! 이제 마지막 배움 정리 단계로 가볼까요?';
+        feedback.className = 'quiz-feedback success';
+        feedback.style.display = 'block';
+        playConfetti();
+
+        const btnGoTo64 = document.getElementById('btn-go-to-64');
+        if (btnGoTo64) btnGoTo64.disabled = false;
+      } else {
+        feedback.innerHTML = '❌ 오답이 있거나 기호의 개수(학교/공장 등 1등과 2등 개수)가 잘못 기재되어 있습니다. 그래프와 예시문을 다시 꼼꼼히 확인해 보세요!';
+        feedback.className = 'quiz-feedback error';
+        feedback.style.display = 'block';
+      }
+    });
+  }
+
+  const btnGoTo64 = document.getElementById('btn-go-to-64');
+  if (btnGoTo64) {
+    btnGoTo64.addEventListener('click', () => {
+      const card63 = document.getElementById('sub-step-6-3');
+      const card64 = document.getElementById('sub-step-6-4');
+      if (card63) card63.style.display = 'none';
+      if (card64) {
+        card64.style.display = 'block';
+        
+        // Reset takeaways
+        document.querySelectorAll('.takeaway-item-6').forEach(item => item.classList.remove('checked'));
+        document.querySelector('.takeaway-item-6 .takeaway-check-6').textContent = '';
+        const btnTakeaway = document.getElementById('btn-complete-takeaway-64');
+        if (btnTakeaway) btnTakeaway.disabled = true;
+
+        // Hide certificate preview initially
+        document.getElementById('certificate-showcase-area').style.display = 'none';
+
+        card64.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  const btnBackTo61 = document.getElementById('btn-back-to-61');
+  if (btnBackTo61) {
+    btnBackTo61.addEventListener('click', () => {
+      const card62 = document.getElementById('sub-step-6-2');
+      const card61 = document.getElementById('sub-step-6-1');
+      if (card62) card62.style.display = 'none';
+      if (card61) {
+        card61.style.display = 'block';
+        card61.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  const btnBackTo62 = document.getElementById('btn-back-to-62');
+  if (btnBackTo62) {
+    btnBackTo62.addEventListener('click', () => {
+      const card63 = document.getElementById('sub-step-6-3');
+      const card62 = document.getElementById('sub-step-6-2');
+      if (card63) card63.style.display = 'none';
+      if (card62) {
+        card62.style.display = 'block';
+        card62.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  const btnBackTo63 = document.getElementById('btn-back-to-63');
+  if (btnBackTo63) {
+    btnBackTo63.addEventListener('click', () => {
+      const card64 = document.getElementById('sub-step-6-4');
+      const card63 = document.getElementById('sub-step-6-3');
+      if (card64) card64.style.display = 'none';
+      if (card63) {
+        card63.style.display = 'block';
+        card63.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  // ==========================================
+  // K. 6단계: 수료증 및 배움 정리 (지도 연동 & 클립보드 & QR)
+  // ==========================================
+  
+  // 6-4. 배움 정리 체크 연동
+  const takeawaysList6 = [1, 2, 3];
+  takeawaysList6.forEach(num => {
+    const item = document.querySelector(`.takeaway-item-6[data-num="${num}"]`);
+    if (item) {
+      item.addEventListener('click', () => {
+        const check = item.querySelector('.takeaway-check-6');
+        if (item.classList.contains('checked')) {
+          item.classList.remove('checked');
+          if (check) check.textContent = '';
+        } else {
+          item.classList.add('checked');
+          if (check) check.textContent = '✔️';
+        }
+        checkTakeawayCompletion6();
+      });
+    }
+  });
+
+  function checkTakeawayCompletion6() {
+    const allChecked = Array.from(document.querySelectorAll('.takeaway-item-6')).every(item => item.classList.contains('checked'));
+    const btn = document.getElementById('btn-complete-takeaway-64');
+    if (btn) {
+      btn.disabled = !allChecked;
+    }
+  }
+
+  const btnCompleteTakeaway64 = document.getElementById('btn-complete-takeaway-64');
+  if (btnCompleteTakeaway64) {
+    btnCompleteTakeaway64.addEventListener('click', () => {
+      document.getElementById('certificate-showcase-area').style.display = 'block';
+      renderCertificate6();
+      document.getElementById('certificate-showcase-area').scrollIntoView({ behavior: 'smooth' });
+      playConfetti();
+    });
+  }
+
+  function renderCertificate6() {
+    const studentName = state.studentName || '참가자';
+    const nameLabel = document.getElementById('cert-name-label');
+    if (nameLabel) nameLabel.textContent = studentName;
+
+    const zone = state.selectedZone || 'south';
+    
+    // Set watermark background
+    const watermark = document.getElementById('cert-watermark-overlay');
+    if (watermark) {
+      watermark.style.backgroundImage = `url('images/${zone}_zone.png')`;
+    }
+
+    // Set badge emoji and text
+    const badgeEmoji = document.getElementById('cert-badge-emoji');
+    const mainText = document.getElementById('cert-main-body-text');
+    
+    if (state.usedHelper) {
+      if (badgeEmoji) badgeEmoji.textContent = '🏅';
+      if (mainText) {
+        mainText.innerHTML = `위 학생은 초등학교 4학년 수학 [막대그래프]와 사회 [우리 지역의 특성] 단원의 교과 융합 프로젝트 수업에 참여하여, 포천 구역별 지도의 기호를 탐구하고 막대그래프 완성 및 우리 지역의 지역적 특성 분석 소개글 작성 미션을 <strong>[성실히 해결]</strong>하였기에 이 격려장을 수여합니다.`;
+      }
+    } else {
+      if (badgeEmoji) badgeEmoji.textContent = '🏆';
+      if (mainText) {
+        mainText.innerHTML = `위 학생은 초등학교 4학년 수학 [막대그래프]와 사회 [우리 지역의 특성] 단원의 교과 융합 프로젝트 수업에 참여하여, 도움 없이 스스로 지도의 기호를 탐구하고 막대그래프 완성 및 우리 지역의 지역적 특성 분석 소개글 작성 미션을 <strong>[스스로 해결]</strong>하였기에 이 우수 수료증을 수여합니다.`;
+      }
+    }
+
+
+    // Load Intro sentence
+    const introLabel = document.getElementById('cert-introduction-text');
+    if (introLabel) {
+      introLabel.textContent = `"${getCertificateIntroText(zone)}"`;
+    }
+
+    // Render Mini Graph
+    renderCertMiniGraph6();
+  }
+
+  function getCertificateIntroText(zone) {
+    const isDropdownMode = document.getElementById('writing-mode-dropdown') && document.getElementById('writing-mode-dropdown').style.display === 'block';
+    if (isDropdownMode) {
+      const s1Val = document.getElementById('sel-63-1')?.value || '';
+      const s2Val = document.getElementById('sel-63-2')?.value || '';
+      const s3Val = document.getElementById('sel-63-3')?.value || '';
+      const s4Val = document.getElementById('sel-63-4')?.value || '';
+      const s5Val = document.getElementById('sel-63-5')?.value || '';
+
+      const symbolNames = {
+        school: "학교",
+        factory: "공장",
+        field: "논",
+        mountain: "산",
+        museum: "명승고적",
+        quarry: "채석장"
+      };
+      const descNames = {
+        urban: "공장에서 물건을 만들거나 학교에 다니며 편리하게 생활",
+        tourism: "숲을 가꾸고 논밭에서 농사를 지으며 평화롭게 생활",
+        industrial: "자연 유산을 가꾸고 채석장에서 돌을 캐며 생활"
+      };
+
+      const s1Name = symbolNames[s1Val] || '( )';
+      const s2Name = s2Val || '( )';
+      const s3Name = symbolNames[s3Val] || '( )';
+      const s4Name = s4Val || '( )';
+      const s5Name = descNames[s5Val] || '( )';
+
+      const zoneName = zone === 'south' ? '남부' : zone === 'north' ? '북부' : '중부';
+      return `${zoneName} 구역에서 가장 많은 것은 ${s2Name}개의 ${s1Name}이고, 두 번째로 많은 것은 ${s4Name}개의 ${s3Name}입니다. 이곳에는 ${s5Name}하는 사람이 많은 지역입니다.`;
+    } else {
+      const textarea = document.getElementById('textarea-description-63');
+      return textarea ? textarea.value.trim() : '';
+    }
+  }
+
+  function renderCertMiniGraph6() {
+    const container = document.getElementById('cert-mini-chart-wrapper-6');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const zone = state.selectedZone || 'south';
+    const counts = ZONE_DATA[zone].counts;
+    const items = [
+      { name: '학교', val: counts.school },
+      { name: '공장', val: counts.factory },
+      { name: '논', val: counts.field },
+      { name: '산', val: counts.mountain },
+      { name: '명승고적', val: counts.museum },
+      { name: '채석장', val: counts.quarry }
+    ];
+
+    const maxVal = Math.max(...items.map(x => x.val), 8);
+    const divisions = maxVal;
+
+    if (ebsDirection6 === 'vertical') {
+      container.classList.remove('ebs-mode-horizontal');
+
+      // 1. Axes
       const axisY = document.createElement('div');
       axisY.className = 'ebs-axis-y';
       container.appendChild(axisY);
@@ -2564,610 +3724,632 @@ document.addEventListener('DOMContentLoaded', () => {
       axisX.className = 'ebs-axis-x';
       container.appendChild(axisX);
 
-      if (isHorizontal) {
-        container.className = 'q43-chart-container ebs-chart-container ebs-mode-horizontal';
-        container.style.cssText = '';
-        container.style.position = 'relative';
-        container.style.height = '200px';
-        container.style.width = '260px';
-        container.style.display = 'flex';
-        container.style.marginTop = '30px';
-        container.style.marginBottom = '75px';
-        container.style.marginLeft = 'auto';
-        container.style.marginRight = 'auto';
-        container.style.transform = 'translateX(30px)';
-
-        for (let i = 0; i <= divisions; i++) {
-          const pct = (i / divisions) * 100;
-          const line = document.createElement('div');
-          line.className = 'ebs-grid-line-vertical';
-          line.style.left = `${pct}%`;
-          container.appendChild(line);
-        }
-
-        const xLabelBoxHorizontal = document.createElement('div');
-        xLabelBoxHorizontal.className = 'ebs-x-label-box-horizontal';
-        for (let i = 0; i <= divisions; i++) {
-          const labelDiv = document.createElement('div');
-          labelDiv.textContent = i * scale;
-          labelDiv.style.position = 'absolute';
-          labelDiv.style.left = `${(i / divisions) * 100}%`;
-          labelDiv.style.transform = 'translateX(-50%)';
-          xLabelBoxHorizontal.appendChild(labelDiv);
-        }
-        container.appendChild(xLabelBoxHorizontal);
-
-        const yLabelBoxHorizontal = document.createElement('div');
-        yLabelBoxHorizontal.className = 'ebs-y-label-box-horizontal';
-        items.forEach(item => {
-          const labelDiv = document.createElement('div');
-          const cleanName = stripEmoji(item.name);
-          labelDiv.textContent = cleanName;
-          labelDiv.title = cleanName;
-          labelDiv.style.height = `${100 / items.length}%`;
-          labelDiv.style.display = 'flex';
-          labelDiv.style.alignItems = 'center';
-          labelDiv.style.justifyContent = 'flex-end';
-          labelDiv.style.whiteSpace = 'nowrap';
-          yLabelBoxHorizontal.appendChild(labelDiv);
-        });
-        container.appendChild(yLabelBoxHorizontal);
-
-        const wrapper = document.createElement('div');
-        wrapper.id = 'q43-bars-wrapper';
-        wrapper.className = 'ebs-bars-wrapper-horizontal';
-        items.forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'ebs-bar-row-horizontal';
-          row.style.height = `${100 / items.length}%`;
-          row.style.display = 'flex';
-          row.style.alignItems = 'center';
-          row.style.width = '100%';
-
-          const pct = (item.val / limit) * 100;
-          row.innerHTML = `
-            <div class="ebs-bar-horizontal" style="width: ${pct}%; height: 14px; background-color: #3b82f6; border-radius: 0 4px 4px 0; position: relative; transition: width 0.2s ease;">
-              <div class="ebs-bar-val-label-horizontal">${item.val}</div>
-            </div>
-          `;
-          wrapper.appendChild(row);
-        });
-        container.appendChild(wrapper);
-
-      } else {
-        container.className = 'q43-chart-container ebs-chart-container';
-        container.style.cssText = '';
-        container.style.position = 'relative';
-        container.style.height = '200px';
-        container.style.width = '320px';
-        container.style.display = 'flex';
-        container.style.marginTop = '30px';
-        container.style.marginBottom = '75px';
-        container.style.marginLeft = 'auto';
-        container.style.marginRight = 'auto';
-        container.style.transform = 'translateX(7.5px)';
-
-        for (let i = 0; i <= divisions; i++) {
-          const pct = (i / divisions) * 100;
-          const line = document.createElement('div');
-          line.className = 'ebs-grid-line';
-          line.style.bottom = `${pct}%`;
-          container.appendChild(line);
-        }
-
-        const yLabelBox = document.createElement('div');
-        yLabelBox.className = 'ebs-y-label-box';
-        for (let i = divisions; i >= 0; i--) {
-          const labelDiv = document.createElement('div');
-          labelDiv.textContent = i * scale;
-          yLabelBox.appendChild(labelDiv);
-        }
-        container.appendChild(yLabelBox);
-
-        const xLabelBox = document.createElement('div');
-        xLabelBox.className = 'ebs-x-label-box';
-        items.forEach(item => {
-          const labelDiv = document.createElement('div');
-          const cleanName = stripEmoji(item.name);
-          labelDiv.textContent = cleanName;
-          labelDiv.style.flex = '1';
-          labelDiv.style.textAlign = 'center';
-          labelDiv.style.whiteSpace = 'nowrap';
-          labelDiv.style.fontSize = '0.7rem';
-          xLabelBox.appendChild(labelDiv);
-        });
-        container.appendChild(xLabelBox);
-
-        const wrapper = document.createElement('div');
-        wrapper.id = 'q43-bars-wrapper';
-        wrapper.className = 'ebs-bars-wrapper';
-        items.forEach(item => {
-          const col = document.createElement('div');
-          col.className = 'ebs-bar-col';
-          col.style.flex = '1';
-
-          const pct = (item.val / limit) * 100;
-          col.innerHTML = `
-            <div class="ebs-bar" style="height: ${pct}%; width: 24px; background-color: #3b82f6; border-radius: 4px 4px 0 0; position: relative; transition: height 0.2s ease;">
-              <div class="ebs-bar-val-label">${item.val}</div>
-            </div>
-          `;
-          wrapper.appendChild(col);
-        });
-        container.appendChild(wrapper);
-      }
-    }
-  }
-
-  const btnCheckSub43 = document.getElementById('btn-check-sub43');
-  if (btnCheckSub43) {
-    btnCheckSub43.addEventListener('click', () => {
-      const ansQ1 = document.querySelector('input[name="q43_1"]:checked');
-      const ansQ2 = document.querySelector('input[name="q43_2"]:checked');
-      const ansQ3 = document.querySelector('input[name="q43_3"]:checked');
-      const fb = document.getElementById('feedback-sub43');
-
-      if (!ansQ1 || !ansQ2 || !ansQ3) {
-        fb.textContent = '⚠️ 모든 질문의 답을 선택해 주세요!';
-        fb.className = 'quiz-feedback error';
-        fb.style.display = 'block';
-        return;
+      // 2. Grid lines
+      for (let i = 0; i <= divisions; i++) {
+        const pct = (i / divisions) * 100;
+        const line = document.createElement('div');
+        line.className = 'ebs-grid-line';
+        if (i % 5 === 0) line.classList.add('major');
+        line.style.bottom = `${pct}%`;
+        container.appendChild(line);
       }
 
-      const maxVal = Math.max(...state.customGraph.items.map(x => x.val));
-      const maxItems = state.customGraph.items.filter(x => x.val === maxVal).map(x => x.name);
-      const isQ1Correct = maxItems.includes(ansQ1.value);
-
-      const isQ2Correct = ansQ2.value === 'a';
-      const isQ3Correct = ansQ3.value === 'b';
-
-      if (isQ1Correct && isQ2Correct && isQ3Correct) {
-        if (!window.IS_DEV_MODE) {
-          fb.innerHTML = '모두 정답입니다! 🎉 막대그래프를 해석하는 능력도 대단하네요! 4단계까지의 모든 학습을 성공적으로 마쳤습니다!';
-        } else {
-          fb.innerHTML = '모두 정답입니다! 🎉 막대그래프를 해석하는 능력도 대단하네요! 이제 5단계로 이동하여 눈금의 크기 비교 학습을 해봅시다.';
-        }
-        fb.className = 'quiz-feedback success';
-        fb.style.display = 'block';
-        
-        unlockNext(4);
-        const btnNextTo5 = document.getElementById('btn-next-to-5');
-        if (btnNextTo5) btnNextTo5.disabled = false;
-        
-        playConfetti();
-      } else {
-        let errText = '❌ 일부 오답이 있습니다. 다시 생각해 볼까요?<br>';
-        if (!isQ1Correct) errText += '- <strong>Q1</strong>: 그래프의 막대 높이(또는 길이)가 가장 큰 항목을 다시 찾아보세요.<br>';
-        if (!isQ2Correct) errText += '- <strong>Q2</strong>: 그래프 방향을 바꾸면 가로와 세로가 나타내는 내용이 서로 어떻게 되나요?<br>';
-        if (!isQ3Correct) errText += '- <strong>Q3</strong>: 세로에서 가로로 방향을 바꾸어도 변하지 않는 데이터 고유의 수치와 막대의 실제 길이를 확인해 보세요.';
-        
-        fb.innerHTML = errText;
-        fb.className = 'quiz-feedback error';
-        fb.style.display = 'block';
+      // 3. Y-axis labels
+      const yLabelBox = document.createElement('div');
+      yLabelBox.className = 'ebs-y-label-box';
+      for (let i = divisions; i >= 0; i--) {
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = i;
+        yLabelBox.appendChild(labelDiv);
       }
-    });
-  }
+      container.appendChild(yLabelBox);
 
-  const btnNextTo5 = document.getElementById('btn-next-to-5');
-  if (btnNextTo5) {
-    btnNextTo5.addEventListener('click', () => {
-      showPanel(5);
-      updateNavigationUI();
-    });
-  }
-
-  // ==========================================
-  // J. 5단계: 생활 속 막대그래프 개편 로직 (교과서 122~123쪽 데이터 동기화)
-  // ==========================================
-  
-  // 5-1. 서브 탭 전환 및 상태 반영 함수
-  function initStep5() {
-    const tabs = document.querySelectorAll('.step5-tab-btn');
-    const panels = document.querySelectorAll('.step5-act-panel');
-
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        const actNum = tab.getAttribute('data-act');
-        
-        // 잠금 상태인 경우 클릭 무시
-        if (tab.classList.contains('locked') || tab.disabled) {
-          return;
-        }
-
-        // 탭 활성화 토글
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        // 패널 활성화 토글
-        panels.forEach(p => p.classList.remove('active'));
-        const targetPanel = document.getElementById(`step5-act${actNum}-panel`);
-        if (targetPanel) {
-          targetPanel.classList.add('active');
-        }
-      });
-    });
-
-    updateStep5TabsUI();
-  }
-
-  // 5-2. 탭 UI 상태 업데이트
-  function updateStep5TabsUI() {
-    const btnAct5_2 = document.getElementById('btn-act5-2');
-    const btnAct5_3 = document.getElementById('btn-act5-3');
-    const btnNextTo6 = document.getElementById('btn-next-to-6');
-
-    // 5-1 클리어 시 5-2 열림
-    if (state.step5Act1Cleared) {
-      if (btnAct5_2) {
-        btnAct5_2.classList.remove('locked');
-        btnAct5_2.disabled = false;
-        btnAct5_2.innerHTML = '활동 5-2: 우리 지역 문제 해결 🏘️';
-      }
-    } else {
-      if (btnAct5_2) {
-        btnAct5_2.classList.add('locked');
-        btnAct5_2.disabled = true;
-        btnAct5_2.innerHTML = '활동 5-2: 우리 지역 문제 해결 🏘️ 🔒';
-      }
-    }
-
-    // 5-2 클리어 시 5-3 열림
-    if (state.step5Act2Cleared) {
-      if (btnAct5_3) {
-        btnAct5_3.classList.remove('locked');
-        btnAct5_3.disabled = false;
-        btnAct5_3.innerHTML = '활동 5-3: 독도 방문객 뉴스 🏝️';
-      }
-    } else {
-      if (btnAct5_3) {
-        btnAct5_3.classList.add('locked');
-        btnAct5_3.disabled = true;
-        btnAct5_3.innerHTML = '활동 5-3: 독도 방문객 뉴스 🏝️ 🔒';
-      }
-    }
-
-    // 모든 활동 완료 시 6단계로 가기 활성화
-    if (state.step5Act1Cleared && state.step5Act2Cleared && state.step5Act3Cleared) {
-      if (btnNextTo6) {
-        btnNextTo6.disabled = false;
-      }
-      unlockNext(5);
-    } else {
-      if (btnNextTo6) {
-        btnNextTo6.disabled = true;
-      }
-    }
-  }
-
-  // 활동 5-1 채점
-  const btnCheckAct5_1 = document.getElementById('btn-check-act5-1');
-  if (btnCheckAct5_1) {
-    btnCheckAct5_1.addEventListener('click', () => {
-      const q1 = document.querySelector('input[name="q51_1"]:checked');
-      const q2 = document.querySelector('input[name="q51_2"]:checked');
-      const q3 = document.querySelector('input[name="q51_3"]:checked');
-      const q4 = document.querySelector('input[name="q51_4"]:checked');
-      const fb = document.getElementById('act5-1-feedback');
-
-      if (!q1 || !q2 || !q3 || !q4) {
-        fb.textContent = '⚠️ 모든 질문의 답을 선택해 주세요!';
-        fb.className = 'quiz-feedback error';
-        fb.style.display = 'block';
-        return;
-      }
-
-      const isQ1Correct = (q1.value === '2020');
-      const isQ2Correct = (q2.value === '2020');
-      const isQ3Correct = (q3.value === 'b');
-      const isQ4Correct = (q4.value === 'decrease');
-
-      if (isQ1Correct && isQ2Correct && isQ3Correct && isQ4Correct) {
-        fb.innerHTML = '정답입니다! 🎉 친환경 자동차 등록 대수가 가장 많은 연도는 **2020년**이고, 일산화탄소 배출량이 가장 적은 연도도 **2020년**입니다. 두 그래프를 비교해보면 **친환경 자동차가 늘어남에 따라 배출량이 줄어든다**는 성질을 알 수 있습니다. 또한 친환경 자동차가 159만 대로 크게 늘어난 2022년에는 일산화탄소 배출량이 **더 줄어들었을 것**이라고 올바르게 예상하셨습니다. 이렇게 이미 조사된 그래프의 성질을 통해 조사되지 않은 미래의 값도 논리적으로 예상할 수 있습니다. 아주 멋집니다!';
-        fb.className = 'quiz-feedback success';
-        fb.style.display = 'block';
-        state.step5Act1Cleared = true;
-        updateStep5TabsUI();
-        playConfetti();
-        
-        // 2초 뒤 자동으로 활동 5-2 탭으로 이동
-        setTimeout(() => {
-          const btnAct5_2 = document.getElementById('btn-act5-2');
-          if (btnAct5_2) btnAct5_2.click();
-        }, 2000);
-      } else {
-        let errText = '❌ 일부 오답이 있습니다. 다시 확인해 볼까요?<br>';
-        if (!isQ1Correct) errText += '- **질문 1**: 왼쪽 그래프에서 막대의 높이가 가장 높은 연도를 다시 찾아보세요.<br>';
-        if (!isQ2Correct) errText += '- **질문 2**: 오른쪽 그래프에서 막대의 높이가 가장 낮은 연도를 다시 찾아보세요.<br>';
-        if (!isQ3Correct) errText += '- **질문 3**: 친환경 자동차의 막대 높이가 연도별로 높아질 때 일산화탄소 배출량 막대의 높이는 어떻게 변하는지 확인해 보세요.<br>';
-        if (!isQ4Correct) errText += '- **질문 4**: 친환경 자동차가 크게 늘어난 2022년에 일산화탄소 배출량은 이전보다 더 줄어들었을지, 늘어났을지 변화 성질을 바탕으로 다시 예상해 보세요.';
-        fb.innerHTML = errText;
-        fb.className = 'quiz-feedback error';
-        fb.style.display = 'block';
-      }
-    });
-  }
-
-  // 활동 5-2 채점 (문장 빌더)
-  const btnCheckAct5_2 = document.getElementById('btn-check-act5-2');
-  if (btnCheckAct5_2) {
-    btnCheckAct5_2.addEventListener('click', () => {
-      const sel1 = document.getElementById('act52-select-1');
-      const sel2 = document.getElementById('act52-select-2');
-      const sel3 = document.getElementById('act52-select-3');
-      const sel4 = document.getElementById('act52-select-4');
-      const sel5 = document.getElementById('act52-select-5');
-      const fb = document.getElementById('act5-2-feedback');
-
-      if (!sel1.value || !sel2.value || !sel3.value || !sel4.value || !sel5.value) {
-        fb.textContent = '⚠️ 빈칸을 모두 선택해 주세요!';
-        fb.className = 'quiz-feedback error';
-        fb.style.display = 'block';
-        return;
-      }
-
-      const isCorrect1 = (sel1.value === 'parking');
-      const isCorrect2 = (sel2.value === 'garbage');
-      const isCorrect3 = (sel3.value === 'safety');
-      const isCorrect4 = (sel4.value === '40');
-      const isCorrect5 = (sel5.value === 'noise');
-
-      [sel1, sel2, sel3, sel4, sel5].forEach((sel, idx) => {
-        const correctFlag = [isCorrect1, isCorrect2, isCorrect3, isCorrect4, isCorrect5][idx];
-        if (correctFlag) {
-          sel.classList.add('correct');
-        } else {
-          sel.classList.remove('correct');
-        }
-      });
-
-      if (isCorrect1 && isCorrect2 && isCorrect3 && isCorrect4 && isCorrect5) {
-        fb.innerHTML = '정답입니다! 🎉 민우네 학교 지역 문제 그래프의 모든 사실을 완벽하게 글로 정리했습니다. 주차 문제가 80명으로 가장 많고, 쓰레기 문제가 20명으로 가장 적었으며, 안전 문제(50명)와 소음 문제(30명)의 합은 주차 문제(80명)와 같습니다. 아주 훌륭합니다!';
-        fb.className = 'quiz-feedback success';
-        fb.style.display = 'block';
-        state.step5Act2Cleared = true;
-        updateStep5TabsUI();
-        playConfetti();
-
-        // 2초 뒤 자동으로 활동 5-3 탭으로 이동
-        setTimeout(() => {
-          const btnAct5_3 = document.getElementById('btn-act5-3');
-          if (btnAct5_3) btnAct5_3.click();
-        }, 2000);
-      } else {
-        fb.innerHTML = '❌ 틀린 부분이 있습니다. 초록색으로 표시되지 않은 드롭다운 상자의 항목을 그래프 눈금과 다시 대조하여 맞추어 보세요.';
-        fb.className = 'quiz-feedback error';
-        fb.style.display = 'block';
-      }
-    });
-  }
-
-  // 활동 5-3 채점
-  const btnCheckAct5_3 = document.getElementById('btn-check-act5-3');
-  if (btnCheckAct5_3) {
-    btnCheckAct5_3.addEventListener('click', () => {
-      const q1 = document.querySelector('input[name="q53_1"]:checked');
-      const q2 = document.querySelector('input[name="q53_2"]:checked');
-      const fb = document.getElementById('act5-3-feedback');
-
-      if (!q1 || !q2) {
-        fb.textContent = '⚠️ 모든 질문의 답을 선택해 주세요!';
-        fb.className = 'quiz-feedback error';
-        fb.style.display = 'block';
-        return;
-      }
-
-      const isQ1Correct = (q1.value === '143680');
-      const isQ2Correct = (q2.value === 'b');
-
-      if (isQ1Correct && isQ2Correct) {
-        fb.innerHTML = '정답입니다! 🎉 2021년 한 해 동안 독도를 찾은 방문객 수는 **143,680명**입니다. 2020년에는 코로나19 전염병 대유행으로 인해 사람들의 여행 및 이동이 줄어들어 방문객 수가 약 10만 명대로 크게 감소했다는 사회적 맥락도 완벽히 파악했습니다! 5단계의 모든 활동을 정복했습니다!';
-        fb.className = 'quiz-feedback success';
-        fb.style.display = 'block';
-        state.step5Act3Cleared = true;
-        updateStep5TabsUI();
-        playConfetti();
-      } else {
-        let errText = '❌ 일부 오답이 있습니다. 다시 확인해 볼까요?<br>';
-        if (!isQ1Correct) errText += '- **질문 1**: 기사 내용이나 2021년 막대그래프 높이를 보고 방문객 수를 다시 판독해 보세요.<br>';
-        if (!isQ2Correct) errText += '- **질문 2**: 2020년 당시 사회적으로 전국적, 전 세계적 이동 제한을 부른 주요 감염병 유행 사건이 무엇인지 다시 생각해 보세요.';
-        fb.innerHTML = errText;
-        fb.className = 'quiz-feedback error';
-        fb.style.display = 'block';
-      }
-    });
-  }
-
-  // 페이지 로드 시 또는 리셋 시 5단계 탭 초기화 설정 호출
-  initStep5();
-
-  const btnNextTo6 = document.getElementById('btn-next-to-6');
-  if (btnNextTo6) {
-    btnNextTo6.addEventListener('click', () => {
-      showPanel(6);
-      updateNavigationUI();
-    });
-  }
-
-  // ==========================================
-  // K. 6단계: 수료증 및 배움 정리
-  // ==========================================
-  const takeawaysList = [1, 2, 3];
-  takeawaysList.forEach(num => {
-    const item = document.getElementById(`takeaway-item-${num}`);
-    if (item) {
-      item.addEventListener('click', () => {
-        item.classList.toggle('checked');
-        checkTakeawayCompletion();
-      });
-    }
-  });
-
-  function checkTakeawayCompletion() {
-    const allChecked = [1, 2, 3].every(num => {
-      const item = document.getElementById(`takeaway-item-${num}`);
-      return item && item.classList.contains('checked');
-    });
-    const btn = document.getElementById('btn-complete-takeaway');
-    if (btn) {
-      btn.disabled = !allChecked;
-    }
-  }
-
-  const btnCompleteTakeaway = document.getElementById('btn-complete-takeaway');
-  if (btnCompleteTakeaway) {
-    btnCompleteTakeaway.addEventListener('click', () => {
-      const certSection = document.getElementById('certificate-section');
-      if (certSection) {
-        certSection.style.display = 'block';
-        renderCertificate();
-        certSection.scrollIntoView({ behavior: 'smooth' });
-      }
-      playConfetti();
-    });
-  }
-
-  function renderPreviewGraph() {
-    const wrapper = document.getElementById('showcase-bars-wrapper');
-    const titleLabel = document.getElementById('showcase-graph-title');
-    if (!wrapper) return;
-    wrapper.innerHTML = '';
-
-    const items = state.customGraph.items || [];
-    if (items.length === 0) return;
-
-    if (titleLabel) {
-      titleLabel.textContent = state.customGraph.title || '우리 반 친구들이 가장 가보고 싶은 포천의 명소';
-    }
-
-    const maxVal = Math.max(...items.map(x => x.val), 1);
-    const isHorizontal = state.customGraph.direction === 'horizontal';
-
-    const container = document.querySelector('.showcase-chart-container');
-    if (container) {
-      if (isHorizontal) {
-        container.style.flexDirection = 'column';
-        container.style.alignItems = 'flex-start';
-        container.style.height = 'auto';
-        container.style.paddingLeft = '140px';
-        container.style.paddingBottom = '0';
-        container.style.borderBottom = 'none';
-        container.style.borderLeft = '2px solid #cbd5e1';
-        wrapper.style.display = 'block';
-        wrapper.style.width = '100%';
-        
-        items.forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'showcase-bar-col-horizontal';
-          row.style.margin = '12px 0';
-          row.style.display = 'flex';
-          row.style.alignItems = 'center';
-          row.style.width = '100%';
-          row.style.position = 'relative';
-          
-          const pct = (item.val / maxVal) * 100;
-          const cleanName = stripEmoji(item.name);
-          row.innerHTML = `
-            <div class="showcase-bar-name-horizontal" title="${cleanName}" style="position: absolute; left: -135px; width: 130px; text-align: right; font-weight: 800; font-size: 0.75rem; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${cleanName}</div>
-            <div class="showcase-bar-horizontal" style="width: ${pct * 0.7}%; height: 16px; background: linear-gradient(90deg, #3b82f6, #1d4ed8); border-radius: 0 4px 4px 0; position: relative;">
-              <div class="showcase-val-label-horizontal" style="position: absolute; right: -24px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; font-weight: 800; color: #f8fafc;">${item.val}</div>
-            </div>
-          `;
-          wrapper.appendChild(row);
-        });
-      } else {
-        container.style.flexDirection = 'row';
-        container.style.alignItems = 'flex-end';
-        container.style.height = '200px';
-        container.style.paddingLeft = '0';
-        container.style.paddingBottom = '20px';
-        container.style.borderBottom = '2px solid #cbd5e1';
-        container.style.borderLeft = 'none';
-        wrapper.style.display = 'flex';
-        wrapper.style.width = '100%';
-        wrapper.style.justifyContent = 'space-around';
-
-        items.forEach(item => {
-          const col = document.createElement('div');
-          col.className = 'showcase-bar-col';
-          col.style.display = 'flex';
-          col.style.flexDirection = 'column';
-          col.style.alignItems = 'center';
-          col.style.justifyContent = 'flex-end';
-          col.style.height = '100%';
-          col.style.position = 'relative';
-
-          const pct = (item.val / maxVal) * 100;
-          const cleanName = stripEmoji(item.name);
-          col.innerHTML = `
-            <div class="showcase-bar" style="height: ${pct * 0.8}%; width: 28px; background: linear-gradient(180deg, #3b82f6, #1d4ed8); border-radius: 4px 4px 0 0; position: relative;">
-              <div class="showcase-val-label" style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 0.8rem; font-weight: 800; color: #f8fafc; white-space: nowrap;">${item.val}</div>
-            </div>
-            <div class="showcase-bar-name" style="position: absolute; bottom: -22px; font-size: 0.75rem; font-weight: 800; color: #cbd5e1; white-space: nowrap;">${cleanName}</div>
-          `;
-          wrapper.appendChild(col);
-        });
-      }
-    }
-  }
-
-  function renderCertificate() {
-    document.getElementById('cert-name-label').textContent = state.studentName;
-    document.getElementById('cert-portfolio-title').textContent = state.customGraph.title;
-
-    const today = new Date();
-    document.getElementById('cert-date-display').textContent = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
-
-    const chartWrap = document.getElementById('cert-mini-chart-wrapper');
-    if (chartWrap) {
-      chartWrap.innerHTML = '';
-      const items = state.customGraph.items || [];
-      const maxVal = Math.max(...items.map(x => x.val), 1);
-
+      // 4. X-axis labels
+      const xLabelBox = document.createElement('div');
+      xLabelBox.className = 'ebs-x-label-box';
       items.forEach(item => {
-        const col = document.createElement('div');
-        col.className = 'cert-mini-bar-col';
-        col.style.display = 'flex';
-        col.style.flexDirection = 'column';
-        col.style.alignItems = 'center';
-        col.style.justifyContent = 'flex-end';
-        col.style.width = '40px';
-        col.style.height = '100%';
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = item.name;
+        labelDiv.style.flex = '1';
+        labelDiv.style.textAlign = 'center';
+        labelDiv.style.fontSize = '0.7rem';
+        xLabelBox.appendChild(labelDiv);
+      });
+      container.appendChild(xLabelBox);
 
+      // Y-axis unit label
+      const yUnit = document.createElement('div');
+      yUnit.textContent = '개수(개)';
+      yUnit.style.cssText = 'position: absolute; left: -35px; top: -18px; font-size: 0.65rem; font-weight: 800; color: #475569;';
+      container.appendChild(yUnit);
+
+      // 5. Bars
+      const barsWrapper = document.createElement('div');
+      barsWrapper.className = 'ebs-bars-wrapper';
+      
+      items.forEach(item => {
+        const barCol = document.createElement('div');
+        barCol.className = 'ebs-bar-col';
+        barCol.style.flex = '1';
+        
         const pct = (item.val / maxVal) * 100;
-        const cleanName = stripEmoji(item.name);
-        col.innerHTML = `
-          <span class="cert-mini-val" style="font-size:0.7rem; font-weight:800; margin-bottom:2px;">${item.val}</span>
-          <div class="cert-mini-bar" style="height: ${pct * 0.7}px; width: 16px; background: #3b82f6; border-radius: 2px 2px 0 0; min-height: 4px;"></div>
-          <span class="cert-mini-label" style="font-size:0.7rem; font-weight:800; margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center;">${cleanName}</span>
+        
+        const bar = document.createElement('div');
+        bar.className = 'ebs-bar';
+        bar.style.height = `${pct}%`;
+        bar.style.width = '18px';
+        bar.style.backgroundColor = '#3b82f6';
+        
+        const barVal = document.createElement('div');
+        barVal.className = 'ebs-bar-value';
+        barVal.textContent = item.val;
+        barVal.style.cssText = 'position: absolute; top: -18px; width: 100%; text-align: center; font-size: 0.7rem; font-weight: 800; color: #1e293b;';
+        
+        bar.appendChild(barVal);
+        barCol.appendChild(bar);
+        barsWrapper.appendChild(barCol);
+      });
+      container.appendChild(barsWrapper);
+    } else {
+      container.classList.add('ebs-mode-horizontal');
+
+      // 1. Axes
+      const axisY = document.createElement('div');
+      axisY.className = 'ebs-axis-y';
+      container.appendChild(axisY);
+
+      const axisX = document.createElement('div');
+      axisX.className = 'ebs-axis-x';
+      container.appendChild(axisX);
+
+      // 2. Grid lines (vertical)
+      for (let i = 0; i <= divisions; i++) {
+        const pct = (i / divisions) * 100;
+        const line = document.createElement('div');
+        line.className = 'ebs-grid-line-vertical';
+        if (i % 5 === 0) line.classList.add('major');
+        line.style.left = `${pct}%`;
+        container.appendChild(line);
+      }
+
+      // 3. X-axis labels (numbers)
+      const xLabelBoxHorizontal = document.createElement('div');
+      xLabelBoxHorizontal.className = 'ebs-x-label-box-horizontal';
+      for (let i = 0; i <= divisions; i++) {
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = i;
+        labelDiv.style.flex = '1';
+        labelDiv.style.textAlign = 'right';
+        xLabelBoxHorizontal.appendChild(labelDiv);
+      }
+      container.appendChild(xLabelBoxHorizontal);
+
+      // 4. Y-axis labels (categories)
+      const yLabelBoxHorizontal = document.createElement('div');
+      yLabelBoxHorizontal.className = 'ebs-y-label-box-horizontal';
+      items.forEach(item => {
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = item.name;
+        yLabelBoxHorizontal.appendChild(labelDiv);
+      });
+      container.appendChild(yLabelBoxHorizontal);
+
+      // X-axis unit label
+      const xUnit = document.createElement('div');
+      xUnit.textContent = '개수(개)';
+      xUnit.style.cssText = 'position: absolute; right: -30px; bottom: -18px; font-size: 0.65rem; font-weight: 800; color: #475569;';
+      container.appendChild(xUnit);
+
+      // 5. Bars (horizontal)
+      const barsWrapperHorizontal = document.createElement('div');
+      barsWrapperHorizontal.className = 'ebs-bars-wrapper-horizontal';
+      
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'ebs-bar-row-horizontal';
+        row.style.flex = '1';
+        
+        const pct = (item.val / maxVal) * 100;
+        row.innerHTML = `
+          <div class="ebs-bar-horizontal" style="width: ${pct}%; height: 14px; background-color: #3b82f6; position: relative;">
+            <div class="ebs-bar-val-label-horizontal" style="color: #1e293b; font-weight:800; font-size: 0.7rem; position: absolute; right: -25px; top: -2px;">${item.val}</div>
+          </div>
         `;
-        chartWrap.appendChild(col);
+        barsWrapperHorizontal.appendChild(row);
+      });
+      container.appendChild(barsWrapperHorizontal);
+    }
+  }
+
+  function renderWritingMiniGraph6() {
+    const container = document.getElementById('writing-mini-chart-wrapper-6');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const zone = state.selectedZone || 'south';
+    const counts = ZONE_DATA[zone].counts;
+    const items = [
+      { key: 'school', name: '학교', val: counts.school },
+      { key: 'factory', name: '공장', val: counts.factory },
+      { key: 'field', name: '논', val: counts.field },
+      { key: 'mountain', name: '산', val: counts.mountain },
+      { key: 'museum', name: '명승고적', val: counts.museum },
+      { key: 'quarry', name: '채석장', val: counts.quarry }
+    ];
+
+    const maxVal = Math.max(...items.map(x => x.val), 8);
+    const divisions = maxVal;
+
+    if (ebsDirection6 === 'vertical') {
+      container.classList.remove('ebs-mode-horizontal');
+
+      // 1. Axes
+      const axisY = document.createElement('div');
+      axisY.className = 'ebs-axis-y';
+      container.appendChild(axisY);
+
+      const axisX = document.createElement('div');
+      axisX.className = 'ebs-axis-x';
+      container.appendChild(axisX);
+
+      // 2. Grid lines
+      for (let i = 0; i <= divisions; i++) {
+        const pct = (i / divisions) * 100;
+        const line = document.createElement('div');
+        line.className = 'ebs-grid-line';
+        if (i % 5 === 0) line.classList.add('major');
+        line.style.bottom = `${pct}%`;
+        container.appendChild(line);
+      }
+
+      // 3. Y-axis labels
+      const yLabelBox = document.createElement('div');
+      yLabelBox.className = 'ebs-y-label-box';
+      for (let i = divisions; i >= 0; i--) {
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = i;
+        yLabelBox.appendChild(labelDiv);
+      }
+      container.appendChild(yLabelBox);
+
+      // 4. X-axis labels
+      const xLabelBox = document.createElement('div');
+      xLabelBox.className = 'ebs-x-label-box';
+      items.forEach(item => {
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = item.name;
+        labelDiv.style.flex = '1';
+        labelDiv.style.textAlign = 'center';
+        labelDiv.style.fontSize = '0.7rem';
+        xLabelBox.appendChild(labelDiv);
+      });
+      container.appendChild(xLabelBox);
+
+      // Y-axis unit label
+      const yUnit = document.createElement('div');
+      yUnit.textContent = '개수(개)';
+      yUnit.style.cssText = 'position: absolute; left: -35px; top: -18px; font-size: 0.65rem; font-weight: 800; color: #475569;';
+      container.appendChild(yUnit);
+
+      // 5. Bars
+      const barsWrapper = document.createElement('div');
+      barsWrapper.className = 'ebs-bars-wrapper';
+      
+      items.forEach(item => {
+        const barCol = document.createElement('div');
+        barCol.className = 'ebs-bar-col';
+        barCol.style.flex = '1';
+        
+        const pct = (item.val / maxVal) * 100;
+        
+        const bar = document.createElement('div');
+        bar.className = 'ebs-bar';
+        bar.style.height = `${pct}%`;
+        bar.style.width = '16px';
+        bar.style.backgroundColor = '#3b82f6';
+        
+        const barVal = document.createElement('div');
+        barVal.className = 'ebs-bar-value';
+        barVal.textContent = item.val;
+        barVal.style.cssText = 'position: absolute; top: -18px; width: 100%; text-align: center; font-size: 0.7rem; font-weight: 800; color: #1e293b;';
+        
+        bar.appendChild(barVal);
+        barCol.appendChild(bar);
+        barsWrapper.appendChild(barCol);
+      });
+      container.appendChild(barsWrapper);
+    } else {
+      container.classList.add('ebs-mode-horizontal');
+
+      // 1. Axes
+      const axisY = document.createElement('div');
+      axisY.className = 'ebs-axis-y';
+      container.appendChild(axisY);
+
+      const axisX = document.createElement('div');
+      axisX.className = 'ebs-axis-x';
+      container.appendChild(axisX);
+
+      // 2. Grid lines (vertical)
+      for (let i = 0; i <= divisions; i++) {
+        const pct = (i / divisions) * 100;
+        const line = document.createElement('div');
+        line.className = 'ebs-grid-line-vertical';
+        if (i % 5 === 0) line.classList.add('major');
+        line.style.left = `${pct}%`;
+        container.appendChild(line);
+      }
+
+      // 3. X-axis labels (numbers)
+      const xLabelBoxHorizontal = document.createElement('div');
+      xLabelBoxHorizontal.className = 'ebs-x-label-box-horizontal';
+      for (let i = 0; i <= divisions; i++) {
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = i;
+        labelDiv.style.flex = '1';
+        labelDiv.style.textAlign = 'right';
+        xLabelBoxHorizontal.appendChild(labelDiv);
+      }
+      container.appendChild(xLabelBoxHorizontal);
+
+      // 4. Y-axis labels (categories)
+      const yLabelBoxHorizontal = document.createElement('div');
+      yLabelBoxHorizontal.className = 'ebs-y-label-box-horizontal';
+      items.forEach(item => {
+        const labelDiv = document.createElement('div');
+        labelDiv.textContent = item.name;
+        yLabelBoxHorizontal.appendChild(labelDiv);
+      });
+      container.appendChild(yLabelBoxHorizontal);
+
+      // X-axis unit label
+      const xUnit = document.createElement('div');
+      xUnit.textContent = '개수(개)';
+      xUnit.style.cssText = 'position: absolute; right: -30px; bottom: -18px; font-size: 0.65rem; font-weight: 800; color: #475569;';
+      container.appendChild(xUnit);
+
+      // 5. Bars (horizontal)
+      const barsWrapperHorizontal = document.createElement('div');
+      barsWrapperHorizontal.className = 'ebs-bars-wrapper-horizontal';
+      
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'ebs-bar-row-horizontal';
+        row.style.flex = '1';
+        
+        const pct = (item.val / maxVal) * 100;
+        row.innerHTML = `
+          <div class="ebs-bar-horizontal" style="width: ${pct}%; height: 14px; background-color: #3b82f6; position: relative;">
+            <div class="ebs-bar-val-label-horizontal" style="color: #1e293b; font-weight:800; font-size: 0.7rem; position: absolute; right: -25px; top: -2px;">${item.val}</div>
+          </div>
+        `;
+        barsWrapperHorizontal.appendChild(row);
+      });
+      container.appendChild(barsWrapperHorizontal);
+    }
+  }
+
+  // Canvas copy to clipboard
+  const btnCopyCertClipboard = document.getElementById('btn-copy-cert-clipboard');
+  if (btnCopyCertClipboard) {
+    btnCopyCertClipboard.addEventListener('click', () => {
+      copyCertificateToClipboard6();
+    });
+  }
+
+  async function copyCertificateToClipboard6() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 650;
+    canvas.height = 550;
+    const ctx = canvas.getContext('2d');
+    
+    // Background color
+    ctx.fillStyle = '#fffdf5';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Outer Borders
+    ctx.strokeStyle = '#b45309';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(18, 18, canvas.width - 36, canvas.height - 36);
+    
+    // Badge
+    ctx.font = 'bold 36px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const badgeText = state.usedHelper ? '🏅' : '🏆';
+    ctx.fillText(badgeText, canvas.width / 2, 65);
+    
+    // Title
+    ctx.fillStyle = '#78350f';
+    ctx.font = 'bold 24px sans-serif';
+    ctx.fillText('막대그래프 탐험 수료증', canvas.width / 2, 110);
+    
+    // Recipient
+    const studentName = state.studentName || '참가자';
+    ctx.fillStyle = '#1e293b';
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillText(studentName + ' 탐험가 (모둠 조사관)', canvas.width / 2, 150);
+    
+    // Badge Label
+    const badgeLabel = state.usedHelper ? '[성실히 해결]' : '[스스로 해결]';
+    ctx.fillStyle = '#b45309';
+    ctx.font = 'bold 15px sans-serif';
+    ctx.fillText(badgeLabel, canvas.width / 2, 180);
+    
+    // Body text
+    ctx.fillStyle = '#4b5563';
+    ctx.font = '13px sans-serif';
+    const bodyText = state.usedHelper
+      ? "위 학생은 초등학교 4학년 수학 [막대그래프]와 사회 [우리 지역의 특성] 단원의 교과 융합 프로젝트 수업에 참여하여, 포천 구역별 지도의 기호를 탐구하고 막대그래프 완성 및 우리 지역의 지역적 특성 분석 소개글 작성 미션을 [성실히 해결]하였기에 이 격려장을 수여합니다."
+      : "위 학생은 초등학교 4학년 수학 [막대그래프]와 사회 [우리 지역의 특성] 단원의 교과 융합 프로젝트 수업에 참여하여, 도움 없이 스스로 지도의 기호를 탐구하고 막대그래프 완성 및 우리 지역의 지역적 특성 분석 소개글 작성 미션을 [스스로 해결]하였기에 이 우수 수료증을 수여합니다.";
+    
+    wrapText(ctx, bodyText, canvas.width / 2, 205, canvas.width - 120, 22);
+    
+    // Draw Mini Graph Container Box
+    const boxX = 75;
+    const boxY = 275;
+    const boxW = 500;
+    const boxH = 180;
+    
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.fillRect(boxX, boxY, boxW, boxH);
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(boxX, boxY, boxW, boxH);
+    
+    // Title inside the box
+    ctx.fillStyle = '#1e293b';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText('📊 내가 탐구한 구역 막대그래프', boxX + 15, boxY + 12);
+    
+    // Graph area coordinates inside the box
+    const graphX = boxX + 50;
+    const graphY = boxY + 38;
+    const graphW = boxW - 75;
+    const graphH = 110;
+    
+    const zone = state.selectedZone || 'south';
+    const counts = ZONE_DATA[zone].counts;
+    const items = [
+      { name: '학교', val: counts.school },
+      { name: '공장', val: counts.factory },
+      { name: '논', val: counts.field },
+      { name: '산', val: counts.mountain },
+      { name: '명승고적', val: counts.museum },
+      { name: '채석장', val: counts.quarry }
+    ];
+    
+    const maxVal = Math.max(...items.map(x => x.val), 8);
+    const divisions = maxVal;
+    
+    if (ebsDirection6 === 'vertical') {
+      // 1. Grid lines (horizontal dashed lines)
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= divisions; i++) {
+        const y = graphY + graphH - (i / divisions) * graphH;
+        if (i % 5 === 0) {
+          ctx.strokeStyle = 'rgba(71, 85, 105, 0.6)';
+          ctx.setLineDash([]);
+        } else {
+          ctx.strokeStyle = 'rgba(71, 85, 105, 0.25)';
+          ctx.setLineDash([2, 2]);
+        }
+        ctx.beginPath();
+        ctx.moveTo(graphX, y);
+        ctx.lineTo(graphX + graphW, y);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]); // Reset line dash
+      
+      // 2. Axes
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      // Y-axis
+      ctx.moveTo(graphX, graphY);
+      ctx.lineTo(graphX, graphY + graphH);
+      // X-axis
+      ctx.moveTo(graphX, graphY + graphH);
+      ctx.lineTo(graphX + graphW, graphY + graphH);
+      ctx.stroke();
+      
+      // 3. Y-axis labels (numbers)
+      ctx.fillStyle = '#475569';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      for (let i = 0; i <= divisions; i++) {
+        const y = graphY + graphH - (i / divisions) * graphH;
+        ctx.fillText(i.toString(), graphX - 8, y);
+      }
+      
+      // Y-axis unit label
+      ctx.fillStyle = '#475569';
+      ctx.font = 'bold 8px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('개수(개)', graphX - 4, graphY - 8);
+      
+      // 4. Bars & labels
+      const colW = graphW / items.length;
+      const barW = 24;
+      
+      items.forEach((item, idx) => {
+        const colX = graphX + idx * colW;
+        const barX = colX + (colW - barW) / 2;
+        
+        const pct = item.val / maxVal;
+        const barH = pct * graphH;
+        const y = graphY + graphH - barH;
+        
+        // Bar
+        ctx.fillStyle = '#3b82f6';
+        ctx.fillRect(barX, y, barW, barH);
+        
+        // Value
+        ctx.fillStyle = '#1e293b';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(item.val.toString(), barX + barW / 2, y - 4);
+        
+        // Category Label below X-axis
+        ctx.fillStyle = '#475569';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(item.name, barX + barW / 2, graphY + graphH + 8);
+      });
+    } else {
+      // 1. Grid lines (vertical dashed lines)
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= divisions; i++) {
+        const x = graphX + (i / divisions) * graphW;
+        if (i % 5 === 0) {
+          ctx.strokeStyle = 'rgba(71, 85, 105, 0.6)';
+          ctx.setLineDash([]);
+        } else {
+          ctx.strokeStyle = 'rgba(71, 85, 105, 0.25)';
+          ctx.setLineDash([2, 2]);
+        }
+        ctx.beginPath();
+        ctx.moveTo(x, graphY);
+        ctx.lineTo(x, graphY + graphH);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]); // Reset line dash
+      
+      // 2. Axes
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      // Y-axis
+      ctx.moveTo(graphX, graphY);
+      ctx.lineTo(graphX, graphY + graphH);
+      // X-axis
+      ctx.moveTo(graphX, graphY + graphH);
+      ctx.lineTo(graphX + graphW, graphY + graphH);
+      ctx.stroke();
+      
+      // 3. X-axis labels (numbers)
+      ctx.fillStyle = '#475569';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      for (let i = 0; i <= divisions; i++) {
+        const x = graphX + (i / divisions) * graphW;
+        ctx.fillText(i.toString(), x, graphY + graphH + 8);
+      }
+      
+      // X-axis unit label (placed to the right of X axis end)
+      ctx.fillStyle = '#475569';
+      ctx.font = 'bold 8px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText('개수(개)', graphX + graphW + 6, graphY + graphH + 6);
+      
+      // 4. Bars & labels (horizontal rows)
+      const rowH = graphH / items.length;
+      const barH = 12;
+      
+      items.forEach((item, idx) => {
+        const rowY = graphY + idx * rowH;
+        const barY = rowY + (rowH - barH) / 2;
+        
+        const pct = item.val / maxVal;
+        const barW = pct * graphW;
+        
+        // Bar
+        ctx.fillStyle = '#3b82f6';
+        ctx.fillRect(graphX, barY, barW, barH);
+        
+        // Value (placed to the right of the bar)
+        ctx.fillStyle = '#1e293b';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(item.val.toString(), graphX + barW + 5, barY + barH / 2);
+        
+        // Category Label to the left of Y-axis
+        ctx.fillStyle = '#475569';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(item.name, graphX - 8, barY + barH / 2);
       });
     }
+    
+    // Intro text at bottom (with wrapText to prevent overflow)
+    ctx.fillStyle = '#1e3f20';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const introText = getCertificateIntroText(zone);
+    wrapText(ctx, introText, canvas.width / 2, 468, canvas.width - 120, 18);
+    
+    // Date
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('2026년 6월 17일', canvas.width / 2, 510);
+    
+    // Write blob to clipboard
+    canvas.toBlob(async (blob) => {
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        alert("수료증 이미지가 클립보드에 복사되었습니다! 패들릿 새 탭에서 붙여넣기(Ctrl+V) 하세요. 📋");
+      } catch (err) {
+        console.error(err);
+        alert("클립보드 복사에 실패했습니다. 마우스 우클릭으로 이미지를 복사/저장하거나 화면을 캡처해 주세요.");
+      }
+    }, 'image/png');
   }
 
-  function renderReviewersChips() {
-    const list = document.getElementById('completed-reviewers-list');
-    if (!list) return;
-    if (state.reviews.length === 0) {
-      list.innerHTML = `<span class="no-reviewer-msg">아직 등록된 친구 코멘트가 없습니다.</span>`;
-      return;
+  function wrapText(context, text, x, y, maxWidth, lineHeight) {
+    const chars = text.split('');
+    let line = '';
+    let testLine = '';
+    let lines = [];
+    
+    for (let n = 0; n < chars.length; n++) {
+      testLine = line + chars[n];
+      const metrics = context.measureText(testLine);
+      if (metrics.width > maxWidth && n > 0) {
+        lines.push(line);
+        line = chars[n];
+      } else {
+        line = testLine;
+      }
     }
-    list.innerHTML = state.reviews.map(r => `
-      <span class="reviewer-chip-active">📝 ${r.reviewerName} (${r.isCorrect ? '평가 성공' : '평가 완료'})</span>
-    `).join('');
+    lines.push(line);
+    
+    for (let i = 0; i < lines.length; i++) {
+      context.fillText(lines[i], x, y + (i * lineHeight));
+    }
   }
 
-  const btnPrintCert = document.getElementById('btn-print-cert');
-  if (btnPrintCert) {
-    btnPrintCert.addEventListener('click', () => {
+  const btnPrintCert6 = document.getElementById('btn-print-cert-6');
+  if (btnPrintCert6) {
+    btnPrintCert6.addEventListener('click', () => {
       window.print();
     });
   }
 
+  // ==========================================
+  // L. 처음으로 돌아가기 (초기화) 및 폭죽 애니메이션 엔진
+  // ==========================================
   const btnRestartAdventure = document.getElementById('btn-restart-adventure');
   if (btnRestartAdventure) {
     btnRestartAdventure.addEventListener('click', () => {
-      if (confirm('학습 과정을 완전히 리셋하고 처음부터 다시 도전할까요?')) {
+      if (confirm('학습 기록을 삭제하고 처음부터 다시 시작할까요?')) {
         localStorage.clear();
         state.studentName = '';
         state.unlockedStep = 1;
@@ -3180,22 +4362,18 @@ document.addEventListener('DOMContentLoaded', () => {
           5: { chopsticks: 8, cup: 12, bag: 6, spoon: 2 }
         };
         state.drawing32Data = { chopsticks: 0, cup: 0, bag: 0, spoon: 0 };
-        state.step5Act1Cleared = false;
-        state.step5Act2Cleared = false;
-        state.step5Act3Cleared = false;
-        if (typeof updateStep5TabsUI === 'function') updateStep5TabsUI();
         
         const helperBox = document.getElementById('scale-31-helper-box');
         if (helperBox) helperBox.style.display = 'none';
         state.drawing33Data = { chopsticks: 0, cup: 0, bag: 0, spoon: 0 };
         state.customGraph = {
-          title: '우리 반 친구들이 가장 가보고 싶은 포천의 명소',
+          title: '우리 반 친구들이 좋아하는 명소',
           unit: '표',
           items: [
-            { name: '산정호수 🏞️', val: 12 },
-            { name: '포천아트밸리 🎨', val: 10 },
-            { name: '허브아일랜드 🌿', val: 8 },
-            { name: '국립수목원 🌳', val: 6 }
+            { name: '선호도 조사 중...', val: 12 },
+            { name: '산정호수', val: 10 },
+            { name: '아트밸리', val: 8 },
+            { name: '평강랜드', val: 6 }
           ]
         };
 
@@ -3217,12 +4395,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         updateSelectionCount();
 
+        state.selectedZone = 'south';
+        selectZone('south');
+        initDetailedMap6('south');
+        state.usedHelper = false;
+
         takeawaysList.forEach(num => {
           const item = document.getElementById(`takeaway-item-${num}`);
           if (item) item.classList.remove('checked');
         });
         const btnTakeaway = document.getElementById('btn-complete-takeaway');
         if (btnTakeaway) btnTakeaway.disabled = true;
+
+        // Reset Step 6 takeaways
+        document.querySelectorAll('.takeaway-item-6').forEach(item => item.classList.remove('checked'));
+        document.querySelectorAll('.takeaway-check-6').forEach(check => check.textContent = '');
+        const btnTakeaway6 = document.getElementById('btn-complete-takeaway-64');
+        if (btnTakeaway6) btnTakeaway6.disabled = true;
 
         document.querySelectorAll('.quiz-feedback').forEach(fb => {
           fb.style.display = 'none';
@@ -3235,7 +4424,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const box = document.getElementById('local-board-box');
         if (box) {
           box.style.display = 'none';
-          btnToggleLocalBoard.textContent = '🖥️ 화면이 안 보여요! 가상 투표판 열기';
+          if (btnToggleLocalBoard) {
+            btnToggleLocalBoard.textContent = '🖥️ 화면이 안 보여요! 가상 투표판 열기';
+          }
         }
 
         const step42Card = document.getElementById('sub-step-4-2');
@@ -3262,7 +4453,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnEbsDirection) btnEbsDirection.disabled = true;
         if (btnEbsAddRow) btnEbsAddRow.disabled = false;
         if (ebsTitleInput) {
-          ebsTitleInput.value = "우리 반 친구들이 가장 가보고 싶은 포천의 명소";
+          ebsTitleInput.value = "우리 반 친구들이 좋아하는 명소";
           ebsTitleInput.disabled = false;
         }
 
@@ -3292,7 +4483,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const btnGoTo32 = document.getElementById('btn-go-to-32');
         const btnGoTo33 = document.getElementById('btn-go-to-33');
-        const btnNextTo4 = document.getElementById('btn-next-to-4');
+        const btnNextTo5 = document.getElementById('btn-next-to-5');
+  if (btnNextTo5) {
+    btnNextTo5.addEventListener('click', () => {
+      showPanel(5);
+      updateNavigationUI();
+    });
+  }
+
+  const btnNextTo6 = document.getElementById('btn-next-to-6');
+  if (btnNextTo6) {
+    btnNextTo6.addEventListener('click', () => {
+      showPanel(6);
+      updateNavigationUI();
+    });
+  }
+
+  const btnNextTo4 = document.getElementById('btn-next-to-4');
         if (btnGoTo32) btnGoTo32.disabled = true;
         if (btnGoTo33) btnGoTo33.disabled = true;
         if (btnNextTo4) btnNextTo4.disabled = true;
@@ -3318,9 +4525,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ==========================================
-  // L. 폭죽 파티클 애니메이션 엔진
-  // ==========================================
+  // 폭죽 파티클 애니메이션 엔진
   const canvas = document.getElementById('confetti-canvas');
   if (canvas) {
     const ctx = canvas.getContext('2d');
@@ -3393,10 +4598,135 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function bindInputs() {}
 
+  function initStep5() {
+    const tabBtns = document.querySelectorAll('.step5-tab-btn');
+    const panels = document.querySelectorAll('.step5-act-panel');
+    
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const actNum = btn.getAttribute('data-act');
+        if (btn.classList.contains('locked')) return;
+        
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        panels.forEach(p => p.classList.remove('active'));
+        const targetPanel = document.getElementById(`step5-act${actNum}-panel`);
+        if (targetPanel) targetPanel.classList.add('active');
+      });
+    });
+
+    const btnCheck51 = document.getElementById('btn-check-act5-1');
+    if (btnCheck51) {
+      btnCheck51.addEventListener('click', () => {
+        const q1 = document.querySelector('input[name="q51_1"]:checked');
+        const q2 = document.querySelector('input[name="q51_2"]:checked');
+        const q3 = document.querySelector('input[name="q51_3"]:checked');
+        const q4 = document.querySelector('input[name="q51_4"]:checked');
+        const fb = document.getElementById('act5-1-feedback');
+        
+        if (!q1 || !q2 || !q3 || !q4) {
+          fb.textContent = '⚠️ 모든 질문에 답변을 선택해 주세요!';
+          fb.className = 'quiz-feedback error';
+          fb.style.display = 'block';
+          return;
+        }
+
+        const isCorrect = (q1.value === '2020' && q2.value === '2020' && q3.value === 'b' && q4.value === 'decrease');
+        if (isCorrect) {
+          fb.innerHTML = '정답입니다! 🎉 친환경 자동차 등록 대수가 늘어남에 따라 배출량이 줄어들었음을 잘 찾아냈습니다. 다음 활동으로 넘어가세요.';
+          fb.className = 'quiz-feedback success';
+          fb.style.display = 'block';
+          playConfetti();
+          
+          const nextTab = document.getElementById('btn-act5-2');
+          if (nextTab) {
+            nextTab.disabled = false;
+            nextTab.classList.remove('locked');
+          }
+        } else {
+          fb.innerHTML = '❌ 오답이 있습니다. 그래프 막대의 높이를 다시 한번 꼼꼼히 확인해 보세요!';
+          fb.className = 'quiz-feedback error';
+          fb.style.display = 'block';
+        }
+      });
+    }
+
+    const btnCheck52 = document.getElementById('btn-check-act5-2');
+    if (btnCheck52) {
+      btnCheck52.addEventListener('click', () => {
+        const s1 = document.getElementById('act52-select-1').value;
+        const s2 = document.getElementById('act52-select-2').value;
+        const s3 = document.getElementById('act52-select-3').value;
+        const s4 = document.getElementById('act52-select-4').value;
+        const s5 = document.getElementById('act52-select-5').value;
+        const fb = document.getElementById('act5-2-feedback');
+
+        if (!s1 || !s2 || !s3 || !s4 || !s5) {
+          fb.textContent = '⚠️ 빈칸의 드롭다운을 모두 골라 완성해 주세요!';
+          fb.className = 'quiz-feedback error';
+          fb.style.display = 'block';
+          return;
+        }
+
+        const isCorrect = (s1 === 'parking' && s2 === 'garbage' && s3 === 'safety' && s4 === '40' && s5 === 'noise');
+        if (isCorrect) {
+          fb.innerHTML = '정답입니다! 🎉 그래프에서 각 항목의 값을 바르게 읽고 수치의 합도 완벽하게 계산해 냈습니다. 다음 활동으로 넘어가세요.';
+          fb.className = 'quiz-feedback success';
+          fb.style.display = 'block';
+          playConfetti();
+          
+          const nextTab = document.getElementById('btn-act5-3');
+          if (nextTab) {
+            nextTab.disabled = false;
+            nextTab.classList.remove('locked');
+          }
+        } else {
+          fb.innerHTML = '❌ 오답이 있습니다. 그래프에서 각 항목의 크기를 다시 한번 자세히 살펴보세요!';
+          fb.className = 'quiz-feedback error';
+          fb.style.display = 'block';
+        }
+      });
+    }
+
+    const btnCheck53 = document.getElementById('btn-check-act5-3');
+    if (btnCheck53) {
+      btnCheck53.addEventListener('click', () => {
+        const q1 = document.querySelector('input[name="q53_1"]:checked');
+        const q2 = document.querySelector('input[name="q53_2"]:checked');
+        const fb = document.getElementById('act5-3-feedback');
+
+        if (!q1 || !q2) {
+          fb.textContent = '⚠️ 질문의 답변을 모두 선택해 주세요!';
+          fb.className = 'quiz-feedback error';
+          fb.style.display = 'block';
+          return;
+        }
+
+        const isCorrect = (q1.value === '143680' && q2.value === 'b');
+        if (isCorrect) {
+          fb.innerHTML = '정답입니다! 🎉 뉴스 기사 속 독도 방문객 변화 추이와 코로나19 전염병의 영향도 바르게 추론해 냈습니다. 모든 미션을 마쳤으니 6단계로 가보세요!';
+          fb.className = 'quiz-feedback success';
+          fb.style.display = 'block';
+          playConfetti();
+          
+          const btnNextTo6 = document.getElementById('btn-next-to-6');
+          if (btnNextTo6) btnNextTo6.disabled = false;
+          unlockNext(5);
+        } else {
+          fb.innerHTML = '❌ 오답이 있습니다. 뉴스 기사 텍스트와 그래프 막대의 값을 다시 한번 꼼꼼히 대조해 보세요!';
+          fb.className = 'quiz-feedback error';
+          fb.style.display = 'block';
+        }
+      });
+    }
+  }
+
   // ==========================================
   // M. 초기 로딩 구동
   // ==========================================
   loadProgress();
+  initStep5();
   bindInputs();
   update31DrawingUI();
   update32DrawingUI();

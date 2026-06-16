@@ -1,0 +1,2231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>📊 교사용 인터랙티브 터치 대시보드</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-bg: #0f172a;
+      --color-card: #1e293b;
+      --color-primary: #3b82f6;
+      --color-primary-hover: #2563eb;
+      --color-success: #10b981;
+      --color-success-hover: #059669;
+      --color-warning: #f59e0b;
+      --color-danger: #ef4444;
+      --color-text: #f8fafc;
+      --color-text-muted: #94a3b8;
+      --color-border: rgba(255,255,255,0.1);
+      --font-main: 'Noto Sans KR', sans-serif;
+      --font-fancy: 'Outfit', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: var(--font-main);
+      overflow-x: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background-color: #020617;
+      border-bottom: 2px solid var(--color-border);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 75px;
+      flex-shrink: 0;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo h1 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--color-text);
+      letter-spacing: -0.5px;
+    }
+
+    .header-logo span {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #0f172a;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 0.8rem;
+      font-family: var(--font-fancy);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 15px;
+    }
+
+    .btn-header {
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid var(--color-border);
+      color: var(--color-text);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .btn-header:hover {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+
+    /* Tab Navbar */
+    nav.tab-nav {
+      background-color: #0b0f19;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: center;
+      padding: 0 20px;
+      height: 65px;
+      flex-shrink: 0;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      padding: 0 25px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      border-bottom: 4px solid transparent;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn:hover {
+      color: var(--color-text);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .tab-btn.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tab-content {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      padding: 25px 40px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+      overflow-y: auto;
+    }
+
+    .tab-content.active {
+      opacity: 1;
+      visibility: visible;
+      z-index: 10;
+    }
+
+    /* Left and Right Column Layout */
+    .screen-col-left {
+      background: var(--color-card);
+      border: 2px solid var(--color-border);
+      border-radius: 16px;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .screen-col-right {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Panels & Info Boxes */
+    .info-card {
+      background: #1e293b;
+      border: 2px solid var(--color-border);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .info-card h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fbbf24;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-card p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--color-text-muted);
+      margin-bottom: 12px;
+    }
+
+    .info-card strong {
+      color: var(--color-text);
+    }
+
+    /* Slide Controls inside Tab 1 */
+    .slide-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .sub-slide {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+    }
+
+    .sub-slide.active {
+      display: flex;
+    }
+
+    /* Interactive Elements inside Slide 1-1 */
+    .village-map-container {
+      position: relative;
+      width: 100%;
+      max-width: 480px; /* Limit size so it fits perfectly on all screens */
+      aspect-ratio: 1/1; /* 1:1 aspect ratio matching the square image, preventing cropping */
+      background: #0b0f19;
+      border: 2.5px solid #475569;
+      border-radius: 12px;
+      overflow: visible; /* Allows labels to pop out of boundaries without clipping */
+      margin: 0 auto 15px auto; /* Center the map horizontally */
+      cursor: pointer; /* Pointer cursor for the map click target */
+    }
+
+    .village-map-container img {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px; /* rounded inner map image */
+    }
+
+    /* Grouped non-clickable symbols inside Slide 1-1 */
+    .touch-symbol-pin {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2.5px solid #475569;
+      padding: 4px;
+      z-index: 10;
+      transition: all 0.3s;
+      transform: translate(-50%, -50%);
+      pointer-events: none; /* Clicking passes through to the map container */
+    }
+
+    .touch-symbol-pin.reveal {
+      border-color: var(--color-success);
+      background: rgba(16, 185, 129, 0.12);
+      box-shadow: 0 0 15px var(--color-success);
+    }
+
+    .touch-symbol-pin.reveal .touch-label {
+      display: block;
+      background: var(--color-success);
+      color: #0f172a;
+      border-color: var(--color-success);
+    }
+
+    /* Compass and Legend dark overrides in Slide 1-1 */
+    #reveal-compass {
+      top: 20px;
+      left: 20px;
+      width: 55px;
+      height: 55px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(30, 41, 59, 0.9) !important;
+      border: 2.5px dashed var(--color-primary);
+      border-radius: 8px;
+      padding: 4px;
+      box-shadow: none !important;
+    }
+
+    #reveal-compass.reveal {
+      border-style: solid !important;
+      border-color: var(--color-success) !important;
+      background: rgba(30, 41, 59, 0.95) !important;
+      box-shadow: 0 0 15px var(--color-success) !important;
+    }
+
+    #reveal-legend {
+      bottom: 20px;
+      right: 20px;
+      width: 150px; /* Increased to give plenty of space for text */
+      height: 85px; /* Increased height to prevent vertical squeeze */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start; /* Left-align to prevent text squeezing */
+      padding: 10px 16px; /* Generous padding */
+      background: rgba(30, 41, 59, 0.9) !important;
+      border: 2.5px dashed var(--color-primary);
+      border-radius: 8px;
+      box-shadow: none !important;
+    }
+
+    #reveal-legend.reveal {
+      border-style: solid !important;
+      border-color: var(--color-success) !important;
+      background: rgba(30, 41, 59, 0.95) !important;
+      box-shadow: 0 0 15px var(--color-success) !important;
+    }
+
+    /* Interactive reveal markers on Slide 1-1 */
+    .touch-overlay-box {
+      border: 3.5px dashed var(--color-primary);
+      border-radius: 8px;
+      background: rgba(59,130,246,0.08);
+      cursor: pointer;
+      transition: all 0.3s;
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .touch-overlay-box:hover {
+      background: rgba(59,130,246,0.15);
+      border-color: #fbbf24;
+      transform: scale(1.02);
+    }
+
+    .touch-overlay-box.highlight {
+      border-color: #fbbf24;
+      box-shadow: 0 0 20px #fbbf24;
+      background: rgba(251,191,36,0.12);
+      transform: scale(1.05);
+    }
+
+    .touch-overlay-box.reveal {
+      border-color: var(--color-success);
+      background: rgba(16,185,129,0.12);
+      box-shadow: 0 0 15px var(--color-success);
+    }
+
+    .touch-label {
+      background: #020617;
+      color: #fbbf24;
+      border: 1.5px solid #fbbf24;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      position: absolute;
+      top: -30px;
+      white-space: nowrap;
+      display: none;
+      animation: popIn 0.25s ease-out;
+    }
+
+    .touch-overlay-box.reveal .touch-label {
+      display: block;
+      background: var(--color-success);
+      color: #0f172a;
+      border-color: var(--color-success);
+    }
+
+    /* Objective chalkboard */
+    .objective-chalkboard {
+      background: #14532d;
+      border: 8px solid #78350f;
+      border-radius: 12px;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.6), 0 10px 20px rgba(0,0,0,0.3);
+      padding: 30px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+      position: relative;
+    }
+
+    .chalkboard-title {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #fef08a;
+      border-bottom: 2.5px dashed rgba(254,240,138,0.4);
+      padding-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chalk-line {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.5s, transform 0.5s;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .chalk-line.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .chalk-icon {
+      background: #fef08a;
+      color: #14532d;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .chalkboard-prompt {
+      position: absolute;
+      bottom: 15px;
+      right: 20px;
+      font-size: 0.85rem;
+      color: rgba(254,240,138,0.6);
+      font-weight: bold;
+      animation: pulse 2s infinite;
+    }
+
+      /* Pocheon Overview map container */
+      .overview-map-box {
+        width: 100%;
+        max-width: 280px;
+        aspect-ratio: 918/1437;
+        background: #0f172a;
+        border-radius: 12px;
+        border: 2.5px solid #475569;
+        overflow: hidden;
+        position: relative;
+        margin: 0 auto;
+      }
+      .overview-zone-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+        transition: all 0.3s;
+      }
+
+    /* Sub slide footer buttons */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-hover);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--color-border);
+      color: var(--color-text);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+      /* Map simulation pins in Slide 2 */
+      .interactive-map-area {
+        position: relative;
+        width: 100%;
+        max-width: 550px;
+        aspect-ratio: 1/1;
+        background: #ffffff;
+        border: 3px solid #475569;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        user-select: none;
+        margin: 0 auto 15px auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+    .map-pin {
+      position: absolute;
+      cursor: pointer;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #475569;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      user-select: none;
+      transform: translate(-50%, -50%);
+      transition: none;
+    }
+
+    /* Hover scaling removed to prevent sticky hover on touchscreens. */
+    .map-pin:active {
+      transform: translate(-50%, -50%) scale(1.15) !important;
+    }
+
+    .map-pin .checkmark {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      font-size: 0.7rem;
+      background: #10b981;
+      color: white;
+      border: 1px solid white;
+      border-radius: 50%;
+      width: 15px;
+      height: 15px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      z-index: 10;
+    }
+
+    .map-pin.checked .checkmark {
+      display: flex;
+    }
+
+    .map-pin.checked {
+      border-color: #10b981;
+      filter: drop-shadow(0 0 8px rgba(16,185,129,0.6));
+    }
+
+    /* EBSMath 이지통계 시뮬레이터 */
+    .ebs-simulator-container {
+      width: 100%;
+      background: #f1f5f9;
+      border: 3px solid #2563eb;
+      border-radius: 12px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+
+    .ebs-simulator-header {
+      background: #2563eb;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+
+    .ebs-logo {
+      font-size: 1.2rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+
+    /* 작업 영역 */
+    .ebs-workspace {
+      display: flex;
+      height: 440px;
+    }
+
+    .ebs-sidebar {
+      width: 250px;
+      background: #f8fafc;
+      border-right: 2px solid #cbd5e1;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .ebs-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ebs-label {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #1e293b;
+    }
+
+    .ebs-input {
+      width: 100%;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1.5px solid #cbd5e1;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .ebs-table-wrapper {
+      max-height: 180px;
+      overflow-y: auto;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: white;
+    }
+
+    .ebs-input-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .ebs-input-table th, .ebs-input-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.8rem;
+      text-align: center;
+      color: #1e293b;
+    }
+
+    .ebs-input-table th {
+      background: #f1f5f9;
+      font-weight: bold;
+      color: #1e293b;
+    }
+
+    /* 우측 그래프 영역 */
+    .ebs-chart-panel {
+      flex: 1;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 15px;
+    }
+
+    .ebs-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1.5px solid #cbd5e1;
+      margin-bottom: 10px;
+    }
+
+    .ebs-tool-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #1e293b;
+    }
+
+    .ebs-select {
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1.5px solid #cbd5e1;
+      font-weight: bold;
+      color: #1e293b;
+      background: white;
+    }
+
+    .btn-ebs-icon {
+      background: #f1f5f9;
+      border: 1.5px solid #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: #1e293b;
+    }
+
+    .btn-ebs-icon:hover {
+      background: #e2e8f0;
+    }
+
+    /* EBS graph simulator */
+    .ebs-board {
+      border: 2.5px solid #475569;
+      border-radius: 12px;
+      flex: 1;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+    }
+
+    .ebs-chart-title {
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+      color: #1e293b;
+    }
+
+    .ebs-unit-label {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #64748b;
+      position: absolute;
+      left: 10px;
+      top: 30px;
+    }
+
+    .ebs-chart-container {
+      flex: 1;
+      position: relative;
+      margin-top: 30px;
+      margin-left: 35px;
+      margin-bottom: 20px;
+      margin-right: 15px;
+      display: flex;
+    }
+
+    .ebs-chart-container.ebs-mode-horizontal {
+      margin-left: 140px;
+      margin-right: 70px;
+    }
+
+    /* EBS Grid and Axis */
+    .ebs-grid-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      border-top: 1px dashed rgba(71, 85, 105, 0.25);
+      background: none;
+    }
+
+    .ebs-grid-line.major {
+      border-top: 2px solid rgba(71, 85, 105, 0.6);
+      z-index: 1;
+    }
+
+    .ebs-grid-line-vertical {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      border-left: 1px dashed rgba(71, 85, 105, 0.25);
+      background: none;
+    }
+
+    .ebs-grid-line-vertical.major {
+      border-left: 2px solid rgba(71, 85, 105, 0.6);
+      z-index: 1;
+    }
+
+    /* Axis Labels (장소 & 개수) */
+    .ebs-axis-label-y {
+      position: absolute;
+      left: -40px;
+      top: -22px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #475569;
+    }
+
+    .ebs-axis-label-x {
+      position: absolute;
+      right: -40px;
+      bottom: -22px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #475569;
+    }
+
+    .ebs-axis-label-y-horizontal {
+      position: absolute;
+      left: -135px;
+      top: -22px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #475569;
+      text-align: right;
+      width: 130px;
+    }
+
+    .ebs-axis-label-x-horizontal {
+      position: absolute;
+      right: -55px;
+      bottom: -22px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #475569;
+    }
+
+    .ebs-axis-y {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 2px;
+      background: #475569;
+    }
+
+    .ebs-axis-x {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #475569;
+    }
+
+    /* Dynamic Y Axis Labels */
+    .ebs-y-label-box {
+      position: absolute;
+      left: -35px;
+      width: 30px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #475569;
+      pointer-events: none;
+    }
+
+    .ebs-y-label-box div {
+      height: 0;
+      line-height: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Dynamic X Axis Labels */
+    .ebs-x-label-box {
+      position: absolute;
+      bottom: -25px;
+      left: 0;
+      right: 0;
+      height: 20px;
+      display: flex;
+      justify-content: space-around;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #475569;
+      pointer-events: none;
+    }
+
+    /* Horizontal labels box */
+    .ebs-y-label-box-horizontal {
+      position: absolute;
+      left: -135px;
+      width: 130px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: flex-end;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #475569;
+      pointer-events: none;
+    }
+
+    .ebs-y-label-box-horizontal div {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      color: #475569;
+    }
+
+    .ebs-x-label-box-horizontal {
+      position: absolute;
+      bottom: -25px;
+      left: 0;
+      right: 0;
+      height: 20px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #475569;
+      pointer-events: none;
+    }
+
+    .ebs-x-label-box-horizontal div {
+      width: 0;
+      display: flex;
+      justify-content: center;
+      color: #475569;
+    }
+
+    /* Bars Rendering Container */
+    .ebs-bars-wrapper {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-end;
+    }
+
+    .ebs-bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      position: relative;
+      z-index: 5;
+    }
+
+    .ebs-bar {
+      width: 24px;
+      background-color: #2563eb;
+      border-radius: 3px 3px 0 0;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2);
+      transition: all 0.4s ease;
+      position: relative;
+    }
+
+    .ebs-bar-val-label {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      font-weight: bold;
+      white-space: nowrap;
+      color: #1e293b;
+    }
+
+    /* Horizontal Bar Render styles */
+    .ebs-bars-wrapper-horizontal {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: flex-start;
+    }
+
+    .ebs-bar-row-horizontal {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: 24px;
+      position: relative;
+      z-index: 5;
+    }
+
+    .ebs-bar-horizontal {
+      height: 16px;
+      background-color: #2563eb;
+      border-radius: 0 3px 3px 0;
+      box-shadow: inset 2px 0 4px rgba(255, 255, 255, 0.2);
+      transition: all 0.4s ease;
+      position: relative;
+    }
+
+    .ebs-bar-val-label-horizontal {
+      position: absolute;
+      right: -24px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.75rem;
+      font-weight: bold;
+      white-space: nowrap;
+      color: #1e293b;
+    }
+
+    /* Progress bar timer */
+    .timer-dashboard {
+      background: #0f172a;
+      border: 1.5px solid var(--color-border);
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+    }
+
+    .timer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 16px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, var(--color-success), #059669);
+      transition: width 0.1s linear, background-color 0.3s;
+      border-radius: 10px;
+    }
+
+    .timer-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-timer-ctrl {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-timer-ctrl:hover {
+      background: var(--color-primary);
+    }
+
+    /* Sentence builder mockup */
+    .sentence-frame {
+      background: rgba(255,255,255,0.02);
+      border: 2px dashed rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      font-size: 1.15rem;
+      line-height: 2.2;
+      color: var(--color-text);
+    }
+
+    .sentence-dropdown-mock {
+      background: #1e293b;
+      border: 1.5px solid var(--color-primary);
+      border-radius: 6px;
+      padding: 2px 6px;
+      color: #fbbf24;
+      font-weight: 800;
+      margin: 0 4px;
+      display: inline-block;
+    }
+
+    /* Big certificate showcases in slide 5 */
+    .cert-showcase-grid {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    .cert-card-mock {
+      background: #fffbeb;
+      border: 3.5px solid #d97706;
+      border-radius: 12px;
+      padding: 20px;
+      width: 240px;
+      text-align: center;
+      color: #1e293b;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      position: relative;
+    }
+
+    .cert-card-mock.sincere {
+      border-color: #b45309;
+      background: #fef3c7;
+    }
+
+    .cert-mock-badge {
+      font-size: 2.8rem;
+      margin-bottom: 8px;
+    }
+
+    .cert-mock-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #78350f;
+      margin-bottom: 12px;
+    }
+
+    .cert-mock-label {
+      background: #fbbf24;
+      color: #78350f;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
+    .cert-mock-desc {
+      font-size: 0.75rem;
+      line-height: 1.4;
+      color: #4b5563;
+      text-align: justify;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header style="height: auto; justify-content: center; padding: 20px 30px;">
+    <div class="header-logo" style="width: 100%; justify-content: center; text-align: center;">
+      <h1 style="font-size: 2.2rem; font-weight: 900; color: #fbbf24; letter-spacing: -0.5px;">우리 지역 포천의 지도를 읽고 막대그래프로 나타내어 특징 소개하기</h1>
+    </div>
+  </header>
+
+  <!-- Navbar -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="tab-1">🧭 도입: 복습하기</button>
+    <button class="tab-btn" data-tab="tab-2">🗺️ 활동 1-1: 기호 조사하기</button>
+    <button class="tab-btn" data-tab="tab-3">📊 활동 1-2: 막대그래프 그리기</button>
+    <button class="tab-btn" data-tab="tab-4">✍️ 활동 2: 우리 구역 소개글 쓰기</button>
+    <button class="tab-btn" data-tab="tab-5">🏅 정리: 수료증 받기</button>
+  </nav>
+
+  <!-- Main Content Areas -->
+  <main>
+
+    <!-- Tab 1: 도입 -->
+    <div id="tab-1" class="tab-content active">
+      <div class="screen-col-left">
+        <div class="slide-container">
+          
+          <!-- Slide 1-1: 새싹마을 가상 지도 학습 -->
+          <div id="slide-1-1" class="sub-slide active">
+            <h2 style="margin-bottom: 12px; color: #fbbf24;">🧭 지도를 보고 사회 시간에 배운 내용을 생각해 봅시다.</h2>
+
+            
+            <div class="village-map-container" id="reveal-map-bg">
+              <!-- Background Map Image -->
+              <img src="./intro_map_bg.png" alt="도입부 등고선 지형도" />
+
+              <!-- Touch Reveals -->
+              <!-- 1. Compass -->
+              <div class="touch-overlay-box" id="reveal-compass">
+                <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+                  <line x1="50" y1="20" x2="50" y2="80" stroke="#f8fafc" stroke-width="4.5" stroke-linecap="round"/>
+                  <line x1="28" y1="50" x2="72" y2="50" stroke="#f8fafc" stroke-width="4.5" stroke-linecap="round"/>
+                  <line x1="50" y1="28" x2="28" y2="50" stroke="#f8fafc" stroke-width="4.5" stroke-linecap="round"/>
+                  <text x="50" y="12" font-size="15" font-weight="900" text-anchor="middle" fill="#fbbf24" font-family="sans-serif">북</text>
+                  <text x="50" y="93" font-size="15" font-weight="900" text-anchor="middle" fill="#f8fafc" font-family="sans-serif">남</text>
+                  <text x="86" y="55" font-size="15" font-weight="900" text-anchor="middle" fill="#f8fafc" font-family="sans-serif">동</text>
+                  <text x="14" y="55" font-size="15" font-weight="900" text-anchor="middle" fill="#f8fafc" font-family="sans-serif">서</text>
+                </svg>
+                <span class="touch-label">[🧭 방위표]</span>
+              </div>
+
+              <!-- 2. Legend Box -->
+              <div class="touch-overlay-box" id="reveal-legend">
+                <div style="font-size: 0.85rem; color:#f8fafc; font-weight:800; text-align:left; display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                  <div style="display:flex; align-items:center; gap:8px; white-space: nowrap;">
+                    <svg viewBox="0 0 40 40" width="16" height="16" style="display:block; flex-shrink: 0;">
+                      <line x1="15" y1="6" x2="15" y2="34" stroke="#f8fafc" stroke-width="3.2" stroke-linecap="round"/>
+                      <polygon points="15,7 32,7 32,19 15,19" fill="#f8fafc" stroke="#f8fafc" stroke-width="1" stroke-linejoin="round"/>
+                      <line x1="8" y1="34" x2="22" y2="34" stroke="#f8fafc" stroke-width="3.2" stroke-linecap="round"/>
+                    </svg>
+                    <span>학교</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:8px; white-space: nowrap;">
+                    <svg viewBox="0 0 40 40" width="16" height="16" style="display:block; flex-shrink: 0;">
+                      <polygon points="20,8 6,32 34,32" fill="#f8fafc" stroke="#f8fafc" stroke-width="1"/>
+                    </svg>
+                    <span>산</span>
+                  </div>
+                </div>
+                <span class="touch-label">[📋 범례]</span>
+              </div>
+
+              <!-- 3. School Symbol Pin (grouped, non-clickable) -->
+              <div class="touch-symbol-pin" id="reveal-sym-school" style="top: 77.3%; left: 29.1%;">
+                <svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">
+                  <line x1="15" y1="6" x2="15" y2="34" stroke="#0f172a" stroke-width="3.2" stroke-linecap="round"/>
+                  <polygon points="15,7 32,7 32,19 15,19" fill="#0f172a" stroke="#0f172a" stroke-width="1" stroke-linejoin="round"/>
+                  <line x1="8" y1="34" x2="22" y2="34" stroke="#0f172a" stroke-width="3.2" stroke-linecap="round"/>
+                </svg>
+                <span class="touch-label">[📍 기호]</span>
+              </div>
+
+              <!-- 4. Mountain Symbol Pin (grouped, non-clickable) -->
+              <div class="touch-symbol-pin" id="reveal-sym-mountain" style="top: 7.7%; left: 79.5%;">
+                <svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">
+                  <polygon points="20,8 6,32 34,32" fill="#0f172a"/>
+                </svg>
+                <span class="touch-label">[📍 기호]</span>
+              </div>
+            </div>
+
+            <div class="slide-footer">
+              <div></div>
+              <button class="btn btn-primary" onclick="goToSubSlide('slide-1-2')">오늘 배울 내용 확인하기 👉</button>
+            </div>
+          </div>
+
+          <!-- Slide 1-2: 학습 목표 chalkboard -->
+          <div id="slide-1-2" class="sub-slide">
+            <h2 style="margin-bottom: 12px; color: #fbbf24;">📢 오늘 배울 내용과 활동 안내</h2>
+            
+            <div class="objective-chalkboard" id="chalkboard-reveal-trigger" style="cursor: pointer;">
+              <div class="chalkboard-title">📚 오늘의 배움 문제</div>
+              
+              <div class="chalk-line" id="chalk-line-1">
+                <div class="chalk-icon">배움</div>
+                 <p style="font-size: 1.1rem; line-height: 1.5;">포천의 구역별 지도 속 기호 개수를 세어 표와 막대그래프로 나타내고, 우리 지역을 소개하는 소개글을 써 봅시다.</p>
+              </div>
+
+              <div class="chalkboard-title" id="chalk-title-activities" style="margin-top: 15px; opacity: 0; transition: opacity 0.5s;">📋 오늘 할 활동</div>
+
+              <div class="chalk-line" id="chalk-line-2">
+                <div class="chalk-icon">1</div>
+                <p><strong>[활동 1]</strong> 우리 구역 지도 기호 조사하여 막대그래프 완성하기 📊</p>
+              </div>
+
+              <div class="chalk-line" id="chalk-line-3">
+                <div class="chalk-icon">2</div>
+                <p><strong>[활동 2]</strong> 우리 구역 소개글 쓰고 수료증 받기 ✍️</p>
+              </div>
+
+
+            </div>
+
+            <div class="slide-footer">
+              <button class="btn btn-outline" onclick="goToSubSlide('slide-1-1')">👈 선수학습 다시보기</button>
+              <button class="btn btn-primary" id="btn-next-to-13" disabled onclick="goToSubSlide('slide-1-3')">포천 지도 탐색하기 👉</button>
+            </div>
+          </div>
+
+          <!-- Slide 1-3: 포천 지도 구역 탐색 -->
+          <div id="slide-1-3" class="sub-slide">
+            <h2 style="margin-bottom: 12px; color: #fbbf24;">🗺️ 우리 고장 포천시 전체 지도 탐색</h2>
+
+
+              <div class="overview-map-box">
+                <!-- Dynamically swapped accurate PNG map image -->
+                <img id="overview-map-img" src="images/south_zone.png" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none; transition: all 0.3s;" />
+                
+                <!-- Transparent click overlay for canvas detection -->
+                <div id="overview-click-overlay" style="position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; z-index: 10;"></div>
+
+                <!-- Centered premium floating text badges for zones -->
+                <div class="overview-zone-label" id="label-zone-north" style="position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 15; background: rgba(15, 23, 42, 0.8); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 5px 12px; font-weight: 800; font-size: 0.85rem; color: #94a3b8; transition: all 0.3s; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+                  <span>북부 구역 🏞️</span>
+                </div>
+                <div class="overview-zone-label" id="label-zone-middle" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 15; background: rgba(15, 23, 42, 0.8); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 5px 12px; font-weight: 800; font-size: 0.85rem; color: #94a3b8; transition: all 0.3s; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+                  <span>중부 구역 ⛏️</span>
+                </div>
+                <div class="overview-zone-label" id="label-zone-south" style="position: absolute; top: 80%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 15; background: rgba(15, 23, 42, 0.8); border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 5px 12px; font-weight: 800; font-size: 0.85rem; color: #94a3b8; transition: all 0.3s; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+                  <span>남부 구역 🏙️</span>
+                </div>
+              </div>
+
+            <!-- Dynamic popups of Pocheon Overview Map (Moved to slide body) -->
+            <div class="info-card" id="overview-info-box" style="display: none; border-color: var(--color-primary); background: rgba(59, 130, 246, 0.05); margin-top: 15px; margin-bottom: 15px;">
+              <h3 id="overview-info-title">🗺️ 구역 상세 정보</h3>
+              <p id="overview-info-regions" style="font-size: 1.05rem; line-height: 1.6; font-weight: 500;"></p>
+            </div>
+
+            <div class="slide-footer">
+              <button class="btn btn-outline" onclick="goToSubSlide('slide-1-2')">👈 학습 안내 다시보기</button>
+              <button class="btn btn-primary" onclick="switchTab('tab-2')">활동 1-1 기호 조사하기 가기 👉</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: 활동 6-1 -->
+    <div id="tab-2" class="tab-content">
+      <div class="screen-col-left">
+        <h2 style="margin-bottom: 12px; color: #fbbf24;">🗺️ [활동 1-1] 기호 조사하기</h2>
+
+
+        <!-- Dynamic simulator selectors -->
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+          <button class="btn btn-outline btn-sim-zone active" onclick="loadSimZone('south')">남부 구역 🗺️</button>
+          <button class="btn btn-outline btn-sim-zone" onclick="loadSimZone('north')">북부 구역 🗺️</button>
+          <button class="btn btn-outline btn-sim-zone" onclick="loadSimZone('middle')">중부 구역 🗺️</button>
+        </div>
+
+        <!-- Simulator map area -->
+        <div class="interactive-map-area" id="sim-map-wrapper">
+          <!-- Injected SVG map and interactive pins -->
+        </div>
+
+        <div class="slide-footer">
+          <div></div>
+          <button class="btn btn-primary" onclick="switchTab('tab-3')">활동 1-2 막대그래프 그리기 가기 👉</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tab 3: 활동 6-2 -->
+    <div id="tab-3" class="tab-content">
+      <div class="screen-col-left">
+        <h2 style="margin-bottom: 12px; color: #fbbf24;">📊 [활동 1-2] 막대그래프 그리기</h2>
+
+
+        <!-- EBSMath Easy Stats Simulator Mockup (Synchronized with student view) -->
+        <div class="ebs-simulator-container">
+          <div class="ebs-simulator-header">
+            <div class="ebs-logo">막대그래프 그리기 도구</div>
+          </div>
+
+          <div class="ebs-workspace">
+            <!-- Left: Inputs (Table display) -->
+            <div class="ebs-sidebar">
+              <div class="ebs-section">
+                <label class="ebs-label">📋 우리 구역 조사 결과 표:</label>
+                <div class="ebs-table-wrapper">
+                  <table class="ebs-input-table">
+                    <thead>
+                      <tr>
+                        <th>기호 이름</th>
+                        <th style="width: 80px;">개수</th>
+                      </tr>
+                    </thead>
+                    <tbody id="sim-table-body">
+                      <!-- Dynamic rows filled by JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Graph Board -->
+            <div class="ebs-chart-panel">
+              <!-- Toolbar -->
+              <div class="ebs-toolbar">
+                <div class="ebs-tool-group" style="display: none;">
+                  <label class="ebs-label">눈금 설정:</label>
+                  <select id="sim-scale-select" onchange="updateSimGraph()" class="ebs-select">
+                    <option value="1" selected>1개 간격</option>
+                    <option value="2">2개 간격</option>
+                  </select>
+                </div>
+                <button onclick="toggleSimGraphDirection()" class="btn-ebs-icon">🔄 가로/세로 방향 바꾸기</button>
+              </div>
+
+              <!-- Main Drawing Board -->
+              <div class="ebs-board" id="sim-board-grid">
+                <div class="ebs-chart-title">우리 구역 지도 속 기호 수</div>
+                <div class="ebs-unit-label">단위: 개</div>
+                
+                <div class="ebs-chart-container" id="sim-chart-inner">
+                  <!-- Dynamic grid and bars will render here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-footer" style="margin-top: 25px;">
+          <div></div>
+          <button class="btn btn-primary" onclick="switchTab('tab-4')">활동 2 우리 구역 소개글 쓰기 가기 👉</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tab 4: 활동 6-3 -->
+    <div id="tab-4" class="tab-content">
+      <div class="screen-col-left">
+        <h2 style="margin-bottom: 12px; color: #fbbf24;">✍️ [활동 2] 우리 구역 소개글 쓰기</h2>
+
+
+        <!-- Timer Dashboard -->
+        <div class="timer-dashboard">
+          <div class="timer-row">
+            <span style="font-weight: 800; font-size: 1.05rem; color:#f59e0b;">⏳ 실시간 진행률 타이머</span>
+            <span id="sim-timer-status" style="font-weight: 800; font-size: 0.95rem; color:var(--color-success);">▶️ 대기 중</span>
+          </div>
+          <!-- Progress bar instead of numbers -->
+          <div class="progress-track">
+            <div id="sim-timer-bar" class="progress-bar"></div>
+          </div>
+          <span id="sim-timer-percent" style="display: none;">남은 시간: 100%</span>
+        </div>
+
+        <!-- Sentence builder mockup board -->
+        <div class="sentence-frame" id="sim-sentence-box">
+          <!-- Injected sentence builder -->
+        </div>
+
+        <div style="display:flex; gap: 10px; margin-top: 15px;">
+          <button class="btn btn-outline" id="btn-reset-sentence" onclick="initSimSentence()">✍️ 기본 쓰기 모드로 돌아가기</button>
+          <button class="btn btn-outline" id="btn-reveal-blanks" onclick="revealSimBlanks()">💡 예시글 더보기</button>
+          <button class="btn btn-outline" id="btn-reveal-dropdowns" onclick="revealSimDropdowns()">🪄 낱말 골라 채우기로 바꾸기</button>
+        </div>
+
+        <div class="slide-footer" style="margin-top: 25px;">
+          <div class="timer-controls">
+            <button class="btn-timer-ctrl" onclick="controlTimer('pause')" title="일시정지">⏸️</button>
+            <button class="btn-timer-ctrl" onclick="controlTimer('play')" title="시작/재개">▶️</button>
+            <button class="btn-timer-ctrl" onclick="controlTimer('slow')" title="느리게 (0.5x)">⏪</button>
+            <button class="btn-timer-ctrl" onclick="controlTimer('fast')" title="빠르게 (2.0x)">⏩</button>
+            <button class="btn-timer-ctrl" onclick="controlTimer('reset')" title="리셋">🔄</button>
+          </div>
+          <button class="btn btn-primary" onclick="switchTab('tab-5')">정리: 수료증 받기 가기 👉</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 5: 정리 -->
+    <div id="tab-5" class="tab-content">
+      <div class="screen-col-left">
+        <h2 style="margin-bottom: 12px; color: #fbbf24;">🏅 [정리] 수료증 받기</h2>
+
+
+        <!-- Certificate types side-by-side -->
+        <div class="cert-showcase-grid">
+          <!-- 스스로 해결 -->
+          <div class="cert-card-mock">
+            <div class="cert-mock-badge">🏆</div>
+            <div class="cert-mock-title">우수 수료증</div>
+            <div class="cert-mock-label">[스스로 해결]</div>
+            <p class="cert-mock-desc">위 학생은 도움 장치 없이 스스로 지도의 기호를 탐구하고 소개글 포스터를 완성하여 수여하는 우수 수료증입니다.</p>
+          </div>
+
+          <!-- 성실히 해결 -->
+          <div class="cert-card-mock sincere">
+            <div class="cert-mock-badge">🏅</div>
+            <div class="cert-mock-title">격려장</div>
+            <div class="cert-mock-label" style="background:#b45309; color:white;">[성실히 해결]</div>
+            <p class="cert-mock-desc">위 학생은 포천 지도의 기호를 적극적으로 분석하고, 도움 장치를 성실히 활용하여 소개글을 완성했기에 격려장을 수여합니다.</p>
+          </div>
+        </div>
+
+        <!-- Padlet steps design -->
+        <div style="background: rgba(255,255,255,0.03); border-radius: 12px; border: 1.5px dashed var(--color-border); padding: 15px; margin-top: 25px; text-align: center;">
+          <h3 style="font-size: 1.1rem; color: #fbbf24; margin-bottom: 10px;">🌐 모바일 패들릿 공유 미션 요령</h3>
+          <div style="display:flex; justify-content:space-around; align-items:center; flex-wrap:wrap; font-size:0.9rem; font-weight:bold; gap:10px;">
+            <div>1. [📋 수료증 이미지 복사] 클릭</div>
+            <div style="color:var(--color-primary-hover);">➡️</div>
+            <div>2. [🌐 학급 패들릿 바로가기] 클릭</div>
+            <div style="color:var(--color-primary-hover);">➡️</div>
+            <div>3. 패들릿 게시판에 붙여넣기 끝!</div>
+          </div>
+        </div>
+
+        <!-- Padlet URL and Scan QR Box (Moved to main slide body for students) -->
+        <div style="background: rgba(255,255,255,0.03); border-radius: 12px; border: 1.5px solid var(--color-border); padding: 20px; margin-top: 20px; text-align: center;">
+          <h4 style="font-size:1.1rem; color:#fef08a; font-weight:800; margin-bottom:12px;">📱 학급 패들릿 스캔용 QR코드</h4>
+          <img id="teacher-qr-preview" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://padlet.com/mirach92/padlet-ynm9xca0hdwjpqe3" alt="Padlet QR" style="width: 150px; height: 150px; border:1px solid var(--color-border); border-radius:8px; background:white; margin: 0 auto 12px auto; display:block;">
+          <a href="https://padlet.com/mirach92/padlet-ynm9xca0hdwjpqe3" target="_blank" style="font-size:0.95rem; color:var(--color-primary); font-weight:bold; word-break:break-all;">https://padlet.com/mirach92/padlet-ynm9xca0hdwjpqe3</a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Script for interactivity -->
+  <script>
+    // Tab Switching Logic
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    function switchTab(tabId) {
+      tabButtons.forEach(btn => {
+        if (btn.getAttribute('data-tab') === tabId) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      tabContents.forEach(content => {
+        if (content.id === tabId) {
+          content.classList.add('active');
+        } else {
+          content.classList.remove('active');
+        }
+      });
+
+      // Special triggers on load
+      if (tabId === 'tab-2') {
+        loadSimZone('south');
+      } else if (tabId === 'tab-3') {
+        updateSimGraph();
+      } else if (tabId === 'tab-4') {
+        initSimSentence();
+      }
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        switchTab(btn.getAttribute('data-tab'));
+      });
+    });
+
+    // Slide Switching Logic inside Tab 1
+    function goToSubSlide(slideId) {
+      const slides = document.querySelectorAll('#tab-1 .sub-slide');
+      slides.forEach(slide => {
+        if (slide.id === slideId) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
+    }
+
+    // Slide 1-1 touch reveal (toggles on single click)
+    const compassBox = document.getElementById('reveal-compass');
+    const legendBox = document.getElementById('reveal-legend');
+    const mapContainer = document.getElementById('reveal-map-bg');
+    const symSchool = document.getElementById('reveal-sym-school');
+    const symMountain = document.getElementById('reveal-sym-mountain');
+
+    if (compassBox) {
+      compassBox.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering mapContainer click event
+        compassBox.classList.toggle('reveal');
+      });
+    }
+
+    if (legendBox) {
+      legendBox.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering mapContainer click event
+        legendBox.classList.toggle('reveal');
+      });
+    }
+
+    if (mapContainer) {
+      mapContainer.addEventListener('click', (e) => {
+        // Log clicked coordinates in percentage for easy adjustment
+        const rect = mapContainer.getBoundingClientRect();
+        const xPercent = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+        const yPercent = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+        console.log(`Clicked coordinates - left: ${xPercent}%, top: ${yPercent}% (right: ${(100 - xPercent).toFixed(1)}%, bottom: ${(100 - yPercent).toFixed(1)}%)`);
+
+        const isRevealed = symSchool.classList.contains('reveal');
+        if (isRevealed) {
+          symSchool.classList.remove('reveal');
+          symMountain.classList.remove('reveal');
+        } else {
+          symSchool.classList.add('reveal');
+          symMountain.classList.add('reveal');
+        }
+      });
+    }
+
+    // Slide 1-2 chalkboard touch reveal
+    const chalkboard = document.getElementById('chalkboard-reveal-trigger');
+    const lines = [
+      document.getElementById('chalk-line-1'),
+      document.getElementById('chalk-title-activities'),
+      document.getElementById('chalk-line-2'),
+      document.getElementById('chalk-line-3')
+    ];
+    let revealClickCount = 0;
+    chalkboard.addEventListener('click', () => {
+      if (revealClickCount < lines.length) {
+        const line = lines[revealClickCount];
+        line.classList.add('visible');
+        line.style.opacity = 1;
+        revealClickCount++;
+        
+        if (revealClickCount === lines.length) {
+          document.getElementById('btn-next-to-13').removeAttribute('disabled');
+        }
+      }
+    });
+
+    // Slide 1-3 Pocheon overview map interactions (Swaps a single image, detects click using Y-coordinate percentage heights, no CORS errors)
+    const overviewInfo = document.getElementById('overview-info-box');
+    const overviewTitle = document.getElementById('overview-info-title');
+    const overviewRegions = document.getElementById('overview-info-regions');
+
+    const overviewMapImg = document.getElementById('overview-map-img');
+
+    const labelNorth = document.getElementById('label-zone-north');
+    const labelMiddle = document.getElementById('label-zone-middle');
+    const labelSouth = document.getElementById('label-zone-south');
+
+    const clickOverlay = document.getElementById('overview-click-overlay');
+
+    const zoneDetails = {
+      north: {
+        title: "🗺️ 북부 구역",
+        regions: "관인면, 영북면, 창수면, 이동면"
+      },
+      middle: {
+        title: "🗺️ 중부 구역",
+        regions: "신북면, 영중면, 일동면, 화현면, 군내면"
+      },
+      south: {
+        title: "🗺️ 남부 구역",
+        regions: "소흘읍, 가산면, 내촌면, 선단동, 포천동"
+      }
+    };
+
+    function highlightZone(zone) {
+      if (overviewMapImg) {
+        overviewMapImg.src = `images/${zone}_zone.png`;
+      }
+
+      // Reset label styles
+      [labelNorth, labelMiddle, labelSouth].forEach(lbl => {
+        lbl.style.borderColor = 'rgba(255,255,255,0.15)';
+        lbl.style.color = '#94a3b8';
+        lbl.style.background = 'rgba(15, 23, 42, 0.8)';
+        lbl.style.transform = 'translate(-50%, -50%) scale(1)';
+        lbl.style.boxShadow = 'none';
+      });
+
+      if (zone === 'north') {
+        labelNorth.style.borderColor = '#10b981';
+        labelNorth.style.color = '#f8fafc';
+        labelNorth.style.background = 'rgba(16, 185, 129, 0.25)';
+        labelNorth.style.transform = 'translate(-50%, -50%) scale(1.08)';
+        labelNorth.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
+      } else if (zone === 'middle') {
+        labelMiddle.style.borderColor = '#f59e0b';
+        labelMiddle.style.color = '#f8fafc';
+        labelMiddle.style.background = 'rgba(245, 158, 11, 0.25)';
+        labelMiddle.style.transform = 'translate(-50%, -50%) scale(1.08)';
+        labelMiddle.style.boxShadow = '0 0 10px rgba(245, 158, 11, 0.3)';
+      } else if (zone === 'south') {
+        labelSouth.style.borderColor = '#3b82f6';
+        labelSouth.style.color = '#f8fafc';
+        labelSouth.style.background = 'rgba(59, 130, 246, 0.25)';
+        labelSouth.style.transform = 'translate(-50%, -50%) scale(1.08)';
+        labelSouth.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.3)';
+      }
+
+      const details = zoneDetails[zone];
+      overviewTitle.textContent = details.title;
+      overviewRegions.textContent = details.regions;
+      overviewInfo.style.display = 'block';
+    }
+
+    // Initialize map default (south) immediately on load
+    highlightZone('south');
+
+    if (clickOverlay) {
+      clickOverlay.addEventListener('click', (e) => {
+        const rect = clickOverlay.getBoundingClientRect();
+        if (rect.height === 0) return;
+        const yPct = (e.clientY - rect.top) / rect.height;
+
+        if (yPct < 0.32) {
+          highlightZone('north');
+        } else if (yPct < 0.61) {
+          highlightZone('middle');
+        } else {
+          highlightZone('south');
+        }
+      });
+    }
+
+    const SIM_ZONE_PINS = {
+      south: [
+        { type: "school", x: 20, y: 73 }, { type: "school", x: 28, y: 81 }, { type: "school", x: 28, y: 73 },
+        { type: "field", x: 35, y: 67 }, { type: "school", x: 24, y: 67 }, { type: "mountain", x: 38, y: 82 },
+        { type: "school", x: 16, y: 95 }, { type: "field", x: 20, y: 94 }, { type: "school", x: 18, y: 88 },
+        { type: "factory", x: 20, y: 81 }, { type: "factory", x: 24, y: 77 }, { type: "factory", x: 35, y: 72 },
+        { type: "factory", x: 18, y: 67 }, { type: "factory", x: 28, y: 88 }, { type: "factory", x: 34, y: 80 },
+        { type: "factory", x: 23, y: 86 },
+        { type: "field", x: 29, y: 67 }, { type: "field", x: 16, y: 83 },
+        { type: "mountain", x: 22, y: 91 },
+        { type: "museum", x: 24, y: 69 }, { type: "museum", x: 24, y: 82 },
+        { type: "quarry", x: 32, y: 84 }
+      ],
+      north: [
+        { type: "school", x: 35, y: 28 }, { type: "school", x: 65, y: 32 },
+        { type: "factory", x: 31, y: 38 },
+        { type: "field", x: 25, y: 30 }, { type: "field", x: 30, y: 22 }, { type: "field", x: 61, y: 38 }, { type: "field", x: 72, y: 34 },
+        { type: "mountain", x: 28, y: 8 }, { type: "mountain", x: 48, y: 12 }, { type: "mountain", x: 52, y: 6 },
+        { type: "mountain", x: 72, y: 19 }, { type: "school", x: 82, y: 22 }, { type: "mountain", x: 78, y: 28 },
+        { type: "mountain", x: 42, y: 24 }, { type: "mountain", x: 55, y: 20 },
+        { type: "museum", x: 48, y: 32 }, { type: "museum", x: 62, y: 25 },
+        { type: "quarry", x: 43, y: 33 }
+      ],
+      middle: [
+        { type: "school", x: 30, y: 56 },
+        { type: "factory", x: 22, y: 53 }, { type: "factory", x: 52, y: 48 }, { type: "factory", x: 52, y: 83 },
+        { type: "field", x: 19, y: 59 }, { type: "field", x: 52, y: 58 }, { type: "field", x: 65, y: 55 }, { type: "field", x: 72, y: 48 },
+        { type: "mountain", x: 80, y: 45 }, { type: "mountain", x: 76, y: 58 },
+        { type: "museum", x: 11, y: 51 }, { type: "museum", x: 28, y: 54 }, { type: "museum", x: 36, y: 58 },
+        { type: "museum", x: 45, y: 45 }, { type: "school", x: 58, y: 42 }, { type: "museum", x: 62, y: 62 }, { type: "school", x: 50, y: 78 }, { type: "museum", x: 51, y: 90 },
+        { type: "quarry", x: 15, y: 62 }, { type: "quarry", x: 18, y: 48 }, { type: "quarry", x: 29, y: 62 }, { type: "quarry", x: 41, y: 62 }, { type: "quarry", x: 52, y: 66 }
+      ]
+    };
+
+    const SYMBOL_SVGS = {
+      school: `<svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">        <line x1="15" y1="6" x2="15" y2="34" stroke="#0f172a" stroke-width="3.2" stroke-linecap="round"/>        <polygon points="15,7 32,7 32,19 15,19" fill="#0f172a" stroke="#0f172a" stroke-width="1" stroke-linejoin="round"/>        <line x1="8" y1="34" x2="22" y2="34" stroke="#0f172a" stroke-width="3.2" stroke-linecap="round"/>      </svg>`,
+      factory: `<svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">        <g fill="#0f172a">          <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z"/>          <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(45 20 20)"/>          <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(90 20 20)"/>          <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(135 20 20)"/>          <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(180 20 20)"/>          <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(225 20 20)"/>          <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(270 20 20)"/>          <path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(315 20 20)"/>        </g>        <circle cx="20" cy="20" r="11" fill="none" stroke="#0f172a" stroke-width="3"/>        <circle cx="20" cy="20" r="5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>      </svg>`,
+      field: `<svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">        <path d="M 6,17 L 14,17 M 8,17 L 8,11 M 12,17 L 12,11 M 16,17 L 24,17 M 18,17 L 18,11 M 22,17 L 22,11 M 26,17 L 34,17 M 28,17 L 28,11 M 32,17 L 32,11 M 11,29 L 19,29 M 13,29 L 13,23 M 17,29 L 17,23 M 21,29 L 29,29 M 23,29 L 23,23 M 27,29 L 27,23" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round" fill="none"/>      </svg>`,
+      mountain: `<svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">        <polygon points="20,8 6,32 34,32" fill="#0f172a"/>      </svg>`,
+      museum: `<svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">        <circle cx="20" cy="12" r="3.5" fill="#ef4444"/>        <circle cx="11" cy="28" r="3.5" fill="#ef4444"/>        <circle cx="29" cy="28" r="3.5" fill="#ef4444"/>      </svg>`,
+      quarry: `<svg viewBox="0 0 40 40" width="20" height="20" style="display:block;">      <path d="M 12.2 27.8 A 11 11 0 1 1 27.8 27.8" fill="none" stroke="#c2410c" stroke-width="3" stroke-linecap="round"/>      <line x1="12.2" y1="27.8" x2="14.3" y2="25.7" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>      <line x1="9.4" y1="22.8" x2="12.3" y2="22.1" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>      <line x1="9" y1="20" x2="12" y2="20" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>      <line x1="9.4" y1="17.2" x2="12.3" y2="17.9" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>      <line x1="12.2" y1="12.2" x2="14.3" y2="14.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>      <line x1="17.2" y1="9.4" x2="17.9" y2="12.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>      <line x1="20" y1="9" x2="20" y2="12" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>      <line x1="22.8" y1="9.4" x2="22.1" y2="12.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>      <line x1="27.8" y1="12.2" x2="25.7" y2="14.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>      <line x1="30.6" y1="17.2" x2="27.7" y2="17.9" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>      <line x1="31" y1="20" x2="28" y2="20" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>      <line x1="30.6" y1="22.8" x2="27.7" y2="22.1" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>      <line x1="27.8" y1="27.8" x2="25.7" y2="25.7" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/>    </svg>`
+    };
+
+    let currentSimZone = 'south';
+
+    const SIM_ZONE_COUNTS = {
+      south: { school: 6, factory: 7, field: 4, mountain: 2, museum: 2, quarry: 1 },
+      north: { school: 3, factory: 1, field: 4, mountain: 7, museum: 2, quarry: 1 },
+      middle: { school: 3, factory: 3, field: 4, mountain: 2, museum: 6, quarry: 5 }
+    };
+
+    function loadSimZone(zone) {
+      currentSimZone = zone;
+      const buttons = document.querySelectorAll('.btn-sim-zone');
+      buttons.forEach(btn => {
+        if (btn.textContent.includes(zone === 'south' ? '남부' : zone === 'north' ? '북부' : '중부')) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      const wrapper = document.getElementById('sim-map-wrapper');
+      if (!wrapper) return;
+      wrapper.innerHTML = '';
+      wrapper.style.background = '#ffffff';
+
+      // Zoom parameters identical to student view (app.js)
+      const zoomConfig = {
+        south: { scale: 2.2, tx: '46%', ty: '-68%' },
+        north: { scale: 1.4, tx: '0%', ty: '28%' },
+        middle: { scale: 1.3, tx: '7%', ty: '-18%' }
+      };
+      const currentZoom = zoomConfig[zone] || { scale: 1.0, tx: '0%', ty: '0%' };
+
+      // Map inner container that translates and scales
+      const mapInner = document.createElement('div');
+      mapInner.className = 'map-inner-container';
+      mapInner.style.cssText = `position: relative; height: 100%; display: inline-block; aspect-ratio: 918/1437; max-width: 100%; margin: 0 auto; transform: translate(${currentZoom.tx}, ${currentZoom.ty}) scale(${currentZoom.scale}); transform-origin: center; transition: transform 0.6s ease-in-out;`;
+
+      // Map image
+      const img = document.createElement('img');
+      img.src = `images/${zone}_zone.png`;
+      img.style.cssText = 'height: 100%; width: auto; display: block; object-fit: contain; pointer-events: none;';
+      mapInner.appendChild(img);
+      wrapper.appendChild(mapInner);
+
+      // Add Compass Rose (방위표) to wrapper (fixed position, does not zoom)
+      const compass = document.createElement('div');
+      compass.className = 'map-compass';
+      compass.style.cssText = 'position: absolute; top: 15px; right: 15px; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; user-select: none; transition: transform 0.2s; filter: drop-shadow(0px 1px 2px rgba(255,255,255,0.8)) drop-shadow(0px 1px 3px rgba(0,0,0,0.15));';
+      compass.innerHTML = `<svg viewBox="0 0 100 100" width="100%" height="100%">
+        <line x1="50" y1="20" x2="50" y2="80" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+        <line x1="28" y1="50" x2="72" y2="50" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+        <line x1="50" y1="28" x2="28" y2="50" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+        <text x="50" y="11" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e293b" font-family="sans-serif">북</text>
+        <text x="50" y="93" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e293b" font-family="sans-serif">남</text>
+        <text x="85" y="55" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e293b" font-family="sans-serif">동</text>
+        <text x="15" y="55" font-size="14" font-weight="bold" text-anchor="middle" fill="#1e293b" font-family="sans-serif">서</text>
+      </svg>`;
+      compass.title = '방위표';
+      compass.addEventListener('click', () => {
+        compass.style.transform = 'scale(1.25)';
+        setTimeout(() => { compass.style.transform = 'scale(1)'; }, 200);
+      });
+      wrapper.appendChild(compass);
+
+      // Add Legend (범례) to wrapper (fixed position, does not zoom) - Set as narrow vertical column on bottom-right to prevent blocking map symbols
+      const legend = document.createElement('div');
+      legend.className = 'map-legend';
+      legend.style.cssText = 'position: absolute; bottom: 10px; right: 10px; background: rgba(255, 255, 255, 0.95); border: 2px solid #cbd5e1; border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 0.72rem; z-index: 10; font-weight: bold; box-shadow: 0 3px 6px rgba(0,0,0,0.1); width: 105px; box-sizing: border-box;';
+      legend.innerHTML = `
+        <div style="display:flex; align-items:center; gap:6px;">${SYMBOL_SVGS.school} <span style="color:#0f172a; white-space:nowrap;">학교</span></div>
+        <div style="display:flex; align-items:center; gap:6px;">${SYMBOL_SVGS.factory} <span style="color:#0f172a; white-space:nowrap;">공장</span></div>
+        <div style="display:flex; align-items:center; gap:6px;">${SYMBOL_SVGS.field} <span style="color:#0f172a; white-space:nowrap;">논</span></div>
+        <div style="display:flex; align-items:center; gap:6px;">${SYMBOL_SVGS.mountain} <span style="color:#0f172a; white-space:nowrap;">산</span></div>
+        <div style="display:flex; align-items:center; gap:6px;">${SYMBOL_SVGS.museum} <span style="color:#0f172a; white-space:nowrap;">명승고적</span></div>
+        <div style="display:flex; align-items:center; gap:6px;">${SYMBOL_SVGS.quarry} <span style="color:#0f172a; white-space:nowrap;">채석장</span></div>
+      `;
+      wrapper.appendChild(legend);
+
+      // Render pins (scaled relative to map, size compensated, scales back down when unchecked)
+      const pinScale = 1.0 / currentZoom.scale;
+      SIM_ZONE_PINS[zone].forEach(pin => {
+        const pinDiv = document.createElement('div');
+        pinDiv.className = 'map-pin';
+        pinDiv.style.cssText = `position: absolute; left: ${pin.x}%; top: ${pin.y}%; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); border: 2px solid #475569; box-shadow: 0 2px 4px rgba(0,0,0,0.15); user-select: none; transform: translate(-50%, -50%) scale(${pinScale}); transform-origin: center; transition: transform 0.15s ease-in-out;`;
+        pinDiv.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:center; width:20px; height:20px;">
+            ${SYMBOL_SVGS[pin.type]}
+          </div>
+          <span class="checkmark">✔</span>
+        `;
+        pinDiv.addEventListener('click', () => {
+          if (pinDiv.classList.contains('checked')) {
+            pinDiv.classList.remove('checked');
+            pinDiv.style.transform = `translate(-50%, -50%) scale(${pinScale})`;
+          } else {
+            pinDiv.classList.add('checked');
+            pinDiv.style.transform = `translate(-50%, -50%) scale(${pinScale * 1.25})`;
+          }
+        });
+        mapInner.appendChild(pinDiv);
+      });
+
+      // Populate sidebar table
+      const tbody = document.getElementById('sim-table-body');
+      if (tbody) {
+        tbody.innerHTML = '';
+        const counts = SIM_ZONE_COUNTS[zone];
+        const keys = ['school', 'factory', 'field', 'mountain', 'museum', 'quarry'];
+        const names = { school: '학교', factory: '공장', field: '논', mountain: '산', museum: '명승고적', quarry: '채석장' };
+        keys.forEach(key => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td style="font-weight: 800; color: #1e293b; padding: 4px 8px;">
+              <div style="display: flex; align-items: center; gap: 8px; height: 36px;">
+                ${SYMBOL_SVGS[key]}
+                <span>${names[key]}</span>
+              </div>
+            </td>
+            <td style="padding: 4px 8px; vertical-align: middle;">
+              <span style="font-weight: bold; color: #0284c7;">${counts[key]}개</span>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+
+      // Reset simulator values for the zone
+      simGraphData = { school: 0, factory: 0, field: 0, mountain: 0, museum: 0, quarry: 0 };
+      updateSimGraph();
+    }
+
+    // Slide 3: EBS math graph simulator
+    let simGraphScale = 1;
+    let simGraphDirection = 'vertical';
+    let simGraphData = { school: 0, factory: 0, field: 0, mountain: 0, museum: 0, quarry: 0 };
+
+    function updateSimGraph() {
+      const container = document.getElementById('sim-chart-inner');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const keys = ['school', 'factory', 'field', 'mountain', 'museum', 'quarry'];
+      const names = { school: '학교', factory: '공장', field: '논', mountain: '산', museum: '명승고적', quarry: '채석장' };
+      const items = keys.map(key => {
+        return {
+          key: key,
+          name: names[key],
+          val: simGraphData[key] || 0
+        };
+      });
+
+      const scaleSelect = document.getElementById('sim-scale-select');
+      const scale = scaleSelect ? (parseInt(scaleSelect.value, 10) || 1) : 1;
+      const counts = SIM_ZONE_COUNTS[currentSimZone];
+      const maxVal = Math.max(...Object.values(counts), 1);
+      const divisions = Math.max(Math.ceil(maxVal / scale), 5);
+      const limit = divisions * scale;
+
+      const axisY = document.createElement('div');
+      axisY.className = 'ebs-axis-y';
+      container.appendChild(axisY);
+
+      const axisX = document.createElement('div');
+      axisX.className = 'ebs-axis-x';
+      container.appendChild(axisX);
+
+      if (simGraphDirection === 'vertical') {
+        container.classList.remove('ebs-mode-horizontal');
+
+        for (let i = 0; i <= divisions; i++) {
+          const pct = (i / divisions) * 100;
+          const line = document.createElement('div');
+          line.className = 'ebs-grid-line';
+          if (i % 5 === 0) line.classList.add('major');
+          line.style.bottom = `${pct}%`;
+          container.appendChild(line);
+        }
+
+        const yLabelBox = document.createElement('div');
+        yLabelBox.className = 'ebs-y-label-box';
+        for (let i = divisions; i >= 0; i--) {
+          const labelDiv = document.createElement('div');
+          if (i % 5 === 0 || divisions <= 10) {
+            labelDiv.textContent = i * scale;
+          } else {
+            labelDiv.textContent = '';
+          }
+          yLabelBox.appendChild(labelDiv);
+        }
+        container.appendChild(yLabelBox);
+
+        const xLabelBox = document.createElement('div');
+        xLabelBox.className = 'ebs-x-label-box';
+        items.forEach(item => {
+          const labelDiv = document.createElement('div');
+          labelDiv.textContent = item.name;
+          labelDiv.style.flex = '1';
+          labelDiv.style.textAlign = 'center';
+          xLabelBox.appendChild(labelDiv);
+        });
+        container.appendChild(xLabelBox);
+
+        // axis titles
+        const axisLabelY = document.createElement('div');
+        axisLabelY.className = 'ebs-axis-label-y';
+        axisLabelY.textContent = '개수';
+        container.appendChild(axisLabelY);
+
+        const axisLabelX = document.createElement('div');
+        axisLabelX.className = 'ebs-axis-label-x';
+        axisLabelX.textContent = '기호';
+        container.appendChild(axisLabelX);
+
+        const barsWrapper = document.createElement('div');
+        barsWrapper.className = 'ebs-bars-wrapper';
+        items.forEach(item => {
+          const col = document.createElement('div');
+          col.className = 'ebs-bar-col';
+          col.style.flex = '1';
+
+          const pct = (item.val / limit) * 100;
+          col.innerHTML = `
+            <div class="ebs-bar" style="height: ${pct}%; width: 22px; background-color: #f59e0b; border-radius: 4px 4px 0 0; position: relative; transition: height 0.2s ease;">
+              <div class="ebs-bar-val-label" style="color: #cbd5e1; font-weight:800;">${item.val}</div>
+            </div>
+            <div class="ebs-bar-adjust" style="position: absolute; top: -35px; display: flex; gap: 2px; z-index: 10;">
+              <button class="btn-ebs-adjust-sim ebs-up" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">+</button>
+              <button class="btn-ebs-adjust-sim ebs-down" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">-</button>
+            </div>
+          `;
+          barsWrapper.appendChild(col);
+        });
+        container.appendChild(barsWrapper);
+
+      } else {
+        container.classList.add('ebs-mode-horizontal');
+
+        for (let i = 0; i <= divisions; i++) {
+          const pct = (i / divisions) * 100;
+          const line = document.createElement('div');
+          line.className = 'ebs-grid-line-vertical';
+          if (i % 5 === 0) line.classList.add('major');
+          line.style.left = `${pct}%`;
+          container.appendChild(line);
+        }
+
+        const xLabelBoxHorizontal = document.createElement('div');
+        xLabelBoxHorizontal.className = 'ebs-x-label-box-horizontal';
+        for (let i = 0; i <= divisions; i++) {
+          const labelDiv = document.createElement('div');
+          if (i % 5 === 0 || divisions <= 10) {
+            labelDiv.textContent = i * scale;
+          } else {
+            labelDiv.textContent = '';
+          }
+          labelDiv.style.position = 'absolute';
+          labelDiv.style.left = `${(i / divisions) * 100}%`;
+          labelDiv.style.transform = 'translateX(-50%)';
+          xLabelBoxHorizontal.appendChild(labelDiv);
+        }
+        container.appendChild(xLabelBoxHorizontal);
+
+        const yLabelBoxHorizontal = document.createElement('div');
+        yLabelBoxHorizontal.className = 'ebs-y-label-box-horizontal';
+        items.forEach(item => {
+          const labelDiv = document.createElement('div');
+          labelDiv.textContent = item.name;
+          labelDiv.style.height = `${100 / items.length}%`;
+          labelDiv.style.display = 'flex';
+          labelDiv.style.alignItems = 'center';
+          labelDiv.style.justifyContent = 'flex-end';
+          yLabelBoxHorizontal.appendChild(labelDiv);
+        });
+        container.appendChild(yLabelBoxHorizontal);
+
+        const axisLabelY = document.createElement('div');
+        axisLabelY.className = 'ebs-axis-label-y-horizontal';
+        axisLabelY.textContent = '기호';
+        container.appendChild(axisLabelY);
+
+        const axisLabelX = document.createElement('div');
+        axisLabelX.className = 'ebs-axis-label-x-horizontal';
+        axisLabelX.textContent = '개수';
+        container.appendChild(axisLabelX);
+
+        const barsWrapperHorizontal = document.createElement('div');
+        barsWrapperHorizontal.className = 'ebs-bars-wrapper-horizontal';
+        items.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'ebs-bar-row-horizontal';
+          row.style.height = `${100 / items.length}%`;
+          row.style.display = 'flex';
+          row.style.alignItems = 'center';
+          row.style.width = '100%';
+
+          const pct = (item.val / limit) * 100;
+          row.innerHTML = `
+            <div class="ebs-bar-horizontal" style="width: ${pct}%; height: 14px; background-color: #f59e0b; border-radius: 0 3px 3px 0; position: relative; transition: width 0.2s ease;">
+              <div class="ebs-bar-val-label-horizontal" style="color: #cbd5e1; font-weight:800;">${item.val}</div>
+            </div>
+            <div class="ebs-bar-adjust-horizontal" style="position: absolute; right: -60px; display: flex; gap: 4px; z-index: 10;">
+              <button class="btn-ebs-adjust-sim ebs-up" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">+</button>
+              <button class="btn-ebs-adjust-sim ebs-down" data-key="${item.key}" style="width: 18px; height: 18px; font-weight: bold; border-radius: 50%; border: 1px solid #cbd5e1; background: #e2e8f0; color: #1e293b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">-</button>
+            </div>
+          `;
+          barsWrapperHorizontal.appendChild(row);
+        });
+        container.appendChild(barsWrapperHorizontal);
+      }
+    }
+
+    function toggleSimGraphDirection() {
+      simGraphDirection = simGraphDirection === 'vertical' ? 'horizontal' : 'vertical';
+      updateSimGraph();
+    }
+
+    // Adjuster click handler for teacher simulator
+    document.addEventListener('click', (e) => {
+      const upBtn = e.target.closest('.btn-ebs-adjust-sim.ebs-up');
+      const downBtn = e.target.closest('.btn-ebs-adjust-sim.ebs-down');
+
+      if (upBtn) {
+        const key = upBtn.getAttribute('data-key');
+        if (simGraphData[key] !== undefined) {
+          simGraphData[key] = (simGraphData[key] || 0) + 1;
+          updateSimGraph();
+        }
+      }
+
+      if (downBtn) {
+        const key = downBtn.getAttribute('data-key');
+        if (simGraphData[key] !== undefined) {
+          simGraphData[key] = Math.max((simGraphData[key] || 0) - 1, 0);
+          updateSimGraph();
+        }
+      }
+    });
+
+    // Slide 4: Timer & Sentence Builder
+    let timerPercent = 100;
+    let timerInterval = null;
+    let timerSpeed = 3000; // 3 seconds per 1% (5 minutes total)
+    let isTimerRunning = false;
+
+    function controlTimer(action) {
+      const bar = document.getElementById('sim-timer-bar');
+      const status = document.getElementById('sim-timer-status');
+      const percentLabel = document.getElementById('sim-timer-percent');
+
+      if (action === 'pause') {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        status.textContent = '⏸️ 일시정지됨';
+        status.style.color = 'var(--color-danger)';
+      } else if (action === 'play') {
+        if (isTimerRunning) return;
+        isTimerRunning = true;
+        status.textContent = '▶️ 진행 중';
+        status.style.color = 'var(--color-success)';
+
+        timerInterval = setInterval(() => {
+          timerPercent -= 1;
+          if (timerPercent < 0) {
+            timerPercent = 0;
+            clearInterval(timerInterval);
+            status.textContent = '⏱️ 시간 완료!';
+            status.style.color = 'var(--color-warning)';
+          }
+          bar.style.width = timerPercent + '%';
+          if (percentLabel) percentLabel.textContent = `남은 시간: ${timerPercent}%`;
+
+          // Bar color updates
+          if (timerPercent > 50) {
+            bar.style.backgroundColor = 'var(--color-success)';
+          } else if (timerPercent > 20) {
+            bar.style.backgroundColor = 'var(--color-warning)';
+          } else {
+            bar.style.backgroundColor = 'var(--color-danger)';
+          }
+        }, timerSpeed);
+      } else if (action === 'slow') {
+        clearInterval(timerInterval);
+        timerSpeed = Math.min(timerSpeed * 2, 48000); // 2x slower (0.5x speed) per click, max delay 48s per tick
+        isTimerRunning = false;
+        controlTimer('play');
+      } else if (action === 'fast') {
+        clearInterval(timerInterval);
+        timerSpeed = Math.max(timerSpeed / 2, 150); // 2x faster (2.0x speed) per click, min delay 150ms per tick
+        isTimerRunning = false;
+        controlTimer('play');
+      } else if (action === 'reset') {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        timerPercent = 100;
+        timerSpeed = 3000;
+        bar.style.width = '100%';
+        bar.style.backgroundColor = 'var(--color-success)';
+        if (percentLabel) percentLabel.textContent = '남은 시간: 100%';
+        status.textContent = '▶️ 대기 중';
+        status.style.color = 'var(--color-text-muted)';
+      }
+    }
+
+    function initSimSentence() {
+      const sentenceBox = document.getElementById('sim-sentence-box');
+      if (!sentenceBox) return;
+      const zoneName = currentSimZone === 'south' ? '남부 구역' : currentSimZone === 'north' ? '북부 구역' : '중부 구역';
+      sentenceBox.innerHTML = `
+        <div style="font-weight:bold; color:var(--color-text-muted); font-size:0.9rem; margin-bottom:8px;">기본 쓰기 모드</div>
+        <div style="background:#0f172a; padding:15px; border-radius:8px; font-family:monospace; min-height:80px; font-size:1rem; color:#f1f5f9;">
+          ${zoneName}에서 가장 많은 것은 ( )개의 ( )이고, 두 번째로 많은 것은 ( )개의 ( )입니다. 이곳은 ( )할 수 있는 지역입니다.
+        </div>
+      `;
+    }
+
+    function revealSimBlanks() {
+      const sentenceBox = document.getElementById('sim-sentence-box');
+      if (!sentenceBox) return;
+      let hintText = "";
+      if (currentSimZone === 'south') {
+        hintText = "남부 구역에서 가장 많은 것은 ( 7 )개의 ( 공장 🏭 )이고, 두 번째로 많은 것은 ( 6 )개의 ( 학교 🏫 )입니다. 이곳에는 공장에서 물건을 만들거나 학교에 다니며 편리하게 생활하는 사람이 많은 지역입니다.";
+      } else if (currentSimZone === 'north') {
+        hintText = "북부 구역에서 가장 많은 것은 ( 7 )개의 ( 산 ⛰️ )이고, 두 번째로 많은 것은 ( 4 )개의 ( 논 🌾 )입니다. 이곳에는 숲을 가꾸고 논밭에서 농사를 지으며 평화롭게 생활하는 사람이 많은 지역입니다.";
+      } else {
+        hintText = "중부 구역에서 가장 많은 것은 ( 6 )개의 ( 명승고적 🏛️ )이고, 두 번째로 많은 것은 ( 5 )개의 ( 채석장 ⛏️ )입니다. 이곳에는 자연 유산을 가꾸고 채석장에서 돌을 캐며 생활하는 사람이 많은 지역입니다.";
+      }
+      sentenceBox.innerHTML = `
+        <div style="font-weight:bold; color:var(--color-warning); font-size:0.9rem; margin-bottom:8px;">💡 예시글 더보기 모드</div>
+        <div style="background:#0f172a; padding:15px; border-radius:8px; font-size:1.1rem; line-height:1.8; color:#f1f5f9; font-weight: bold;">
+          ${hintText}
+        </div>
+      `;
+    }
+
+    function revealSimDropdowns() {
+      const sentenceBox = document.getElementById('sim-sentence-box');
+      if (!sentenceBox) return;
+      const zoneName = currentSimZone === 'south' ? '남부 구역' : currentSimZone === 'north' ? '북부 구역' : '중부 구역';
+
+      // Dropdown options
+      const numberOptions1 = ['선택', '3', '5', '6', '7', '8'];
+      const numberOptions2 = ['선택', '1', '2', '3', '4', '5', '6', '7'];
+      const symbolOptions = ['선택', '학교 🏫', '공장 🏭', '논 🌾', '산 ⛰️', '명승고적 🏛️', '채석장 ⛏️'];
+      const descOptions = [
+        '선택',
+        '공장에서 물건을 만들거나 학교에 다니며 편리하게 생활',
+        '숲을 가꾸고 논밭에서 농사를 지으며 평화롭게 생활',
+        '자연 유산을 가꾸고 채석장에서 돌을 캐며 생활'
+      ];
+
+      const makeSelectHTML = (id, options) => {
+        return `<select id="${id}" style="padding: 4px 8px; border-radius: 4px; border: 1.5px solid #cbd5e1; background: #1e293b; color: white; font-weight: bold; font-size: 0.95rem; margin: 0 4px; cursor: pointer;">
+          ${options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+        </select>`;
+      };
+
+      sentenceBox.innerHTML = `
+        <div style="font-weight:bold; color:var(--color-success); font-size:0.9rem; margin-bottom:8px;">🪄 낱말 골라 채우기 모드</div>
+        <div style="background:#0f172a; padding:15px; border-radius:8px; line-height:2.6; font-size:1.05rem; color:#f1f5f9; font-weight: bold;">
+          ${zoneName}에서 가장 많은 것은 
+          ${makeSelectHTML('sel-blank-1', numberOptions1)}개의 
+          ${makeSelectHTML('sel-blank-2', symbolOptions)}이고, 
+          두 번째로 많은 것은 
+          ${makeSelectHTML('sel-blank-3', numberOptions2)}개의 
+          ${makeSelectHTML('sel-blank-4', symbolOptions)}입니다. 
+          이곳에는 
+          ${makeSelectHTML('sel-blank-5', descOptions)}하는 사람이 많은 지역입니다.
+        </div>
+      `;
+    }
+
+    // Auto-trigger load
+    loadSimZone('south');
+  </script>
+</body>
+</html>
