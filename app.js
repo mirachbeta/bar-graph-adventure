@@ -3531,11 +3531,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const zone = state.selectedZone || 'south';
         let promptText = '';
         if (zone === 'south') {
-          promptText = `우리가 작성한 포천 남부 구역 소개글 [${introText}]을 바탕으로 포천 남부 구역을 홍보하는 멋진 포스터 이미지를 그려줘. 활기찬 공장(톱니바퀴)들과 학교들이 있는 편리한 도시의 분위기를 살려줘.`;
+          promptText = `우리가 작성한 포천 남부 구역 소개글 [${introText}]을 바탕으로 포천 남부 구역을 홍보하는 멋진 포스터 이미지를 그려줘.`;
         } else if (zone === 'north') {
-          promptText = `우리가 작성한 포천 북부 구역 소개글 [${introText}]을 바탕으로 포천 북부 구역을 홍보하는 멋진 포스터 이미지를 그려줘. 높은 푸른 산과 조용한 논밭(하늘색 풀)들이 어우러진 평화로운 시골 농촌의 분위기를 살려줘.`;
+          promptText = `우리가 작성한 포천 북부 구역 소개글 [${introText}]을 바탕으로 포천 북부 구역을 홍보하는 멋진 포스터 이미지를 그려줘.`;
         } else {
-          promptText = `우리가 작성한 포천 중부 구역 소개글 [${introText}]을 바탕으로 포천 중부 구역을 홍보하는 멋진 포스터 이미지를 그려줘. 멋진 역사 유산(빨간 점 3개)들과 돌을 캐는 채석장(원호 기호)이 있는 아름다운 지질 유산 관광지의 분위기를 살려줘.`;
+          promptText = `우리가 작성한 포천 중부 구역 소개글 [${introText}]을 바탕으로 포천 중부 구역을 홍보하는 멋진 포스터 이미지를 그려줘.`;
         }
         document.getElementById('ai-prompt-input').value = promptText;
         
