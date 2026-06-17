@@ -1154,6 +1154,23 @@
       0% { transform: scale(0.6); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
+
+    /* Symbol Quiz Styles */
+    .quiz-symbol-card {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .quiz-symbol-card:hover {
+      border-color: #fbbf24;
+      box-shadow: 0 0 25px rgba(251, 191, 36, 0.4);
+    }
+    .quiz-symbol-card:active {
+      transform: scale(0.96) !important;
+    }
+    .quiz-symbol-card.revealed:hover {
+      border-color: #10b981;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -1248,7 +1265,43 @@
 
             <div class="slide-footer">
               <div></div>
-              <button class="btn btn-primary" onclick="goToSubSlide('slide-1-2')">오늘 배울 내용 확인하기 👉</button>
+              <button class="btn btn-primary" onclick="goToSubSlide('slide-1-1b')">지도의 기호 생각해보기 👉</button>
+            </div>
+          </div>
+
+          <!-- Slide 1-1b: 지도의 기호 생각해보기 (전체 퀴즈) -->
+          <div id="slide-1-1b" class="sub-slide">
+            <h2 style="margin-bottom: 12px; color: #fbbf24;">🧭 지도의 기호를 보고 어떤 장소인지 생각해 봅시다.</h2>
+
+            <div class="objective-chalkboard" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 25px; position: relative; padding: 25px 30px;">
+              <div class="chalkboard-title" style="width: 100%; justify-content: center; font-size: 1.5rem;">
+                📚 지도의 기호 퀴즈 (<span id="quiz-step-indicator">1 / 4</span>)
+              </div>
+
+              <!-- Quiz Central Area -->
+              <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; flex: 1; width: 100%;">
+
+
+                <!-- Giant Symbol Card -->
+                <div id="quiz-symbol-card" class="quiz-symbol-card" onclick="toggleQuizReveal()" style="cursor: pointer; width: 200px; height: 200px; background: rgba(255, 255, 255, 0.95); border: 5px solid #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.35); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s;">
+                  <!-- SVG will be dynamically injected here -->
+                  <div id="quiz-svg-slot" style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;"></div>
+                </div>
+
+                <!-- Revealed Answer Box -->
+                <div id="quiz-answer-box" style="opacity: 0; transform: scale(0.8); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); margin-top: 10px; min-height: 70px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <span style="color: #fbbf24; font-size: 1.4rem; font-weight: 900;">정답은</span>
+                  <span id="quiz-answer-text" style="color: #fef08a; font-size: 3rem; font-weight: 900; text-shadow: 0 0 15px rgba(254,240,138,0.7); font-family: var(--font-fancy), var(--font-main);">공장</span>
+                  <span style="color: #fbbf24; font-size: 1.4rem; font-weight: 900;">입니다!</span>
+                </div>
+              </div>
+
+
+            </div>
+
+            <div class="slide-footer">
+              <button class="btn btn-outline" id="btn-quiz-prev" onclick="handleQuizPrev()">👈 선수학습 다시보기</button>
+              <button class="btn btn-primary" id="btn-quiz-next" onclick="handleQuizNext()">다음 기호 👉</button>
             </div>
           </div>
 
@@ -1280,7 +1333,7 @@
             </div>
 
             <div class="slide-footer">
-              <button class="btn btn-outline" onclick="goToSubSlide('slide-1-1')">👈 선수학습 다시보기</button>
+              <button class="btn btn-outline" onclick="goToSubSlide('slide-1-1b')">👈 지도의 기호 다시보기</button>
               <button class="btn btn-primary" id="btn-next-to-13" disabled onclick="goToSubSlide('slide-1-3')">포천 지도 탐색하기 👉</button>
             </div>
           </div>
@@ -1422,42 +1475,122 @@
     <!-- Tab 4: 활동 6-3 -->
     <div id="tab-4" class="tab-content">
       <div class="screen-col-left">
-        <h2 style="margin-bottom: 12px; color: #fbbf24;">✍️ [활동 2] 우리 구역 소개글 쓰기</h2>
+        <div class="slide-container">
+          
+          <!-- Slide 4-1: 우리 구역 소개글 쓰기 -->
+          <div id="slide-4-1" class="sub-slide active">
+            <h2 style="margin-bottom: 12px; color: #fbbf24;">✍️ [활동 2] 우리 구역 소개글 쓰기</h2>
 
+            <!-- Timer Dashboard -->
+            <div class="timer-dashboard">
+              <div class="timer-row">
+                <span style="font-weight: 800; font-size: 1.05rem; color:#f59e0b;">⏳ 실시간 진행률 타이머</span>
+                <span id="sim-timer-status" style="font-weight: 800; font-size: 0.95rem; color:var(--color-success);">▶️ 대기 중</span>
+              </div>
+              <!-- Progress bar instead of numbers -->
+              <div class="progress-track">
+                <div id="sim-timer-bar" class="progress-bar"></div>
+              </div>
+              <span id="sim-timer-percent" style="display: none;">남은 시간: 100%</span>
+            </div>
 
-        <!-- Timer Dashboard -->
-        <div class="timer-dashboard">
-          <div class="timer-row">
-            <span style="font-weight: 800; font-size: 1.05rem; color:#f59e0b;">⏳ 실시간 진행률 타이머</span>
-            <span id="sim-timer-status" style="font-weight: 800; font-size: 0.95rem; color:var(--color-success);">▶️ 대기 중</span>
+            <!-- Sentence builder mockup board -->
+            <div class="sentence-frame" id="sim-sentence-box">
+              <!-- Injected sentence builder -->
+            </div>
+
+            <div style="display:flex; gap: 10px; margin-top: 15px;">
+              <button class="btn btn-outline" id="btn-reset-sentence" onclick="initSimSentence()">✍️ 기본 쓰기 모드로 돌아가기</button>
+              <button class="btn btn-outline" id="btn-reveal-blanks" onclick="revealSimBlanks()">💡 예시글 더보기</button>
+              <button class="btn btn-outline" id="btn-reveal-dropdowns" onclick="revealSimDropdowns()">🪄 낱말 골라 채우기로 바꾸기</button>
+            </div>
+
+            <div class="slide-footer" style="margin-top: 25px;">
+              <div class="timer-controls">
+                <button class="btn-timer-ctrl" onclick="controlTimer('pause')" title="일시정지">⏸️</button>
+                <button class="btn-timer-ctrl" onclick="controlTimer('play')" title="시작/재개">▶️</button>
+                <button class="btn-timer-ctrl" onclick="controlTimer('slow')" title="느리게 (0.5x)">⏪</button>
+                <button class="btn-timer-ctrl" onclick="controlTimer('fast')" title="빠르게 (2.0x)">⏩</button>
+                <button class="btn-timer-ctrl" onclick="controlTimer('reset')" title="리셋">🔄</button>
+              </div>
+              <button class="btn btn-primary" onclick="goToSubSlide('slide-4-2', 'tab-4')">AI 홍보 포스터 생성 시범 👉</button>
+            </div>
           </div>
-          <!-- Progress bar instead of numbers -->
-          <div class="progress-track">
-            <div id="sim-timer-bar" class="progress-bar"></div>
+
+          <!-- Slide 4-2: AI 홍보 포스터 생성 시범 -->
+          <div id="slide-4-2" class="sub-slide">
+            <h2 style="margin-bottom: 12px; color: #fbbf24;">🎨 [활동 2] AI 지역 홍보 포스터 만들기</h2>
+
+            <div class="objective-chalkboard" style="display: flex; flex-direction: column; gap: 20px; padding: 25px 30px;">
+              <div class="chalkboard-title" style="font-size: 1.35rem; color:#fef08a; border-bottom: 2px dashed rgba(254,240,138,0.3); padding-bottom: 8px;">
+                📢 구글 제미나이 AI 명령어(프롬프트) 안내
+              </div>
+              
+              <div class="chalk-line visible" style="opacity: 1; transform: translateY(0); flex-direction: column; gap: 8px; align-items: stretch; width: 100%;">
+                <p style="font-size: 1.1rem; line-height: 1.5; color: #f1f5f9; margin: 0;">
+                  학생들이 완성한 소개글 문장을 활용하여, 아래와 같이 <strong>제미나이 AI(구글 나노바나나)</strong>에게 보낼 그림 그리기 명령어가 자동으로 완성됩니다.
+                </p>
+                <div style="background: rgba(0,0,0,0.2); border: 2px dashed rgba(254,240,138,0.35); border-radius: 8px; padding: 15px; width: 100%; box-sizing: border-box; text-align: left;">
+                  <span style="font-weight: 800; color: #fbbf24; font-size: 0.9rem; display: block; margin-bottom: 8px;">📋 교사용 프롬프트 가이드</span>
+                  <p id="sim-prompt-text" style="font-size: 1.05rem; line-height: 1.6; margin: 0; color: #fef08a; font-family: monospace; word-break: break-all;">
+                    <!-- Prefilled prompt based on selected zone -->
+                  </p>
+                </div>
+              </div>
+
+              <div class="chalk-line visible" style="opacity: 1; transform: translateY(0); margin-top: 10px; align-items: center;">
+                <div class="chalk-icon">💡</div>
+                <p style="font-size: 1.05rem; margin: 0; color: #f8fafc;">[AI 명령어 복사하고 제미나이 가기] 버튼을 누른 뒤, 제미나이 대화창에 바로 붙여넣어 볼 수 있습니다.</p>
+              </div>
+
+              <!-- Simulator Action Buttons -->
+              <div style="display: flex; justify-content: center; gap: 15px; margin-top: 10px; width: 100%;">
+                <button id="btn-copy-sim-prompt" class="btn btn-primary" onclick="copySimPrompt()" style="background: linear-gradient(135deg, #a855f7, #6366f1); border: none; font-weight: bold; padding: 12px 24px; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);">
+                  📋 AI 명령어 복사하고 제미나이 가기 🌐
+                </button>
+              </div>
+            </div>
+
+            <!-- File Upload & Paste Zone for Teacher Demo -->
+            <div class="sim-upload-container" style="margin-top: 20px; text-align: left;">
+              <span style="font-weight: 800; color: #fbbf24; font-size: 1.05rem; display: block; margin-bottom: 8px;">🎨 포스터 등록</span>
+              
+              <div id="sim-drag-drop-zone" onclick="triggerSimFileInput(event)" style="border: 3px dashed #cbd5e1; border-radius: 12px; padding: 25px 20px; text-align: center; background: rgba(255, 255, 255, 0.95); cursor: pointer; transition: all 0.2s ease-out; position: relative; color: #475569; font-weight: bold;">
+                <input type="file" id="file-sim-poster-input" accept="image/*" style="display: none;" onchange="handleSimFileSelect(event)" />
+                
+                <div id="sim-upload-prompt-view" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                  <span style="font-size: 2.5rem;">📁</span>
+                  <p style="font-size: 1.05rem; font-weight: 700; color: #475569; margin: 0;">이곳을 클릭하여 파일 선택 또는 붙여넣기를 하세요.</p>
+                  
+                  <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button type="button" onclick="triggerSimFileInputDirect(event)" class="btn btn-outline" style="background: white; border: 1.5px solid #cbd5e1; color: #475569; font-weight: bold; padding: 8px 16px; font-size: 0.9rem; border-radius: 6px;">
+                      📁 파일 직접 업로드
+                    </button>
+                    <button type="button" onclick="simulatePastePoster(event)" class="btn btn-outline" style="background: #faf5ff; border: 1.5px solid #a78bfa; color: #6d28d9; font-weight: bold; padding: 8px 16px; font-size: 0.9rem; border-radius: 6px;">
+                      📋 클립보드 이미지 붙여넣기
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Uploaded Preview -->
+                <div id="sim-upload-preview-view" style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px;">
+                  <div style="position: relative; max-width: 280px; border: 4px solid white; border-radius: 8px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); overflow: hidden; background: #fff;">
+                    <img id="img-sim-poster-preview" src="#" alt="Simulated poster preview" style="width: 100%; display: block; object-fit: contain;" />
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #10b981; font-weight: 800; font-size: 0.95rem;">✔️ 포스터 등록 완료</span>
+                    <button type="button" onclick="resetSimPoster(event)" class="btn btn-outline btn-small" style="font-size: 0.8rem; padding: 4px 8px; border-color: #f43f5e; color: #f43f5e; background: white;">다시 올리기</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="slide-footer" style="margin-top: 25px;">
+              <button class="btn btn-outline" onclick="goToSubSlide('slide-4-1', 'tab-4')">👈 소개글 지도 쓰기 다시보기</button>
+              <button class="btn btn-primary" onclick="switchTab('tab-5')">정리: 수료증 받기 가기 👉</button>
+            </div>
           </div>
-          <span id="sim-timer-percent" style="display: none;">남은 시간: 100%</span>
-        </div>
 
-        <!-- Sentence builder mockup board -->
-        <div class="sentence-frame" id="sim-sentence-box">
-          <!-- Injected sentence builder -->
-        </div>
-
-        <div style="display:flex; gap: 10px; margin-top: 15px;">
-          <button class="btn btn-outline" id="btn-reset-sentence" onclick="initSimSentence()">✍️ 기본 쓰기 모드로 돌아가기</button>
-          <button class="btn btn-outline" id="btn-reveal-blanks" onclick="revealSimBlanks()">💡 예시글 더보기</button>
-          <button class="btn btn-outline" id="btn-reveal-dropdowns" onclick="revealSimDropdowns()">🪄 낱말 골라 채우기로 바꾸기</button>
-        </div>
-
-        <div class="slide-footer" style="margin-top: 25px;">
-          <div class="timer-controls">
-            <button class="btn-timer-ctrl" onclick="controlTimer('pause')" title="일시정지">⏸️</button>
-            <button class="btn-timer-ctrl" onclick="controlTimer('play')" title="시작/재개">▶️</button>
-            <button class="btn-timer-ctrl" onclick="controlTimer('slow')" title="느리게 (0.5x)">⏪</button>
-            <button class="btn-timer-ctrl" onclick="controlTimer('fast')" title="빠르게 (2.0x)">⏩</button>
-            <button class="btn-timer-ctrl" onclick="controlTimer('reset')" title="리셋">🔄</button>
-          </div>
-          <button class="btn btn-primary" onclick="switchTab('tab-5')">정리: 수료증 받기 가기 👉</button>
         </div>
       </div>
     </div>
@@ -1495,7 +1628,9 @@
             <div style="color:var(--color-primary-hover);">➡️</div>
             <div>2. [🌐 학급 패들릿 바로가기] 클릭</div>
             <div style="color:var(--color-primary-hover);">➡️</div>
-            <div>3. 패들릿 게시판에 붙여넣기 끝!</div>
+            <div>3. 패들릿 게시판에 붙여넣기</div>
+            <div style="color:var(--color-primary-hover);">➡️</div>
+            <div>4. 포스터를 만든 사람은 [🎨 포스터 이미지 복사하기]로 업로드!</div>
           </div>
         </div>
 
@@ -1540,6 +1675,7 @@
         updateSimGraph();
       } else if (tabId === 'tab-4') {
         initSimSentence();
+        goToSubSlide('slide-4-1', 'tab-4');
       }
     }
 
@@ -1549,9 +1685,9 @@
       });
     });
 
-    // Slide Switching Logic inside Tab 1
-    function goToSubSlide(slideId) {
-      const slides = document.querySelectorAll('#tab-1 .sub-slide');
+    // Slide Switching Logic inside Tab 1 / Tab 4
+    function goToSubSlide(slideId, tabId = 'tab-1') {
+      const slides = document.querySelectorAll(`#${tabId} .sub-slide`);
       slides.forEach(slide => {
         if (slide.id === slideId) {
           slide.classList.add('active');
@@ -1559,6 +1695,118 @@
           slide.classList.remove('active');
         }
       });
+
+      // Initialize quiz if entering slide-1-1b
+      if (slideId === 'slide-1-1b') {
+        currentQuizIndex = 0;
+        renderQuizStep();
+      }
+
+      // Initialize AI Poster prompt if entering slide-4-2
+      if (slideId === 'slide-4-2') {
+        updateTeacherAIPrompt();
+      }
+    }
+
+    // Slide 1-1b chalkboard symbol quiz logic
+    const symbolQuizData = [
+      {
+        name: "공장",
+        svg: `<svg viewBox="0 0 40 40" width="100%" height="100%"><g fill="#0f172a"><path d="M 18,5 L 22,5 L 23,11 L 17,11 Z"/><path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(45 20 20)"/><path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(90 20 20)"/><path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(135 20 20)"/><path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(180 20 20)"/><path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(225 20 20)"/><path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(270 20 20)"/><path d="M 18,5 L 22,5 L 23,11 L 17,11 Z" transform="rotate(315 20 20)"/></g><circle cx="20" cy="20" r="11" fill="none" stroke="#0f172a" stroke-width="3"/><circle cx="20" cy="20" r="5" fill="#ffffff" stroke="#0f172a" stroke-width="2"/></svg>`
+      },
+      {
+        name: "논",
+        svg: `<svg viewBox="0 0 40 40" width="100%" height="100%"><path d="M 6,17 L 14,17 M 8,17 L 8,11 M 12,17 L 12,11 M 16,17 L 24,17 M 18,17 L 18,11 M 22,17 L 22,11 M 26,17 L 34,17 M 28,17 L 28,11 M 32,17 L 32,11 M 11,29 L 19,29 M 13,29 L 13,23 M 17,29 L 17,23 M 21,29 L 29,29 M 23,29 L 23,23 M 27,29 L 27,23" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>`
+      },
+      {
+        name: "채석장",
+        svg: `<svg viewBox="0 0 40 40" width="100%" height="100%"><path d="M 12.2 27.8 A 11 11 0 1 1 27.8 27.8" fill="none" stroke="#c2410c" stroke-width="3" stroke-linecap="round"/><line x1="12.2" y1="27.8" x2="14.3" y2="25.7" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><line x1="9.4" y1="22.8" x2="12.3" y2="22.1" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><line x1="9" y1="20" x2="12" y2="20" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><line x1="9.4" y1="17.2" x2="12.3" y2="17.9" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><line x1="12.2" y1="12.2" x2="14.3" y2="14.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><line x1="17.2" y1="9.4" x2="17.9" y2="12.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="12" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><line x1="22.8" y1="9.4" x2="22.1" y2="12.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><line x1="27.8" y1="12.2" x2="25.7" y2="14.3" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><line x1="30.6" y1="17.2" x2="27.7" y2="17.9" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><line x1="31" y1="20" x2="28" y2="20" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><line x1="30.6" y1="22.8" x2="27.7" y2="22.1" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/><line x1="27.8" y1="27.8" x2="25.7" y2="25.7" stroke="#c2410c" stroke-width="2" stroke-linecap="round"/></svg>`
+      },
+      {
+        name: "명승고적",
+        svg: `<svg viewBox="0 0 40 40" width="100%" height="100%"><circle cx="20" cy="12" r="3.5" fill="#ef4444"/><circle cx="11" cy="28" r="3.5" fill="#ef4444"/><circle cx="29" cy="28" r="3.5" fill="#ef4444"/></svg>`
+      }
+    ];
+
+    let currentQuizIndex = 0;
+    let quizRevealed = false;
+
+    function renderQuizStep() {
+      const stepData = symbolQuizData[currentQuizIndex];
+      
+      // Update UI elements
+      document.getElementById('quiz-step-indicator').textContent = `${currentQuizIndex + 1} / ${symbolQuizData.length}`;
+      document.getElementById('quiz-svg-slot').innerHTML = stepData.svg;
+      document.getElementById('quiz-answer-text').textContent = stepData.name;
+      
+      // Reset card visual state
+      const quizCard = document.getElementById('quiz-symbol-card');
+      const answerBox = document.getElementById('quiz-answer-box');
+      
+      quizCard.classList.remove('revealed');
+      quizCard.style.transform = 'scale(1)';
+      quizCard.style.borderColor = '#fbbf24';
+      
+      answerBox.style.opacity = '0';
+      answerBox.style.transform = 'scale(0.8)';
+      quizRevealed = false;
+      
+      // Update footer buttons
+      const prevBtn = document.getElementById('btn-quiz-prev');
+      const nextBtn = document.getElementById('btn-quiz-next');
+      
+      if (currentQuizIndex === 0) {
+        prevBtn.textContent = "👈 선수학습 다시보기";
+      } else {
+        prevBtn.textContent = "👈 이전 기호";
+      }
+      
+      if (currentQuizIndex === symbolQuizData.length - 1) {
+        nextBtn.textContent = "오늘 배울 내용 확인하기 👉";
+      } else {
+        nextBtn.textContent = "다음 기호 👉";
+      }
+    }
+
+    function toggleQuizReveal() {
+      const quizCard = document.getElementById('quiz-symbol-card');
+      const answerBox = document.getElementById('quiz-answer-box');
+      
+      if (!quizRevealed) {
+        quizCard.classList.add('revealed');
+        quizCard.style.transform = 'scale(1.08)';
+        quizCard.style.borderColor = '#10b981';
+        
+        answerBox.style.opacity = '1';
+        answerBox.style.transform = 'scale(1)';
+        quizRevealed = true;
+      } else {
+        quizCard.classList.remove('revealed');
+        quizCard.style.transform = 'scale(1)';
+        quizCard.style.borderColor = '#fbbf24';
+        
+        answerBox.style.opacity = '0';
+        answerBox.style.transform = 'scale(0.8)';
+        quizRevealed = false;
+      }
+    }
+
+    function handleQuizPrev() {
+      if (currentQuizIndex === 0) {
+        goToSubSlide('slide-1-1');
+      } else {
+        currentQuizIndex--;
+        renderQuizStep();
+      }
+    }
+
+    function handleQuizNext() {
+      if (currentQuizIndex === symbolQuizData.length - 1) {
+        goToSubSlide('slide-1-2');
+      } else {
+        currentQuizIndex++;
+        renderQuizStep();
+      }
     }
 
     // Slide 1-1 touch reveal (toggles on single click)
@@ -2159,11 +2407,10 @@
     function initSimSentence() {
       const sentenceBox = document.getElementById('sim-sentence-box');
       if (!sentenceBox) return;
-      const zoneName = currentSimZone === 'south' ? '남부 구역' : currentSimZone === 'north' ? '북부 구역' : '중부 구역';
       sentenceBox.innerHTML = `
         <div style="font-weight:bold; color:var(--color-text-muted); font-size:0.9rem; margin-bottom:8px;">기본 쓰기 모드</div>
-        <div style="background:#0f172a; padding:15px; border-radius:8px; font-family:monospace; min-height:80px; font-size:1rem; color:#f1f5f9;">
-          ${zoneName}에서 가장 많은 것은 ( )개의 ( )이고, 두 번째로 많은 것은 ( )개의 ( )입니다. 이곳은 ( )할 수 있는 지역입니다.
+        <div style="background:#ffffff; padding:20px; border-radius:8px; border: 2px solid #cbd5e1; font-family:var(--font-main), sans-serif; min-height:80px; font-size:1.05rem; line-height:1.7; color:#000000; font-weight:800; word-break:keep-all; text-align:justify; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+          내가 조사한 지역을 소개할게. 우리 지역에는 학생들이 많아서 학교가 가장 많고, 두 번째로는 도서관이 많아. 그리고 산 3개가 지역을 둘러싸고 있어서 경관이 아름다워. 폭포도 2개가 있어서 시원한 모습을 보기 위해 사람들이 많이 찾아와. 우리 지역에 한 번 놀러 와.
         </div>
       `;
     }
@@ -2223,6 +2470,129 @@
         </div>
       `;
     }
+
+    function updateTeacherAIPrompt() {
+      const promptText = "우리가 작성한 구역 소개글 [내가 조사한 지역을 소개할게. 우리 지역에는 학생들이 많아서 학교가 가장 많고, 두 번째로는 도서관이 많아. 그리고 산 3개가 지역을 둘러싸고 있어서 경관이 아름다워. 폭포도 2개가 있어서 시원한 모습을 보기 위해 사람들이 많이 찾아와. 우리 지역에 한 번 놀러 와.]를 바탕으로 구역을 홍보하는 멋진 포스터 이미지를 그려줘. 산과 폭포를 배경으로 학교와 도서관이 있는 편리한 도시의 분위기를 살려줘.";
+      const promptEl = document.getElementById('sim-prompt-text');
+      if (promptEl) promptEl.textContent = promptText;
+    }
+
+    function copySimPrompt() {
+      const promptText = document.getElementById('sim-prompt-text').textContent;
+      navigator.clipboard.writeText(promptText).then(() => {
+        alert('📋 교사용 시연 프롬프트가 복사되었습니다!\n\n제미나이 대화창에 [Ctrl + V]로 붙여넣어 포스터를 완성하는 시범을 보여주세요.');
+        window.open('https://gemini.google.com/', '_blank');
+      }).catch(err => {
+        console.error('Copy failed: ', err);
+        alert('⚠️ 복사에 실패했습니다. 명령어 상자의 텍스트를 복사해 주세요.');
+        window.open('https://gemini.google.com/', '_blank');
+      });
+    }
+
+    // Teacher Upload Simulation handlers
+    const demoPosterSVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="100%" height="100%"><rect width="400" height="500" fill="%23fdf4ff"/><rect x="15" y="15" width="370" height="470" fill="none" stroke="%238b5cf6" stroke-width="4"/><rect x="23" y="23" width="354" height="454" fill="none" stroke="%23a78bfa" stroke-width="1.5"/><circle cx="200" cy="180" r="80" fill="%23ddd6fe"/><text x="200" y="320" font-family="sans-serif" font-size="28" font-weight="bold" fill="%23581c87" text-anchor="middle">🎨 포천 홍보 포스터</text><text x="200" y="360" font-family="sans-serif" font-size="16" font-weight="bold" fill="%237c3aed" text-anchor="middle">제미나이 AI가 그린 그림</text><path d="M 150 210 Q 200 150 250 210" fill="none" stroke="%236d28d9" stroke-width="4" stroke-linecap="round"/><circle cx="170" cy="170" r="8" fill="%236d28d9"/><circle cx="230" cy="170" r="8" fill="%236d28d9"/><path d="M 120 420 L 280 420" stroke="%23c084fc" stroke-width="2" stroke-linecap="round"/></svg>`;
+
+    function triggerSimFileInput(e) {
+      if (e.target.tagName !== 'BUTTON') {
+        const fileInput = document.getElementById('file-sim-poster-input');
+        if (fileInput) fileInput.click();
+      }
+    }
+
+    function triggerSimFileInputDirect(e) {
+      e.stopPropagation();
+      const fileInput = document.getElementById('file-sim-poster-input');
+      if (fileInput) fileInput.click();
+    }
+
+    function handleSimFileSelect(e) {
+      if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+        if (!file.type.startsWith('image/')) {
+          alert('⚠️ 이미지 파일만 등록할 수 있습니다!');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          showSimPosterPreview(evt.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    async function simulatePastePoster(e) {
+      e.stopPropagation();
+      const zone = document.getElementById('sim-drag-drop-zone');
+      if (zone) {
+        zone.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+          zone.style.transform = 'none';
+        }, 150);
+      }
+
+      try {
+        const clipboardItems = await navigator.clipboard.read();
+        let imageFound = false;
+        for (const item of clipboardItems) {
+          const imageTypes = item.types.filter(type => type.startsWith('image/'));
+          if (imageTypes.length > 0) {
+            const blob = await item.getType(imageTypes[0]);
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+              showSimPosterPreview(evt.target.result);
+            };
+            reader.readAsDataURL(blob);
+            imageFound = true;
+            break;
+          }
+        }
+        if (!imageFound) {
+          alert('📋 클립보드에 복사된 이미지가 없습니다.\n\n제미나이 AI 페이지 등에서 포스터 이미지를 마우스 오른쪽 버튼으로 클릭한 뒤 [이미지 복사]를 하고 다시 버튼을 눌러주세요!');
+        }
+      } catch (err) {
+        console.error('Failed to read clipboard: ', err);
+        alert('⚠️ 클립보드 읽기 권한이 필요합니다.\n\n브라우저의 클립보드 접근 권한을 확인해 주세요. (또는 Ctrl + V 단축키로 직접 붙여넣으실 수도 있습니다.)');
+      }
+    }
+
+    function resetSimPoster(e) {
+      e.stopPropagation();
+      const fileInput = document.getElementById('file-sim-poster-input');
+      if (fileInput) fileInput.value = '';
+      
+      document.getElementById('sim-upload-prompt-view').style.display = 'flex';
+      document.getElementById('sim-upload-preview-view').style.display = 'none';
+    }
+
+    function showSimPosterPreview(src) {
+      const previewImg = document.getElementById('img-sim-poster-preview');
+      if (previewImg) previewImg.src = src;
+      
+      document.getElementById('sim-upload-prompt-view').style.display = 'none';
+      document.getElementById('sim-upload-preview-view').style.display = 'flex';
+    }
+
+    window.addEventListener('paste', (e) => {
+      const slide42 = document.getElementById('slide-4-2');
+      if (!slide42 || !slide42.classList.contains('active')) return;
+      
+      if (e.clipboardData && e.clipboardData.items) {
+        for (let i = 0; i < e.clipboardData.items.length; i++) {
+          const item = e.clipboardData.items[i];
+          if (item.type.indexOf('image') !== -1) {
+            const file = item.getAsFile();
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = function(evt) {
+                showSimPosterPreview(evt.target.result);
+              };
+              reader.readAsDataURL(file);
+              break;
+            }
+          }
+        }
+      }
+    });
 
     // Auto-trigger load
     loadSimZone('south');

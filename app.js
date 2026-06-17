@@ -3498,13 +3498,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (isCorrect) {
-        feedback.innerHTML = '훌륭합니다! 🎉 우리 구역 지도의 조사 결과를 알기 쉽게 문장으로 완성하였습니다! 이제 마지막 배움 정리 단계로 가볼까요?';
+        feedback.innerHTML = '훌륭합니다! 🎉 우리 구역 지도의 조사 결과를 알기 쉽게 문장으로 완성하였습니다! 이제 AI 지역 홍보 포스터를 만들러 가볼까요?';
         feedback.className = 'quiz-feedback success';
         feedback.style.display = 'block';
         playConfetti();
 
-        const btnGoTo64 = document.getElementById('btn-go-to-64');
-        if (btnGoTo64) btnGoTo64.disabled = false;
+        const btnGoTo63b = document.getElementById('btn-go-to-63b');
+        if (btnGoTo63b) btnGoTo63b.disabled = false;
       } else {
         feedback.innerHTML = '❌ 오답이 있거나 기호의 개수(학교/공장 등 1등과 2등 개수)가 잘못 기재되어 있습니다. 그래프와 예시문을 다시 꼼꼼히 확인해 보세요!';
         feedback.className = 'quiz-feedback error';
@@ -3513,29 +3513,241 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const btnGoTo64 = document.getElementById('btn-go-to-64');
-  if (btnGoTo64) {
-    btnGoTo64.addEventListener('click', () => {
+  // --- Activities 6-3b: Gemini AI Poster ---
+  const btnGoTo63b = document.getElementById('btn-go-to-63b');
+  if (btnGoTo63b) {
+    btnGoTo63b.addEventListener('click', () => {
       const card63 = document.getElementById('sub-step-6-3');
-      const card64 = document.getElementById('sub-step-6-4');
+      const card63b = document.getElementById('sub-step-6-3b');
       if (card63) card63.style.display = 'none';
-      if (card64) {
-        card64.style.display = 'block';
+      if (card63b) {
+        card63b.style.display = 'block';
         
-        // Reset takeaways
-        document.querySelectorAll('.takeaway-item-6').forEach(item => item.classList.remove('checked'));
-        document.querySelector('.takeaway-item-6 .takeaway-check-6').textContent = '';
-        const btnTakeaway = document.getElementById('btn-complete-takeaway-64');
-        if (btnTakeaway) btnTakeaway.disabled = true;
-
-        // Hide certificate preview initially
-        document.getElementById('certificate-showcase-area').style.display = 'none';
-
-        card64.scrollIntoView({ behavior: 'smooth' });
+        // Load student introduction text as review context
+        const introText = getCertificateIntroText(state.selectedZone);
+        document.getElementById('poster-source-text').textContent = introText;
+        
+        // Generate prefilled prompt based on selected zone
+        const zone = state.selectedZone || 'south';
+        let promptText = '';
+        if (zone === 'south') {
+          promptText = `우리가 작성한 포천 남부 구역 소개글 [${introText}]을 바탕으로 포천 남부 구역을 홍보하는 멋진 포스터 이미지를 그려줘. 활기찬 공장(톱니바퀴)들과 학교들이 있는 편리한 도시의 분위기를 살려줘.`;
+        } else if (zone === 'north') {
+          promptText = `우리가 작성한 포천 북부 구역 소개글 [${introText}]을 바탕으로 포천 북부 구역을 홍보하는 멋진 포스터 이미지를 그려줘. 높은 푸른 산과 조용한 논밭(하늘색 풀)들이 어우러진 평화로운 시골 농촌의 분위기를 살려줘.`;
+        } else {
+          promptText = `우리가 작성한 포천 중부 구역 소개글 [${introText}]을 바탕으로 포천 중부 구역을 홍보하는 멋진 포스터 이미지를 그려줘. 멋진 역사 유산(빨간 점 3개)들과 돌을 캐는 채석장(원호 기호)이 있는 아름다운 지질 유산 관광지의 분위기를 살려줘.`;
+        }
+        document.getElementById('ai-prompt-input').value = promptText;
+        
+        // Reset upload view
+        document.getElementById('upload-prompt-view').style.display = 'flex';
+        document.getElementById('upload-preview-view').style.display = 'none';
+        document.getElementById('img-poster-preview').src = '#';
+        document.getElementById('btn-go-to-64-from-3b').disabled = true;
+        state.posterImage = null; // Clear image state
+        
+        card63b.scrollIntoView({ behavior: 'smooth' });
       }
     });
   }
 
+  // AI Prompt Copy and Go to Gemini AI
+  const btnCopyAndGoGemini = document.getElementById('btn-copy-and-go-gemini');
+  if (btnCopyAndGoGemini) {
+    btnCopyAndGoGemini.addEventListener('click', () => {
+      const promptValue = document.getElementById('ai-prompt-input').value;
+      navigator.clipboard.writeText(promptValue).then(() => {
+        alert('📋 제미나이 AI 명령어(프롬프트)가 복사되었습니다!\n\n새로 열린 제미나이 창에 [Ctrl + V]로 붙여넣은 다음, 제미나이 AI가 포스터를 완성해 주면 이미지를 다운로드 받아 아래 업로드 창에 등록해 주세요.');
+        window.open('https://gemini.google.com/', '_blank');
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+        alert('⚠️ 복사에 실패했습니다. 명령어 상자의 텍스트를 직접 드래그해서 복사해 주세요.');
+        window.open('https://gemini.google.com/', '_blank');
+      });
+    });
+  }
+
+  // Drag and Drop & Upload Files handlers
+  const dragDropZone = document.getElementById('drag-drop-zone');
+  const filePosterInput = document.getElementById('file-poster-input');
+  
+  if (dragDropZone && filePosterInput) {
+    dragDropZone.addEventListener('click', () => {
+      filePosterInput.click();
+    });
+    
+    // Drag events
+    dragDropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dragDropZone.style.borderColor = '#8b5cf6';
+      dragDropZone.style.background = '#f5f3ff';
+    });
+    
+    dragDropZone.addEventListener('dragleave', () => {
+      dragDropZone.style.borderColor = '#cbd5e1';
+      dragDropZone.style.background = '#f8fafc';
+    });
+    
+    dragDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dragDropZone.style.borderColor = '#cbd5e1';
+      dragDropZone.style.background = '#f8fafc';
+      
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handlePosterFile(e.dataTransfer.files[0]);
+      }
+    });
+    
+    filePosterInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handlePosterFile(e.target.files[0]);
+      }
+    });
+
+    window.addEventListener('paste', (e) => {
+      const stepCard = document.getElementById('sub-step-6-3b');
+      if (!stepCard || stepCard.style.display === 'none') return;
+      
+      if (e.clipboardData && e.clipboardData.items) {
+        for (let i = 0; i < e.clipboardData.items.length; i++) {
+          const item = e.clipboardData.items[i];
+          if (item.type.indexOf('image') !== -1) {
+            const file = item.getAsFile();
+            if (file) {
+              handlePosterFile(file);
+              break;
+            }
+          }
+        }
+      }
+    });
+
+    const btnFileUploadDirect = document.getElementById('btn-file-upload-direct');
+    if (btnFileUploadDirect) {
+      btnFileUploadDirect.addEventListener('click', (e) => {
+        e.stopPropagation();
+        filePosterInput.click();
+      });
+    }
+
+    const btnClipboardPasteDirect = document.getElementById('btn-clipboard-paste-direct');
+    if (btnClipboardPasteDirect) {
+      btnClipboardPasteDirect.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        try {
+          const clipboardItems = await navigator.clipboard.read();
+          let imageFound = false;
+          for (const item of clipboardItems) {
+            const imageTypes = item.types.filter(type => type.startsWith('image/'));
+            if (imageTypes.length > 0) {
+              const blob = await item.getType(imageTypes[0]);
+              handlePosterFile(blob);
+              imageFound = true;
+              break;
+            }
+          }
+          if (!imageFound) {
+            alert('📋 클립보드에 복사된 이미지가 없습니다.\n\n제미나이 AI 페이지 등에서 포스터 이미지를 마우스 오른쪽 버튼으로 클릭한 뒤 [이미지 복사]를 하고 다시 버튼을 눌러주세요!');
+          }
+        } catch (err) {
+          console.error('Failed to read clipboard: ', err);
+          alert('⚠️ 클립보드 읽기 권한이 필요합니다.\n\n브라우저의 클립보드 접근 권한을 확인해 주세요. (또는 Ctrl + V 단축키로 직접 붙여넣으실 수도 있습니다.)');
+        }
+      });
+    }
+  }
+
+  function handlePosterFile(file) {
+    if (!file.type.startsWith('image/')) {
+      alert('⚠️ 이미지 파일만 업로드할 수 있습니다!');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      state.posterImage = e.target.result;
+      
+      const previewImg = document.getElementById('img-poster-preview');
+      if (previewImg) previewImg.src = state.posterImage;
+      
+      document.getElementById('upload-prompt-view').style.display = 'none';
+      document.getElementById('upload-preview-view').style.display = 'flex';
+      
+      const btnGoTo64From3b = document.getElementById('btn-go-to-64-from-3b');
+      if (btnGoTo64From3b) btnGoTo64From3b.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Re-upload Button
+  const btnReUpload = document.getElementById('btn-re-upload');
+  if (btnReUpload) {
+    btnReUpload.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent triggering dragDropZone click trigger
+      
+      state.posterImage = null;
+      if (filePosterInput) filePosterInput.value = '';
+      
+      document.getElementById('upload-prompt-view').style.display = 'flex';
+      document.getElementById('upload-preview-view').style.display = 'none';
+      document.getElementById('img-poster-preview').src = '#';
+      
+      const btnGoTo64From3b = document.getElementById('btn-go-to-64-from-3b');
+      if (btnGoTo64From3b) btnGoTo64From3b.disabled = true;
+    });
+  }
+
+  // Go to 6-4 from 3b
+  const btnGoTo64From3b = document.getElementById('btn-go-to-64-from-3b');
+  if (btnGoTo64From3b) {
+    btnGoTo64From3b.addEventListener('click', () => {
+      goToSubStep64();
+    });
+  }
+
+  // Skip Poster Step Button
+  const btnSkipPoster = document.getElementById('btn-skip-poster');
+  if (btnSkipPoster) {
+    btnSkipPoster.addEventListener('click', () => {
+      state.posterImage = null; // Clear poster image since they skipped
+      goToSubStep64();
+    });
+  }
+
+  function goToSubStep64() {
+    const card63b = document.getElementById('sub-step-6-3b');
+    const card64 = document.getElementById('sub-step-6-4');
+    if (card63b) card63b.style.display = 'none';
+    if (card64) {
+      card64.style.display = 'block';
+      
+      // Reset takeaways
+      document.querySelectorAll('.takeaway-item-6').forEach(item => item.classList.remove('checked'));
+      document.querySelector('.takeaway-item-6 .takeaway-check-6').textContent = '';
+      const btnTakeaway = document.getElementById('btn-complete-takeaway-64');
+      if (btnTakeaway) btnTakeaway.disabled = true;
+
+      // Hide certificate preview initially
+      document.getElementById('certificate-showcase-area').style.display = 'none';
+
+      card64.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  // Back Button from 6-3b to 6-3
+  const btnBackTo63 = document.getElementById('btn-back-to-63');
+  if (btnBackTo63) {
+    btnBackTo63.addEventListener('click', () => {
+      const card63b = document.getElementById('sub-step-6-3b');
+      const card63 = document.getElementById('sub-step-6-3');
+      if (card63b) card63b.style.display = 'none';
+      if (card63) {
+        card63.style.display = 'block';
+        card63.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  // Standard Back Buttons
   const btnBackTo61 = document.getElementById('btn-back-to-61');
   if (btnBackTo61) {
     btnBackTo61.addEventListener('click', () => {
@@ -3558,19 +3770,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (card62) {
         card62.style.display = 'block';
         card62.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-  }
-
-  const btnBackTo63 = document.getElementById('btn-back-to-63');
-  if (btnBackTo63) {
-    btnBackTo63.addEventListener('click', () => {
-      const card64 = document.getElementById('sub-step-6-4');
-      const card63 = document.getElementById('sub-step-6-3');
-      if (card64) card64.style.display = 'none';
-      if (card63) {
-        card63.style.display = 'block';
-        card63.scrollIntoView({ behavior: 'smooth' });
       }
     });
   }
@@ -3654,6 +3853,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render Mini Graph
     renderCertMiniGraph6();
+
+    // Show/hide AI Poster showcase next to certificate
+    const showcaseWrapper = document.getElementById('poster-showcase-wrapper');
+    const finalPosterImg = document.getElementById('img-poster-final-showcase');
+    const finalPosterText = document.getElementById('final-poster-text-label');
+    const btnCopyPoster = document.getElementById('btn-copy-poster-clipboard');
+    
+    if (state.posterImage) {
+      if (showcaseWrapper) showcaseWrapper.style.display = 'block';
+      if (finalPosterImg) finalPosterImg.src = state.posterImage;
+      if (finalPosterText) {
+        finalPosterText.textContent = `"${getCertificateIntroText(zone)}"`;
+      }
+      if (btnCopyPoster) btnCopyPoster.style.display = 'inline-flex';
+    } else {
+      if (showcaseWrapper) showcaseWrapper.style.display = 'none';
+      if (btnCopyPoster) btnCopyPoster.style.display = 'none';
+    }
   }
 
   function getCertificateIntroText(zone) {
@@ -4037,6 +4254,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const btnCopyPosterClipboard = document.getElementById('btn-copy-poster-clipboard');
+  if (btnCopyPosterClipboard) {
+    btnCopyPosterClipboard.addEventListener('click', () => {
+      copyPosterToClipboard6();
+    });
+  }
+
   async function copyCertificateToClipboard6() {
     const canvas = document.createElement('canvas');
     canvas.width = 650;
@@ -4311,6 +4535,125 @@ document.addEventListener('DOMContentLoaded', () => {
         alert("클립보드 복사에 실패했습니다. 마우스 우클릭으로 이미지를 복사/저장하거나 화면을 캡처해 주세요.");
       }
     }, 'image/png');
+  }
+
+  async function copyPosterToClipboard6() {
+    if (!state.posterImage) {
+      alert('복사할 포스터 이미지가 없습니다.');
+      return;
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = 650;
+    canvas.height = 550;
+    const ctx = canvas.getContext('2d');
+    
+    // Background color (lavender)
+    ctx.fillStyle = '#faf5ff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Outer Borders (purple)
+    ctx.strokeStyle = '#8b5cf6';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+    ctx.strokeStyle = '#a78bfa';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(18, 18, canvas.width - 36, canvas.height - 36);
+    
+    // Badge/Emoji
+    ctx.font = 'bold 36px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🎨', canvas.width / 2, 60);
+    
+    // Title
+    ctx.fillStyle = '#581c87';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.fillText('내가 완성한 AI 홍보 포스터', canvas.width / 2, 105);
+    
+    // Subtitle
+    const zone = state.selectedZone || 'south';
+    const zoneNames = { south: '남부', north: '북부', middle: '중부' };
+    const zoneName = zoneNames[zone] || '우리';
+    ctx.fillStyle = '#7c3aed';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(`포천 ${zoneName} 구역 홍보`, canvas.width / 2, 138);
+
+    // Draw the AI Poster Image
+    const img = new Image();
+    img.src = state.posterImage;
+    img.onload = () => {
+      try {
+        const targetW = 340;
+        const targetH = 240;
+        const targetX = (canvas.width - targetW) / 2;
+        const targetY = 165;
+        
+        // Draw white background card for the image
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(targetX - 10, targetY - 10, targetW + 20, targetH + 20);
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(targetX - 10, targetY - 10, targetW + 20, targetH + 20);
+        
+        // Calculate aspect ratio of uploaded image to fit inside targetW x targetH
+        let drawW = img.width;
+        let drawH = img.height;
+        const ratio = Math.min(targetW / drawW, targetH / drawH);
+        drawW = drawW * ratio;
+        drawH = drawH * ratio;
+        
+        const drawX = targetX + (targetW - drawW) / 2;
+        const drawY = targetY + (targetH - drawH) / 2;
+        
+        ctx.drawImage(img, drawX, drawY, drawW, drawH);
+        
+        // Draw the description box background
+        const descX = 75;
+        const descY = 425;
+        const descW = 500;
+        const descH = 65;
+        
+        ctx.fillStyle = '#fdf4ff';
+        ctx.fillRect(descX, descY, descW, descH);
+        ctx.strokeStyle = '#f3e8ff';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(descX, descY, descW, descH);
+        
+        // Draw the text inside description box
+        ctx.fillStyle = '#581c87';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const introText = getCertificateIntroText(zone);
+        wrapText(ctx, `"${introText}"`, canvas.width / 2, descY + 32, descW - 30, 18);
+        
+        // Draw Date
+        ctx.fillStyle = '#64748b';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('2026년 6월 17일', canvas.width / 2, 512);
+        
+        // Copy to clipboard
+        canvas.toBlob(async (blob) => {
+          try {
+            await navigator.clipboard.write([
+              new ClipboardItem({ 'image/png': blob })
+            ]);
+            alert("AI 홍보 포스터 이미지가 클립보드에 복사되었습니다! 패들릿 새 탭에서 붙여넣기(Ctrl+V) 하세요. 🎨");
+          } catch (err) {
+            console.error(err);
+            alert("클립보드 복사에 실패했습니다. 마우스 우클릭으로 이미지를 복사/저장하거나 화면을 캡처해 주세요.");
+          }
+        }, 'image/png');
+      } catch (err) {
+        console.error(err);
+        alert("이미지 처리 도중 오류가 발생했습니다.");
+      }
+    };
+    img.onerror = () => {
+      alert("포스터 이미지를 불러올 수 없습니다.");
+    };
   }
 
   function wrapText(context, text, x, y, maxWidth, lineHeight) {
