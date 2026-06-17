@@ -1171,6 +1171,28 @@
       border-color: #10b981;
       box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
     }
+
+    /* Takeaway checked state for teacher takeaways */
+    .takeaway-item-6 {
+      transition: all 0.2s ease;
+    }
+    .takeaway-item-6:hover {
+      border-color: rgba(16, 185, 129, 0.4) !important;
+      transform: translateX(4px);
+    }
+    .takeaway-item-6.checked {
+      background: rgba(16, 185, 129, 0.08) !important;
+      border-color: #10b981 !important;
+    }
+    .takeaway-item-6.checked .takeaway-check-6 {
+      border-color: #10b981 !important;
+      background: #10b981 !important;
+      color: white;
+    }
+    .takeaway-item-6.checked p {
+      color: #34d399 !important;
+      text-decoration: line-through rgba(52, 211, 153, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -1587,7 +1609,57 @@
 
             <div class="slide-footer" style="margin-top: 25px;">
               <button class="btn btn-outline" onclick="goToSubSlide('slide-4-1', 'tab-4')">👈 소개글 지도 쓰기 다시보기</button>
-              <button class="btn btn-primary" onclick="switchTab('tab-5')">정리: 수료증 받기 가기 👉</button>
+              <button class="btn btn-primary" onclick="goToSubSlide('slide-4-3', 'tab-4')">배움 정리 가기 👉</button>
+            </div>
+          </div>
+
+          <!-- Slide 4-3: 오늘의 알짜정리 (배움 정리) -->
+          <div id="slide-4-3" class="sub-slide">
+            <h2 style="margin-bottom: 12px; color: #fbbf24;">📚 [정리] 오늘의 알짜정리 (배움 정리)</h2>
+            
+            <div class="takeaway-card" id="sim-takeaway-card" style="margin-top: 10px; margin-bottom: 25px; text-align: left;">
+              <div class="card-header-takeaway" style="display: flex; justify-content: space-between; align-items: center; background: #1e3f20; border: 2px solid #8b5a2b; border-radius: 12px 12px 0 0; padding: 12px 20px;">
+                <h3 style="color: #f8fafc; font-size: 1.25rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px;">📚 오늘의 알짜정리 (배움 정리)</h3>
+              </div>
+              <div class="takeaway-body" style="background: #1e293b; border: 2px solid rgba(255,255,255,0.15); border-top: none; border-radius: 0 0 12px 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                <p class="description-text" style="margin-bottom: 5px; color: #cbd5e1;">오늘 공부한 지도의 요소와 그래프 그리기 원칙을 확인해 보세요. <strong>아래 3가지 항목을 차례대로 클릭</strong>하여 체크표시(<code>✔️</code>)를 완료하세요!</p>
+                
+                <div class="takeaway-list" style="display: flex; flex-direction: column; gap: 12px;">
+                  <!-- Takeaway Item 1 -->
+                  <div class="takeaway-item-6" data-num="1" onclick="toggleSimTakeaway(1)" style="display: flex; align-items: center; gap: 15px; padding: 12px 15px; background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s ease;">
+                    <div class="takeaway-check-6" id="sim-takeaway-check-1" style="width: 24px; height: 24px; border-radius: 6px; border: 2px solid #94a3b8; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: #10b981; background: transparent;"></div>
+                    <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
+                      <span style="background: #3b82f6; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">1</span>
+                      <p style="font-size: 0.95rem; font-weight: 600; color: #e2e8f0; margin: 0; line-height: 1.4;">지도의 기호가 무엇을 나타내는지 알려주는 표는 '범례'이고, 방향을 알려주는 십자 아이콘은 '방위표'이다.</p>
+                    </div>
+                  </div>
+
+                  <!-- Takeaway Item 2 -->
+                  <div class="takeaway-item-6" data-num="2" onclick="toggleSimTakeaway(2)" style="display: flex; align-items: center; gap: 15px; padding: 12px 15px; background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s ease;">
+                    <div class="takeaway-check-6" id="sim-takeaway-check-2" style="width: 24px; height: 24px; border-radius: 6px; border: 2px solid #94a3b8; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: #10b981; background: transparent;"></div>
+                    <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
+                      <span style="background: #3b82f6; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">2</span>
+                      <p style="font-size: 0.95rem; font-weight: 600; color: #e2e8f0; margin: 0; line-height: 1.4;">막대그래프를 그릴 때는 조사 결과 표의 수량과 막대의 높이가 정확하게 일치하도록 정성껏 그려야 한다.</p>
+                    </div>
+                  </div>
+
+                  <!-- Takeaway Item 3 -->
+                  <div class="takeaway-item-6" data-num="3" onclick="toggleSimTakeaway(3)" style="display: flex; align-items: center; gap: 15px; padding: 12px 15px; background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s ease;">
+                    <div class="takeaway-check-6" id="sim-takeaway-check-3" style="width: 24px; height: 24px; border-radius: 6px; border: 2px solid #94a3b8; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: #10b981; background: transparent;"></div>
+                    <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
+                      <span style="background: #3b82f6; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">3</span>
+                      <p style="font-size: 0.95rem; font-weight: 600; color: #e2e8f0; margin: 0; line-height: 1.4;">막대그래프의 방향을 세로에서 가로로 바꿔 그려도, 자료의 값이나 막대의 길이와 같은 고유한 성질은 전혀 변하지 않는다.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <button id="btn-complete-sim-takeaway" class="btn btn-success mt-4 w-full" style="font-weight: bold; padding: 12px;" onclick="completeSimTakeaway()" disabled>요약 완료 및 최종 수료증 발급 시연! 🎓</button>
+              </div>
+            </div>
+
+            <div class="slide-footer" style="margin-top: 25px;">
+              <button class="btn btn-outline" onclick="goToSubSlide('slide-4-2', 'tab-4')">👈 AI 홍보 포스터 만들기 다시보기</button>
+              <button class="btn btn-primary" id="btn-go-to-tab5-from-takeaway" disabled onclick="switchTab('tab-5')">정리: 수료증 받기 가기 👉</button>
             </div>
           </div>
 
@@ -1705,6 +1777,11 @@
       // Initialize AI Poster prompt if entering slide-4-2
       if (slideId === 'slide-4-2') {
         updateTeacherAIPrompt();
+      }
+
+      // Reset takeaways if entering slide-4-3
+      if (slideId === 'slide-4-3') {
+        resetSimTakeaways();
       }
     }
 
@@ -2593,6 +2670,54 @@
         }
       }
     });
+
+    // Slide 4-3: Takeaways simulation logic
+    let simCheckedItems = { 1: false, 2: false, 3: false };
+
+    function toggleSimTakeaway(num) {
+      const item = document.querySelector(`#slide-4-3 .takeaway-item-6[data-num="${num}"]`);
+      const check = document.getElementById(`sim-takeaway-check-${num}`);
+      if (!item || !check) return;
+
+      simCheckedItems[num] = !simCheckedItems[num];
+      if (simCheckedItems[num]) {
+        item.classList.add('checked');
+        check.textContent = '✔️';
+      } else {
+        item.classList.remove('checked');
+        check.textContent = '';
+      }
+      checkSimTakeawayCompletion();
+    }
+
+    function checkSimTakeawayCompletion() {
+      const allChecked = simCheckedItems[1] && simCheckedItems[2] && simCheckedItems[3];
+      const btnComplete = document.getElementById('btn-complete-sim-takeaway');
+      if (btnComplete) {
+        btnComplete.disabled = !allChecked;
+      }
+    }
+
+    function completeSimTakeaway() {
+      const btnGoToTab5 = document.getElementById('btn-go-to-tab5-from-takeaway');
+      if (btnGoToTab5) {
+        btnGoToTab5.disabled = false;
+      }
+      alert('🏅 배움 정리가 완료되었습니다!\n\n[정리: 수료증 받기 가기] 버튼을 눌러 최종 수료증 발급 단계를 시연해주세요.');
+    }
+
+    function resetSimTakeaways() {
+      simCheckedItems = { 1: false, 2: false, 3: false };
+      for (let num = 1; num <= 3; num++) {
+        const item = document.querySelector(`#slide-4-3 .takeaway-item-6[data-num="${num}"]`);
+        const check = document.getElementById(`sim-takeaway-check-${num}`);
+        if (item) item.classList.remove('checked');
+        if (check) check.textContent = '';
+      }
+      checkSimTakeawayCompletion();
+      const btnGoToTab5 = document.getElementById('btn-go-to-tab5-from-takeaway');
+      if (btnGoToTab5) btnGoToTab5.disabled = true;
+    }
 
     // Auto-trigger load
     loadSimZone('south');
